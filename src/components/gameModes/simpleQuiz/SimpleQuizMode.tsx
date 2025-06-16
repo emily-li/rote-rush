@@ -1,10 +1,12 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState, useRef } from 'react';
 import { Input } from '@/components/ui/input';
 import {
   getRandomCharacter,
   loadPracticeCharacters,
   type PracticeCharacter,
-} from './character-loading';
+} from '@/lib/characterLoading';
+import { useTimer } from '@/lib/useTimer';
+import { useQuizFlow } from './useQuizFlow';
 
 const practiceCharacters = loadPracticeCharacters();
 
@@ -16,45 +18,43 @@ function SimpleQuizMode() {
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [feedback, setFeedback] = useState('');
-  const [timeLeft, setTimeLeft] = useState(10);
   const [isInputValid, setIsInputValid] = useState(true);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
-
-  // Timer logic
-  useEffect(() => {
-    const interval: number | null =
-      timeLeft > 0
-        ? window.setInterval(() => {
-            setTimeLeft((timeLeft) => timeLeft - 1);
-          }, 1000)
-        : null;
-    if (timeLeft === 0) {
-      if (interval !== null) clearInterval(interval);
-      if (timeLeft === 0) handleTimeout();
-    }
-    return () => {
-      if (interval !== null) clearInterval(interval);
-    };
-  }, [timeLeft]);
 
   const getRandomChar = useCallback(() => {
     return getRandomCharacter(practiceCharacters);
   }, []);
 
+  const resetQuizState = useCallback(() => {
+    setCurrentChar(getRandomChar());
+    setUserInput('');
+    setFeedback('');
+    setIsInputValid(true);
+    setIsInputDisabled(false);
+  }, [getRandomChar]);
+
+  // Create a ref to store resetTimer function for quiz flow
+  const resetTimerRef = useRef<(() => void) | null>(null);
+
+  const { showIncorrectAndProceed, showTimeoutAndProceed, proceedToNext } = useQuizFlow({
+    onNextCharacter: resetQuizState,
+    onResetTimer: () => resetTimerRef.current?.(),
+  });
+
   const handleTimeout = useCallback(() => {
     setFeedback(`Time's up! The answer was "${currentChar.validAnswers[0]}"`);
     setCombo(0);
     setIsInputDisabled(true);
-    const timeoutId = window.setTimeout(() => {
-      setCurrentChar(getRandomChar());
-      setUserInput('');
-      setFeedback('');
-      setIsInputValid(true);
-      setIsInputDisabled(false);
-      setTimeLeft(10);
-    }, 1500);
-    return () => clearTimeout(timeoutId);
-  }, [currentChar, getRandomChar]);
+    showTimeoutAndProceed();
+  }, [currentChar, showTimeoutAndProceed]);
+
+  const { timeLeft, timerPercentage, resetTimer } = useTimer({
+    initialTime: 10,
+    onTimeout: handleTimeout,
+  });
+
+  // Store resetTimer in the ref for quiz flow to use
+  resetTimerRef.current = resetTimer;
 
   const handleSubmit = useCallback(
     (input: string) => {
@@ -67,29 +67,16 @@ function SimpleQuizMode() {
         setScore((prev) => prev + 1);
         setCombo((prev) => prev + 1);
         setFeedback('Correct! ✓');
-        setCurrentChar(getRandomChar());
-        setUserInput('');
-        setFeedback('');
-        setIsInputValid(true);
-        setTimeLeft(10);
+        proceedToNext();
       } else {
         setCombo(0);
-        setFeedback(
-          `Incorrect. The answer was "${currentChar.validAnswers[0]}"`,
-        );
+        const feedbackMessage = `Incorrect. The answer was "${currentChar.validAnswers[0]}"`;
+        setFeedback(feedbackMessage);
         setIsInputDisabled(true);
-        const timeoutId = window.setTimeout(() => {
-          setCurrentChar(getRandomChar());
-          setUserInput('');
-          setFeedback('');
-          setIsInputValid(true);
-          setIsInputDisabled(false);
-          setTimeLeft(10);
-        }, 1000);
-        return () => clearTimeout(timeoutId);
+        showIncorrectAndProceed();
       }
     },
-    [currentChar, getRandomChar],
+    [currentChar, proceedToNext, showIncorrectAndProceed],
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -112,21 +99,12 @@ function SimpleQuizMode() {
     if (currentInput.length > 0) {
       // If input doesn't match the beginning of any correct answer, immediately mark as incorrect
       if (!validStarts) {
-        setFeedback(
-          `Incorrect. The answer was "${currentChar.validAnswers[0]}"`,
-        );
+        const feedbackMessage = `Incorrect. The answer was "${currentChar.validAnswers[0]}"`;
+        setFeedback(feedbackMessage);
         setIsInputValid(false);
         setIsInputDisabled(true);
         setCombo(0);
-        const timeoutId = window.setTimeout(() => {
-          setCurrentChar(getRandomChar());
-          setUserInput('');
-          setFeedback('');
-          setIsInputValid(true);
-          setIsInputDisabled(false);
-          setTimeLeft(10);
-        }, 1000);
-        return () => clearTimeout(timeoutId);
+        showIncorrectAndProceed();
       }
       // If input exactly matches any answer, auto-submit
       else if (
@@ -149,8 +127,6 @@ function SimpleQuizMode() {
       handleSubmit(userInput);
     }
   };
-
-  const timerPercentage = (timeLeft / 10) * 100;
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-50">
