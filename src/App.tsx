@@ -165,10 +165,13 @@ function KanaPractice() {
       {/* Timer Background */}
       <div className="fixed inset-0 z-0 w-full h-full flex">
         <div
-          className="bg-blue-200 transition-all duration-1000 ease-linear"
-          style={{ width: `${timerPercentage}%` }}
+          className="transition-all duration-1000 ease-linear"
+          style={{
+            width: `${timerPercentage}%`,
+            background: '#e6ffe6'
+          }}
         />
-        <div className="flex-1 bg-gray-200" />
+        <div className="flex-1 bg-white" />
       </div>
 
       {/* Main Content Overlay */}
