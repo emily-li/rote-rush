@@ -165,7 +165,7 @@ function KanaPractice() {
       {/* Timer Background */}
       <div className="fixed inset-0 z-0 w-full h-full flex">
         <div
-          className="transition-all duration-1000 ease-linear"
+          className={(timeLeft === 10 ? '' : 'transition-all duration-1000 ease-linear')}
           style={{
             width: `${timerPercentage}%`,
             background: '#e6ffe6'
