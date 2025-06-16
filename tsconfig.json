@@ -1,9 +1,8 @@
 {
   "compilerOptions": {
-    //paths defined here will be resolved by vite thanks to vite-tsconfig-paths
-    "baseUrl": ".",
+    "baseUrl": "src",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["*"]
     }
   },
   "files": [],
