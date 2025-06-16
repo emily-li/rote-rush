@@ -24,26 +24,25 @@ function KanaPractice() {
   const [combo, setCombo] = useState(0);
   const [feedback, setFeedback] = useState('');
   const [timeLeft, setTimeLeft] = useState(10);
-  const [isActive, setIsActive] = useState(true);
   const [isInputValid, setIsInputValid] = useState(true);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   // Timer logic
   useEffect(() => {
     const interval: number | null =
-      isActive && timeLeft > 0
+      timeLeft > 0
         ? window.setInterval(() => {
             setTimeLeft((timeLeft) => timeLeft - 1);
           }, 1000)
         : null;
-    if (!isActive || timeLeft === 0) {
+    if (timeLeft === 0) {
       if (interval !== null) clearInterval(interval);
       if (timeLeft === 0) handleTimeout();
     }
     return () => {
       if (interval !== null) clearInterval(interval);
     };
-  }, [isActive, timeLeft]);
+  }, [timeLeft]);
 
   const getRandomChar = useCallback(() => {
     const randomIndex = Math.floor(Math.random() * kanaChars.length);
@@ -161,14 +160,16 @@ function KanaPractice() {
   const timerPercentage = (timeLeft / 10) * 100;
 
   return (
-    <div className="relative flex min-h-screen flex-col bg-gray-50 overflow-hidden">
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-50">
       {/* Timer Background */}
-      <div className="fixed inset-0 z-0 w-full h-full flex">
+      <div className="fixed inset-0 z-0 flex h-full w-full">
         <div
-          className={(timeLeft === 10 ? '' : 'transition-all duration-1000 ease-linear')}
+          className={
+            timeLeft === 10 ? '' : 'transition-all duration-1000 ease-linear'
+          }
           style={{
             width: `${timerPercentage}%`,
-            background: '#e6ffe6'
+            background: '#e6ffe6',
           }}
         />
         <div className="flex-1 bg-white" />
@@ -183,7 +184,7 @@ function KanaPractice() {
         </div>
 
         {/* Japanese Character */}
-        <div className="mb-8 select-none text-9xl font-light text-gray-800 kana">
+        <div className="kana mb-8 select-none text-9xl font-light text-gray-800">
           {currentChar.char}
         </div>
 
