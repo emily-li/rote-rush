@@ -161,25 +161,26 @@ function KanaPractice() {
   const timerPercentage = (timeLeft / 10) * 100;
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
-      {/* Timer Bar */}
-      <div className="h-2 w-full bg-gray-200">
+    <div className="relative flex min-h-screen flex-col bg-gray-50 overflow-hidden">
+      {/* Timer Background */}
+      <div className="fixed inset-0 z-0 w-full h-full flex">
         <div
-          className="h-full bg-blue-500 transition-all duration-1000 ease-linear"
+          className="bg-blue-200 transition-all duration-1000 ease-linear"
           style={{ width: `${timerPercentage}%` }}
         />
+        <div className="flex-1 bg-gray-200" />
       </div>
 
-      {/* Score and Combo */}
-      <div className="absolute right-4 top-4 text-right">
-        <div className="text-2xl font-bold text-gray-800">Score: {score}</div>
-        <div className="text-lg text-gray-600">Combo: {combo}</div>
-      </div>
+      {/* Main Content Overlay */}
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
+        {/* Score and Combo */}
+        <div className="absolute right-4 top-4 text-right">
+          <div className="text-2xl font-bold text-gray-800">Score: {score}</div>
+          <div className="text-lg text-gray-600">Combo: {combo}</div>
+        </div>
 
-      {/* Main Content */}
-      <div className="flex flex-1 flex-col items-center justify-center px-8">
         {/* Japanese Character */}
-        <div className="mb-8 select-none text-9xl font-light text-gray-800">
+        <div className="mb-8 select-none text-9xl font-light text-gray-800 kana">
           {currentChar.char}
         </div>
 
