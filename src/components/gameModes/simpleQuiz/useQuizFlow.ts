@@ -11,7 +11,10 @@ export interface UseQuizFlowReturn {
   proceedToNext: () => void;
 }
 
-export function useQuizFlow({ onNextCharacter, onResetTimer }: UseQuizFlowOptions): UseQuizFlowReturn {
+export function useQuizFlow({
+  onNextCharacter,
+  onResetTimer,
+}: UseQuizFlowOptions): UseQuizFlowReturn {
   const timeoutRef = useRef<number | null>(null);
 
   const clearPendingTimeout = useCallback(() => {
@@ -27,19 +30,25 @@ export function useQuizFlow({ onNextCharacter, onResetTimer }: UseQuizFlowOption
     onResetTimer();
   }, [clearPendingTimeout, onNextCharacter, onResetTimer]);
 
-  const showIncorrectAndProceed = useCallback((delay = 1000) => {
-    clearPendingTimeout();
-    timeoutRef.current = window.setTimeout(() => {
-      proceedToNext();
-    }, delay);
-  }, [clearPendingTimeout, proceedToNext]);
+  const showIncorrectAndProceed = useCallback(
+    (delay = 1000) => {
+      clearPendingTimeout();
+      timeoutRef.current = window.setTimeout(() => {
+        proceedToNext();
+      }, delay);
+    },
+    [clearPendingTimeout, proceedToNext],
+  );
 
-  const showTimeoutAndProceed = useCallback((delay = 1500) => {
-    clearPendingTimeout();
-    timeoutRef.current = window.setTimeout(() => {
-      proceedToNext();
-    }, delay);
-  }, [clearPendingTimeout, proceedToNext]);
+  const showTimeoutAndProceed = useCallback(
+    (delay = 1500) => {
+      clearPendingTimeout();
+      timeoutRef.current = window.setTimeout(() => {
+        proceedToNext();
+      }, delay);
+    },
+    [clearPendingTimeout, proceedToNext],
+  );
 
   return {
     showIncorrectAndProceed,
