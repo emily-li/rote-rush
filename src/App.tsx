@@ -75,14 +75,11 @@ function KanaPractice() {
         setScore((prev) => prev + 1);
         setCombo((prev) => prev + 1);
         setFeedback('Correct! ✓');
-        const timeoutId = window.setTimeout(() => {
-          setCurrentChar(getRandomChar());
-          setUserInput('');
-          setFeedback('');
-          setIsInputValid(true);
-          setTimeLeft(10);
-        }, 1000);
-        return () => clearTimeout(timeoutId);
+        setCurrentChar(getRandomChar());
+        setUserInput('');
+        setFeedback('');
+        setIsInputValid(true);
+        setTimeLeft(10);
       } else {
         setCombo(0);
         setFeedback(`Incorrect. The answer was "${currentChar.romaji}"`);
