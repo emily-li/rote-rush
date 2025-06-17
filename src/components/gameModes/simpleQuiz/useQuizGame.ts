@@ -128,16 +128,24 @@ export function useQuizGame(): QuizGameInterface {
   );
 
   return {
-    currentChar,
-    userInput,
-    score,
-    combo,
-    isInputValid,
-    isWrongAnswer: isInputDisabled,
-    totalTimeMs: timerTotalTimeMs,
-    timeLeftMs,
-    handleSubmit,
-    handleInputChange,
-    handleKeyPress,
+    gameState: {
+      currentChar,
+      userInput,
+      score,
+      combo,
+    },
+    input: {
+      isInputValid,
+      isWrongAnswer: isInputDisabled,
+    },
+    timer: {
+      totalTimeMs: timerTotalTimeMs,
+      timeLeftMs,
+    },
+    handlers: {
+      handleSubmit,
+      handleInputChange,
+      handleKeyPress,
+    },
   };
 }

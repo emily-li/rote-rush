@@ -36,10 +36,11 @@ export interface QuizGameHandlers {
 }
 
 /**
- * Complete quiz game interface combining all state and handlers
+ * Complete quiz game interface using composition for better structure
  */
-export interface QuizGameInterface
-  extends QuizGameState,
-    QuizInputState,
-    QuizTimerState,
-    QuizGameHandlers {}
+export interface QuizGameInterface {
+  gameState: QuizGameState;
+  input: QuizInputState;
+  timer: QuizTimerState;
+  handlers: QuizGameHandlers;
+}
