@@ -5,6 +5,11 @@ import {
   type PracticeCharacter,
 } from '@/lib/characterLoading';
 import { useTimer } from '@/lib/useTimer';
+import {
+  checkAnswerMatch,
+  checkValidStart,
+  normalizeInput,
+} from './inputValidation';
 import type { QuizGameInterface } from './types';
 import { useQuizFlow } from './useQuizFlow';
 
@@ -17,20 +22,7 @@ export type {
 } from './types';
 
 const practiceCharacters = loadPracticeCharacters();
-
-const TOTAL_TIME_MS = 5000;
-
-const normalizeInput = (input: string): string => input.toLowerCase().trim();
-
-const checkAnswerMatch = (input: string, validAnswers: string[]): boolean => {
-  const normalized = normalizeInput(input);
-  return validAnswers.some((ans) => normalizeInput(ans) === normalized);
-};
-
-const checkValidStart = (input: string, validAnswers: string[]): boolean => {
-  const normalized = normalizeInput(input);
-  return validAnswers.some((ans) => normalizeInput(ans).startsWith(normalized));
-};
+const totalTimeMs = 5000;
 
 export function useQuizGame(): QuizGameInterface {
   const [currentChar, setCurrentChar] = useState<PracticeCharacter>(
@@ -72,7 +64,7 @@ export function useQuizGame(): QuizGameInterface {
     resetTimer,
     totalTimeMs: timerTotalTimeMs,
   } = useTimer({
-    totalTimeMs: TOTAL_TIME_MS,
+    totalTimeMs: totalTimeMs,
     onTimeout: handleTimeout,
   });
 
