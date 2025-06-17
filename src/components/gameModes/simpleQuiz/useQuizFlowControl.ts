@@ -1,23 +1,31 @@
 import { useCallback, useRef } from 'react';
 
 export interface UseQuizFlowOptions {
-  onNextCharacter: () => void;
+  onNextQuestion: () => void;
   onResetTimer: () => void;
 }
 
-export interface UseQuizFlowReturn {
+export interface UseQuizFlowActions {
+  proceedToNext: () => void;
   showIncorrectAndProceed: (delay?: number) => void;
   showTimeoutAndProceed: (delay?: number) => void;
-  proceedToNext: () => void;
+  cancelPendingTransition: () => void;
 }
 
-export function useQuizFlow({
-  onNextCharacter,
+export interface UseQuizFlowReturn {
+  actions: UseQuizFlowActions;
+}
+
+/**
+ * Flow control for quiz transitions and timing
+ */
+export function useQuizFlowControl({
+  onNextQuestion,
   onResetTimer,
 }: UseQuizFlowOptions): UseQuizFlowReturn {
   const timeoutRef = useRef<number | null>(null);
 
-  const clearPendingTimeout = useCallback(() => {
+  const cancelPendingTransition = useCallback(() => {
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
@@ -25,34 +33,37 @@ export function useQuizFlow({
   }, []);
 
   const proceedToNext = useCallback(() => {
-    clearPendingTimeout();
-    onNextCharacter();
+    cancelPendingTransition();
+    onNextQuestion();
     onResetTimer();
-  }, [clearPendingTimeout, onNextCharacter, onResetTimer]);
+  }, [cancelPendingTransition, onNextQuestion, onResetTimer]);
 
   const showIncorrectAndProceed = useCallback(
     (delay = 1000) => {
-      clearPendingTimeout();
+      cancelPendingTransition();
       timeoutRef.current = window.setTimeout(() => {
         proceedToNext();
       }, delay);
     },
-    [clearPendingTimeout, proceedToNext],
+    [cancelPendingTransition, proceedToNext],
   );
 
   const showTimeoutAndProceed = useCallback(
     (delay = 1500) => {
-      clearPendingTimeout();
+      cancelPendingTransition();
       timeoutRef.current = window.setTimeout(() => {
         proceedToNext();
       }, delay);
     },
-    [clearPendingTimeout, proceedToNext],
+    [cancelPendingTransition, proceedToNext],
   );
 
   return {
-    showIncorrectAndProceed,
-    showTimeoutAndProceed,
-    proceedToNext,
+    actions: {
+      proceedToNext,
+      showIncorrectAndProceed,
+      showTimeoutAndProceed,
+      cancelPendingTransition,
+    },
   };
 }

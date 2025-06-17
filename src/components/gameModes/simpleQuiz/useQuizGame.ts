@@ -11,7 +11,6 @@ import {
   normalizeInput,
 } from './inputValidation';
 import type { QuizGameInterface } from './types';
-import { useQuizFlow } from './useQuizFlow';
 
 export type {
   QuizGameState,
@@ -43,19 +42,27 @@ export function useQuizGame(): QuizGameInterface {
     setIsInputDisabled(false);
   }, [getRandomChar]);
 
-  const resetTimerRef = useRef<(() => void) | null>(null);
+  // Flow control state
+  const timeoutRef = useRef<number | null>(null);
 
-  const { showIncorrectAndProceed, showTimeoutAndProceed, proceedToNext } =
-    useQuizFlow({
-      onNextCharacter: resetQuizState,
-      onResetTimer: () => resetTimerRef.current?.(),
-    });
+  const clearPendingTimeout = useCallback(() => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+  }, []);
 
+  // Timer setup
   const handleTimeout = useCallback(() => {
     setCombo(0);
     setIsInputDisabled(true);
-    showTimeoutAndProceed();
-  }, [showTimeoutAndProceed]);
+    // Show timeout and proceed after delay
+    clearPendingTimeout();
+    timeoutRef.current = window.setTimeout(() => {
+      resetQuizState();
+      resetTimer();
+    }, 1500);
+  }, [clearPendingTimeout, resetQuizState]);
 
   const {
     timeLeftMs,
@@ -66,7 +73,20 @@ export function useQuizGame(): QuizGameInterface {
     onTimeout: handleTimeout,
   });
 
-  resetTimerRef.current = resetTimer;
+  // Flow control functions
+  const proceedToNext = useCallback(() => {
+    clearPendingTimeout();
+    resetQuizState();
+    resetTimer();
+  }, [clearPendingTimeout, resetQuizState, resetTimer]);
+
+  const showIncorrectAndProceed = useCallback(() => {
+    clearPendingTimeout();
+    timeoutRef.current = window.setTimeout(() => {
+      resetQuizState();
+      resetTimer();
+    }, 1000);
+  }, [clearPendingTimeout, resetQuizState, resetTimer]);
 
   const handleSubmit = useCallback(
     (input: string) => {
