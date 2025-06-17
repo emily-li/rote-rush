@@ -14,7 +14,6 @@ export interface QuizGameState {
  * Input validation and UI state properties
  */
 export interface QuizInputState {
-  isInputValid: boolean;
   isWrongAnswer: boolean;
 }
 

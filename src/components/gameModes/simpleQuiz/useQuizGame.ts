@@ -31,7 +31,6 @@ export function useQuizGame(): QuizGameInterface {
   const [userInput, setUserInput] = useState('');
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
-  const [isInputValid, setIsInputValid] = useState(true);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
   const getRandomChar = useCallback(() => {
@@ -41,7 +40,6 @@ export function useQuizGame(): QuizGameInterface {
   const resetQuizState = useCallback(() => {
     setCurrentChar(getRandomChar());
     setUserInput('');
-    setIsInputValid(true);
     setIsInputDisabled(false);
   }, [getRandomChar]);
 
@@ -97,7 +95,6 @@ export function useQuizGame(): QuizGameInterface {
       const currentInput = normalizeInput(value);
 
       if (currentInput.length === 0) {
-        setIsInputValid(true);
         return;
       }
 
@@ -107,9 +104,8 @@ export function useQuizGame(): QuizGameInterface {
       }
 
       if (checkValidStart(currentInput, currentChar.validAnswers)) {
-        setIsInputValid(true);
+        // Valid input - continue typing
       } else {
-        setIsInputValid(false);
         setIsInputDisabled(true);
         setCombo(0);
         showIncorrectAndProceed();
@@ -135,7 +131,6 @@ export function useQuizGame(): QuizGameInterface {
       combo,
     },
     input: {
-      isInputValid,
       isWrongAnswer: isInputDisabled,
     },
     timer: {
