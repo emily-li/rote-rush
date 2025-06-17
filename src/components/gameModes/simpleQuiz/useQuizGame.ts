@@ -8,7 +8,6 @@ import { useTimer } from '@/lib/useTimer';
 import type { QuizGameInterface } from './types';
 import { useQuizFlow } from './useQuizFlow';
 
-// Re-export types for convenience
 export type {
   QuizGameState,
   QuizInputState,
@@ -19,6 +18,20 @@ export type {
 
 const practiceCharacters = loadPracticeCharacters();
 
+const TOTAL_TIME_MS = 5000;
+
+const normalizeInput = (input: string): string => input.toLowerCase().trim();
+
+const checkAnswerMatch = (input: string, validAnswers: string[]): boolean => {
+  const normalized = normalizeInput(input);
+  return validAnswers.some(ans => normalizeInput(ans) === normalized);
+};
+
+const checkValidStart = (input: string, validAnswers: string[]): boolean => {
+  const normalized = normalizeInput(input);
+  return validAnswers.some(ans => normalizeInput(ans).startsWith(normalized));
+};
+
 export function useQuizGame(): QuizGameInterface {
   const [currentChar, setCurrentChar] = useState<PracticeCharacter>(
     practiceCharacters[0],
@@ -26,7 +39,6 @@ export function useQuizGame(): QuizGameInterface {
   const [userInput, setUserInput] = useState('');
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
-  const [feedback, setFeedback] = useState('');
   const [isInputValid, setIsInputValid] = useState(true);
   const [isInputDisabled, setIsInputDisabled] = useState(false);
 
@@ -37,7 +49,6 @@ export function useQuizGame(): QuizGameInterface {
   const resetQuizState = useCallback(() => {
     setCurrentChar(getRandomChar());
     setUserInput('');
-    setFeedback('');
     setIsInputValid(true);
     setIsInputDisabled(false);
   }, [getRandomChar]);
@@ -51,20 +62,17 @@ export function useQuizGame(): QuizGameInterface {
     });
 
   const handleTimeout = useCallback(() => {
-    setFeedback(`${currentChar.validAnswers[0]}`);
     setCombo(0);
     setIsInputDisabled(true);
     showTimeoutAndProceed();
-  }, [currentChar, showTimeoutAndProceed]);
-
-  const totalTimeMs = 5000;
+  }, [showTimeoutAndProceed]);
 
   const {
     timeLeftMs,
     resetTimer,
     totalTimeMs: timerTotalTimeMs,
   } = useTimer({
-    totalTimeMs: totalTimeMs,
+    totalTimeMs: TOTAL_TIME_MS,
     onTimeout: handleTimeout,
   });
 
@@ -72,19 +80,14 @@ export function useQuizGame(): QuizGameInterface {
 
   const handleSubmit = useCallback(
     (input: string) => {
-      const isCorrect = currentChar.validAnswers.some(
-        (ans: string) => input.toLowerCase().trim() === ans.toLowerCase(),
-      );
+      const isCorrect = checkAnswerMatch(input, currentChar.validAnswers);
 
       if (isCorrect) {
         setScore((prev) => prev + 1);
         setCombo((prev) => prev + 1);
-        setFeedback('Correct! ✓');
         proceedToNext();
       } else {
         setCombo(0);
-        const feedbackMessage = `Incorrect. The answer was "${currentChar.validAnswers[0]}"`;
-        setFeedback(feedbackMessage);
         setIsInputDisabled(true);
         showIncorrectAndProceed();
       }
@@ -99,40 +102,29 @@ export function useQuizGame(): QuizGameInterface {
       const value = e.target.value;
       setUserInput(value);
 
-      if (feedback && value.length === 1) {
-        setFeedback('');
+      const currentInput = normalizeInput(value);
+      
+      if (currentInput.length === 0) {
+        setIsInputValid(true);
+        return;
       }
 
-      const currentInput = value.toLowerCase().trim();
-      const validStarts = currentChar.validAnswers.some((ans: string) =>
-        ans.toLowerCase().startsWith(currentInput),
-      );
+      if (checkAnswerMatch(currentInput, currentChar.validAnswers)) {
+        handleSubmit(value);
+        return;
+      }
 
-      if (currentInput.length > 0) {
-        if (!validStarts) {
-          const feedbackMessage = `Incorrect. The answer was "${currentChar.validAnswers[0]}"`;
-          setFeedback(feedbackMessage);
-          setIsInputValid(false);
-          setIsInputDisabled(true);
-          setCombo(0);
-          showIncorrectAndProceed();
-        } else if (
-          currentChar.validAnswers.some(
-            (ans: string) => currentInput === ans.toLowerCase(),
-          )
-        ) {
-          handleSubmit(value);
-        } else {
-          setIsInputValid(true);
-        }
-      } else {
+      if (checkValidStart(currentInput, currentChar.validAnswers)) {
         setIsInputValid(true);
-        setFeedback('');
+      } else {
+        setIsInputValid(false);
+        setIsInputDisabled(true);
+        setCombo(0);
+        showIncorrectAndProceed();
       }
     },
     [
       isInputDisabled,
-      feedback,
       currentChar,
       showIncorrectAndProceed,
       handleSubmit,
@@ -153,7 +145,6 @@ export function useQuizGame(): QuizGameInterface {
     userInput,
     score,
     combo,
-    feedback,
     isInputValid,
     isWrongAnswer: isInputDisabled,
     totalTimeMs: timerTotalTimeMs,

@@ -8,7 +8,6 @@ export interface QuizGameState {
   userInput: string;
   score: number;
   combo: number;
-  feedback: string;
 }
 
 /**
