@@ -5,10 +5,8 @@ import type { PracticeCharacter } from '@/lib/characterLoading';
 interface CharacterInputProps {
   currentChar: PracticeCharacter;
   userInput: string;
-  isInputValid: boolean;
   isWrongAnswer: boolean;
   timeLeftMs: number;
-  feedback: string;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
@@ -16,10 +14,7 @@ interface CharacterInputProps {
 export function CharacterInput({
   currentChar,
   userInput,
-  isInputValid,
   isWrongAnswer,
-  timeLeftMs,
-  feedback,
   onInputChange,
   onKeyDown,
 }: CharacterInputProps) {
@@ -35,26 +30,22 @@ export function CharacterInput({
           value={userInput}
           onChange={onInputChange}
           onKeyDown={onKeyDown}
-          placeholder="Type the romanized reading..."
+          placeholder={userInput || 'Type the romanized reading...'}
           className={`border-2 py-4 text-center text-xl transition-colors focus:ring-0 ${
-            !isInputValid
+            isWrongAnswer
               ? 'border-red-500 bg-red-50 text-red-600'
               : 'border-gray-300 focus:border-blue-500'
             }`}
           autoFocus
-          disabled={timeLeftMs === 0 || isWrongAnswer}
         />
       </div>
 
       <div className="mt-6 flex h-8 items-center justify-center">
-        {feedback && (
-          <div
-            className={`text-lg font-medium
-            ${feedback.includes('Correct') ? 'text-green-600' : 'text-red-600'}`}
-          >
-            {feedback}
-          </div>
-        )}
+        <div
+          className={`text-lg font-medium ${isWrongAnswer ? 'text-red-600' : 'text-green-600'}`}
+        >
+          {isWrongAnswer ? currentChar.validAnswers[0] : ''}
+        </div>
       </div>
     </>
   );

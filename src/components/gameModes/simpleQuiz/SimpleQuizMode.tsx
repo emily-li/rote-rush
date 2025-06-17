@@ -19,10 +19,8 @@ function SimpleQuizMode() {
         <CharacterInput
           currentChar={quizState.currentChar}
           userInput={quizState.userInput}
-          isInputValid={quizState.isInputValid}
           isWrongAnswer={quizState.isWrongAnswer}
           timeLeftMs={quizState.timeLeftMs}
-          feedback={quizState.feedback}
           onInputChange={quizState.handleInputChange}
           onKeyDown={quizState.handleKeyPress}
         />

@@ -57,7 +57,7 @@ export function useQuizGame(): UseQuizGameState {
     });
 
   const handleTimeout = useCallback(() => {
-    setFeedback(`Time's up! The answer was "${currentChar.validAnswers[0]}"`);
+    setFeedback(`${currentChar.validAnswers[0]}`);
     setCombo(0);
     setIsInputDisabled(true);
     showTimeoutAndProceed();
