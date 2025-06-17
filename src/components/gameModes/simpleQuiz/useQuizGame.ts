@@ -6,24 +6,18 @@ import {
 } from '@/lib/characterLoading';
 import { useTimer } from '@/lib/useTimer';
 import { useQuizFlow } from './useQuizFlow';
+import type { UseQuizGameState } from './types';
+
+// Re-export types for convenience
+export type {
+  QuizGameState,
+  QuizInputState,
+  QuizTimerState,
+  QuizGameHandlers,
+  UseQuizGameState,
+} from './types';
 
 const practiceCharacters = loadPracticeCharacters();
-
-export interface UseQuizGameState {
-  currentChar: PracticeCharacter;
-  userInput: string;
-  score: number;
-  combo: number;
-  feedback: string;
-  isInputValid: boolean;
-  isWrongAnswer: boolean;
-  totalTimeMs: number;
-  timeLeftMs: number;
-
-  handleSubmit: (input: string) => void;
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-}
 
 export function useQuizGame(): UseQuizGameState {
   const [currentChar, setCurrentChar] = useState<PracticeCharacter>(
