@@ -1,56 +1,57 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
 export interface UseTimerOptions {
-  initialTime: number;
+  totalTimeMs: number;
   onTimeout: () => void;
 }
 
 export interface UseTimerReturn {
-  timeLeft: number;
-  timerPercentage: number;
+  totalTimeMs: number;
+  timeLeftMs: number;
   resetTimer: () => void;
-  setTimeLeft: (time: number) => void;
+  setTimeLeftMs: (time: number) => void;
 }
 
 export function useTimer({
-  initialTime,
+  totalTimeMs,
   onTimeout,
 }: UseTimerOptions): UseTimerReturn {
-  const [timeLeft, setTimeLeft] = useState(initialTime);
+  const [timeLeftMs, setTimeLeftMs] = useState(totalTimeMs);
   const onTimeoutRef = useRef(onTimeout);
 
-  // Keep the callback ref updated
   useEffect(() => {
     onTimeoutRef.current = onTimeout;
   }, [onTimeout]);
 
-  // Timer logic
   useEffect(() => {
+    const intervalDuration = 50;
     const interval: number | null =
-      timeLeft > 0
+      timeLeftMs > 0
         ? window.setInterval(() => {
-            setTimeLeft((timeLeft) => timeLeft - 1);
-          }, 1000)
+            setTimeLeftMs((prevTimeLeftMs) =>
+              Math.max(0, prevTimeLeftMs - intervalDuration),
+            );
+          }, intervalDuration)
         : null;
-    if (timeLeft === 0) {
+
+    if (timeLeftMs === 0) {
       if (interval !== null) clearInterval(interval);
       onTimeoutRef.current();
     }
+
     return () => {
       if (interval !== null) clearInterval(interval);
     };
-  }, [timeLeft]);
+  }, [timeLeftMs]);
 
   const resetTimer = useCallback(() => {
-    setTimeLeft(initialTime);
-  }, [initialTime]);
-
-  const timerPercentage = (timeLeft / initialTime) * 100;
+    setTimeLeftMs(totalTimeMs);
+  }, [totalTimeMs]);
 
   return {
-    timeLeft,
-    timerPercentage,
+    totalTimeMs,
+    timeLeftMs,
     resetTimer,
-    setTimeLeft,
+    setTimeLeftMs,
   };
 }

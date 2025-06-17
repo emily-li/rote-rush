@@ -6,7 +6,6 @@ export interface PracticeCharacter {
   validAnswers: string[];
 }
 
-// Combine both sets if you want to practice both, or use one at a time
 export const loadPracticeCharacters = (): PracticeCharacter[] => {
   return [
     ...hiraganaData.values.map((item: any) => ({

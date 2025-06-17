@@ -10,18 +10,16 @@ import { useQuizFlow } from './useQuizFlow';
 const practiceCharacters = loadPracticeCharacters();
 
 export interface UseQuizGameState {
-  // State
   currentChar: PracticeCharacter;
   userInput: string;
   score: number;
   combo: number;
   feedback: string;
   isInputValid: boolean;
-  isInputDisabled: boolean;
-  timeLeft: number;
-  timerPercentage: number;
+  isWrongAnswer: boolean;
+  totalTimeMs: number;
+  timeLeftMs: number;
 
-  // Actions
   handleSubmit: (input: string) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => void;
@@ -50,7 +48,6 @@ export function useQuizGame(): UseQuizGameState {
     setIsInputDisabled(false);
   }, [getRandomChar]);
 
-  // Create a ref to store resetTimer function for quiz flow
   const resetTimerRef = useRef<(() => void) | null>(null);
 
   const { showIncorrectAndProceed, showTimeoutAndProceed, proceedToNext } =
@@ -66,17 +63,21 @@ export function useQuizGame(): UseQuizGameState {
     showTimeoutAndProceed();
   }, [currentChar, showTimeoutAndProceed]);
 
-  const { timeLeft, timerPercentage, resetTimer } = useTimer({
-    initialTime: 10,
+  const totalTimeMs = 5000;
+
+  const {
+    timeLeftMs,
+    resetTimer,
+    totalTimeMs: timerTotalTimeMs,
+  } = useTimer({
+    totalTimeMs: totalTimeMs,
     onTimeout: handleTimeout,
   });
 
-  // Store resetTimer in the ref for quiz flow to use
   resetTimerRef.current = resetTimer;
 
   const handleSubmit = useCallback(
     (input: string) => {
-      // Accept any valid answer in validAnswers
       const isCorrect = currentChar.validAnswers.some(
         (ans: string) => input.toLowerCase().trim() === ans.toLowerCase(),
       );
@@ -104,19 +105,16 @@ export function useQuizGame(): UseQuizGameState {
       const value = e.target.value;
       setUserInput(value);
 
-      // Clear any existing feedback when user starts typing
       if (feedback && value.length === 1) {
         setFeedback('');
       }
 
-      // Check if current input is a valid start of any correct answer
       const currentInput = value.toLowerCase().trim();
       const validStarts = currentChar.validAnswers.some((ans: string) =>
         ans.toLowerCase().startsWith(currentInput),
       );
 
       if (currentInput.length > 0) {
-        // If input doesn't match the beginning of any correct answer, immediately mark as incorrect
         if (!validStarts) {
           const feedbackMessage = `Incorrect. The answer was "${currentChar.validAnswers[0]}"`;
           setFeedback(feedbackMessage);
@@ -124,9 +122,7 @@ export function useQuizGame(): UseQuizGameState {
           setIsInputDisabled(true);
           setCombo(0);
           showIncorrectAndProceed();
-        }
-        // If input exactly matches any answer, auto-submit
-        else if (
+        } else if (
           currentChar.validAnswers.some(
             (ans: string) => currentInput === ans.toLowerCase(),
           )
@@ -165,9 +161,9 @@ export function useQuizGame(): UseQuizGameState {
     combo,
     feedback,
     isInputValid,
-    isInputDisabled,
-    timeLeft,
-    timerPercentage,
+    isWrongAnswer: isInputDisabled,
+    totalTimeMs: timerTotalTimeMs,
+    timeLeftMs,
     handleSubmit,
     handleInputChange,
     handleKeyPress,

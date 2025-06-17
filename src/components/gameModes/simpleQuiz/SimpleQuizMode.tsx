@@ -9,8 +9,8 @@ function SimpleQuizMode() {
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-50">
       <TimerBackground
-        timeLeft={quizState.timeLeft}
-        timerPercentage={quizState.timerPercentage}
+        totalTimeMs={quizState.totalTimeMs}
+        timeLeftMs={quizState.timeLeftMs}
       />
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
@@ -20,11 +20,11 @@ function SimpleQuizMode() {
           currentChar={quizState.currentChar}
           userInput={quizState.userInput}
           isInputValid={quizState.isInputValid}
-          isInputDisabled={quizState.isInputDisabled}
-          timeLeft={quizState.timeLeft}
+          isWrongAnswer={quizState.isWrongAnswer}
+          timeLeftMs={quizState.timeLeftMs}
           feedback={quizState.feedback}
           onInputChange={quizState.handleInputChange}
-          onKeyPress={quizState.handleKeyPress}
+          onKeyDown={quizState.handleKeyPress}
         />
       </div>
     </div>
