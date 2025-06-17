@@ -1,4 +1,5 @@
 # rote-rush
+
 Rote memory game to memorise script, e.g. learn Japanese kana
 
 GitHub page: https://emily-li.github.io/rote-rush
@@ -22,5 +23,6 @@ export PATH="$PATH:$pnpm"
 
 ## Tests
 
-`pnpm test`
-
+- Run tests: `pnpm test`
+- Run tests with coverage: `pnpm test:coverage`
+- Single test: `pnpm test:coverage useTimer`

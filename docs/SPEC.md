@@ -6,21 +6,21 @@ This document details the Minimum Viable Product (MVP) for the Rote Rush game, b
 
 ### User Stories / Use Cases
 
-- [ ] As a user, I can practice Japanese Hiragana and Katakana characters.
-- [ ] As a user, I see a single character in the center of the screen and can input my answer.
-- [ ] As a user, I do not need to press an 'enter' button; input is validated in real-time.
-- [ ] As a user, my answer is checked for an exact string match to the correct answer.
-- [ ] As a user, if I enter a character that does not match the correct answer at any position, it is immediately marked incorrect.
-- [ ] As a user, I cannot enter more characters than the answer length.
-- [ ] As a user, I receive immediate feedback on whether my answer is correct or incorrect.
-- [ ] As a user, I immediately see the answer for an incorrect entry.
+- [/] As a user, I can practice Japanese Hiragana and Katakana characters.
+- [/] As a user, I see a single character in the center of the screen and can input my answer.
+- [/] As a user, I do not need to press an 'enter' button; input is validated in real-time.
+- [/] As a user, my answer is checked for an exact string match to the correct answer.
+- [/] As a user, if I enter a character that does not match the correct answer at any position, it is immediately marked incorrect.
+- [/] As a user, I cannot enter more characters than the answer length.
+- [/] As a user, I receive immediate feedback on whether my answer is correct or incorrect.
+- [/] As a user, I immediately see the answer for an incorrect entry.
 - [ ] As a user, I see my current score and combo multiplier.
 - [ ] As a user, I am timed for each character and see the timer visually.
 
 ### Game Flow
 
-- [ ] User launches the app (desktop only)
-- [ ] User is presented with a character and an input box
+- [/] User launches the app (desktop only)
+- [/] User is presented with a character and an input box
 - [ ] Timer starts for the character
 - [ ] User enters an answer:
   - [ ] If correct:

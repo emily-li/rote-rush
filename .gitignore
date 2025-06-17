@@ -15,7 +15,6 @@ dist-ssr
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-# For my purposes, I like to have my settings shared
 !.vscode/settings.json
 .idea
 .DS_Store
@@ -24,3 +23,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+coverage

@@ -21,7 +21,8 @@ export const loadPracticeCharacters = (): PracticeCharacter[] => {
 
 export const getRandomCharacter = (
   characters: PracticeCharacter[],
+  randomFn: () => number = Math.random,
 ): PracticeCharacter => {
-  const randomIndex = Math.floor(Math.random() * characters.length);
+  const randomIndex = Math.floor(randomFn() * characters.length);
   return characters[randomIndex];
 };

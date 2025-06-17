@@ -23,5 +23,8 @@ export const checkValidStart = (
   validAnswers: string[],
 ): boolean => {
   const normalized = normalizeInput(input);
+  if (normalized.length === 0) {
+    return false;
+  }
   return validAnswers.some((ans) => normalizeInput(ans).startsWith(normalized));
 };

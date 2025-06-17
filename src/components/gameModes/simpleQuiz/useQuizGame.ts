@@ -20,10 +20,25 @@ export type {
   QuizGameInterface,
 } from './types';
 
+// Timeout management interface for better testability
+interface TimeoutManager {
+  setTimeout: (callback: () => void, delay: number) => number;
+  clearTimeout: (id: number) => void;
+}
+
+// Default timeout manager using browser APIs
+const defaultTimeoutManager: TimeoutManager = {
+  setTimeout: (callback: () => void, delay: number) =>
+    window.setTimeout(callback, delay),
+  clearTimeout: (id: number) => window.clearTimeout(id),
+};
+
 const practiceCharacters = loadPracticeCharacters();
 const totalTimeMs = 5000;
 
-export function useQuizGame(): QuizGameInterface {
+export function useQuizGame(
+  timeoutManager: TimeoutManager = defaultTimeoutManager,
+): QuizGameInterface {
   const [currentChar, setCurrentChar] = useState<PracticeCharacter>(
     practiceCharacters[0],
   );
@@ -47,10 +62,10 @@ export function useQuizGame(): QuizGameInterface {
 
   const clearPendingTimeout = useCallback(() => {
     if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
+      timeoutManager.clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-  }, []);
+  }, [timeoutManager]);
 
   // Timer setup
   const handleTimeout = useCallback(() => {
@@ -58,11 +73,11 @@ export function useQuizGame(): QuizGameInterface {
     setIsInputDisabled(true);
     // Show timeout and proceed after delay
     clearPendingTimeout();
-    timeoutRef.current = window.setTimeout(() => {
+    timeoutRef.current = timeoutManager.setTimeout(() => {
       resetQuizState();
       resetTimer();
     }, 1500);
-  }, [clearPendingTimeout, resetQuizState]);
+  }, [clearPendingTimeout, resetQuizState, timeoutManager]);
 
   const {
     timeLeftMs,
@@ -82,11 +97,11 @@ export function useQuizGame(): QuizGameInterface {
 
   const showIncorrectAndProceed = useCallback(() => {
     clearPendingTimeout();
-    timeoutRef.current = window.setTimeout(() => {
+    timeoutRef.current = timeoutManager.setTimeout(() => {
       resetQuizState();
       resetTimer();
     }, 1000);
-  }, [clearPendingTimeout, resetQuizState, resetTimer]);
+  }, [clearPendingTimeout, resetQuizState, resetTimer, timeoutManager]);
 
   const handleSubmit = useCallback(
     (input: string) => {
