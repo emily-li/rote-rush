@@ -24,12 +24,12 @@ const normalizeInput = (input: string): string => input.toLowerCase().trim();
 
 const checkAnswerMatch = (input: string, validAnswers: string[]): boolean => {
   const normalized = normalizeInput(input);
-  return validAnswers.some(ans => normalizeInput(ans) === normalized);
+  return validAnswers.some((ans) => normalizeInput(ans) === normalized);
 };
 
 const checkValidStart = (input: string, validAnswers: string[]): boolean => {
   const normalized = normalizeInput(input);
-  return validAnswers.some(ans => normalizeInput(ans).startsWith(normalized));
+  return validAnswers.some((ans) => normalizeInput(ans).startsWith(normalized));
 };
 
 export function useQuizGame(): QuizGameInterface {
@@ -103,7 +103,7 @@ export function useQuizGame(): QuizGameInterface {
       setUserInput(value);
 
       const currentInput = normalizeInput(value);
-      
+
       if (currentInput.length === 0) {
         setIsInputValid(true);
         return;
@@ -123,12 +123,7 @@ export function useQuizGame(): QuizGameInterface {
         showIncorrectAndProceed();
       }
     },
-    [
-      isInputDisabled,
-      currentChar,
-      showIncorrectAndProceed,
-      handleSubmit,
-    ],
+    [isInputDisabled, currentChar, showIncorrectAndProceed, handleSubmit],
   );
 
   const handleKeyPress = useCallback(
