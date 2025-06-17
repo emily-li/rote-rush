@@ -5,8 +5,8 @@ import {
   type PracticeCharacter,
 } from '@/lib/characterLoading';
 import { useTimer } from '@/lib/useTimer';
+import type { QuizGameInterface } from './types';
 import { useQuizFlow } from './useQuizFlow';
-import type { UseQuizGameState } from './types';
 
 // Re-export types for convenience
 export type {
@@ -14,12 +14,12 @@ export type {
   QuizInputState,
   QuizTimerState,
   QuizGameHandlers,
-  UseQuizGameState,
+  QuizGameInterface,
 } from './types';
 
 const practiceCharacters = loadPracticeCharacters();
 
-export function useQuizGame(): UseQuizGameState {
+export function useQuizGame(): QuizGameInterface {
   const [currentChar, setCurrentChar] = useState<PracticeCharacter>(
     practiceCharacters[0],
   );

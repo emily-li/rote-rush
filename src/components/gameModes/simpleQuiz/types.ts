@@ -37,10 +37,10 @@ export interface QuizGameHandlers {
 }
 
 /**
- * Complete quiz game state combining all aspects
+ * Complete quiz game interface combining all state and handlers
  */
-export interface UseQuizGameState extends 
-  QuizGameState,
-  QuizInputState,
-  QuizTimerState,
-  QuizGameHandlers {}
+export interface QuizGameInterface
+  extends QuizGameState,
+    QuizInputState,
+    QuizTimerState,
+    QuizGameHandlers {}
