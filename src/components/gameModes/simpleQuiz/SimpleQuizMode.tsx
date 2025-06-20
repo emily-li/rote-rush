@@ -25,7 +25,6 @@ function SimpleQuizMode() {
           isWrongAnswer={quiz.input.isWrongAnswer}
           timeLeftMs={quiz.timer.timeLeftMs}
           onInputChange={quiz.handlers.handleInputChange}
-          onKeyDown={quiz.handlers.handleKeyPress}
         />
       </div>
     </div>
