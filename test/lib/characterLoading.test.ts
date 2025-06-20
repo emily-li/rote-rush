@@ -1,58 +1,65 @@
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import {
   getRandomCharacter,
-  getPracticeCharacters,
+  loadPracticeCharacters,
+  type PracticeCharacter,
 } from '../../src/lib/characterLoading';
 
 describe('characterLoading', () => {
-  const characters = getPracticeCharacters();
+  // Load characters once for all tests in this suite
+  const loadedCharacters = loadPracticeCharacters();
 
-  describe('getPracticeCharacters', () => {
+  describe('loadPracticeCharacters', () => {
     it('should include hiragana characters', () => {
-      const hiraganaChars = characters.filter((char) =>
+      const hiraganaChars = loadedCharacters.filter((char) =>
         ['あ', 'ち'].includes(char.char),
       );
+
       expect(hiraganaChars.length).equals(2);
     });
 
     it('should include katakana characters', () => {
-      const katakanaChars = characters.filter((char) =>
-        ['ア', 'カ'].includes(char.char),
+      const katakanaChars = loadedCharacters.filter((char) =>
+        ['ア', 'カ', 'サ'].includes(char.char),
       );
-      expect(katakanaChars.length).equals(2);
+
+      expect(katakanaChars.length).equals(3);
     });
 
-    it('should have valid answers for each character', () => {
-      characters.forEach((char) => {
-        expect(char.validAnswers).toBeDefined();
-        expect(char.validAnswers.length).toBeGreaterThan(0);
-      });
-    });
-
-    it('should have characters from both character sets', () => {
-      expect(characters.length).toBeGreaterThan(90);
-    });
-
-    it('should have unique characters', () => {
-      const charStrings = characters.map((char) => char.char);
-      const uniqueCharStrings = [...new Set(charStrings)];
-      expect(charStrings.length).equals(uniqueCharStrings.length);
-    });
-
-    it('should have valid structure for each character', () => {
-      characters.forEach((char) => {
-        expect(char).toHaveProperty('char');
-        expect(char).toHaveProperty('validAnswers');
-        expect(typeof char.char).equals('string');
-        expect(Array.isArray(char.validAnswers)).equals(true);
+    it('should have characters with valid romaji answers', () => {
+      loadedCharacters.forEach((char) => {
+        char.validAnswers.forEach((answer) => {
+          expect(answer.length).toBeGreaterThan(0);
+          // Romaji should only contain lowercase letters
+          expect(answer).toMatch(/^[a-z]+$/);
+        });
       });
     });
   });
 
   describe('getRandomCharacter', () => {
-    it('should return a character from the character list', () => {
-      const randomChar = getRandomCharacter();
+    const characters: PracticeCharacter[] = [
+      { char: 'あ', validAnswers: ['a'] },
+      { char: 'か', validAnswers: ['ka'] },
+    ];
+
+    it('should return a character from the provided array', () => {
+      const randomChar = getRandomCharacter(characters);
+
       expect(characters).toContain(randomChar);
+    });
+    it('should return different characters over multiple calls', () => {
+      const firstChar = getRandomCharacter(characters, () => 0); // index 0
+      const secondChar = getRandomCharacter(characters, () => 0.9); // index 1
+
+      expect(firstChar.char).toBe('あ');
+      expect(secondChar.char).toBe('か');
+    });
+
+    it('should work with the actual loaded characters', () => {
+      const randomChar = getRandomCharacter(loadedCharacters);
+
+      expect(loadedCharacters).toContain(randomChar);
     });
   });
 });

@@ -1,69 +1,94 @@
-import { useCallback, useState } from 'react';
-import { getRandomCharacter } from '@/lib/characterLoading';
-import { checkAnswerMatch, checkValidStart } from '@/lib/validation';
-import { useCountdownTimer } from '@/lib/useCountdownTimer';
-import { TimerBackground } from './TimerBackground';
+import { useCallback, useEffect, useState } from 'react';
+import { loadPracticeCharacters, getRandomCharacter } from '@/lib/characterLoading';
 import type { PracticeCharacter } from '@/types';
 
 const QUIZ_TIME_MS = 5000;
 
 export default function SimpleQuizMode() {
   // Game state
-  const [currentChar, setCurrentChar] = useState<PracticeCharacter>(() => 
-    getRandomCharacter()
-  );  const [userInput, setUserInput] = useState('');
+  const [characters] = useState(() => loadPracticeCharacters());
+  const [currentChar, setCurrentChar] = useState<PracticeCharacter>(() => getRandomCharacter(loadPracticeCharacters()));
+  const [userInput, setUserInput] = useState('');
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [isWrongAnswer, setIsWrongAnswer] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(QUIZ_TIME_MS);
+
+  // Timer logic
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      handleTimeout();
+      return;
+    }
+
+    const interval = setInterval(() => {
+      setTimeLeft(prev => Math.max(0, prev - 50));
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, [timeLeft]);
+
+  const resetTimer = useCallback(() => {
+    setTimeLeft(QUIZ_TIME_MS);
+  }, []);
+
   const nextCharacter = useCallback(() => {
-    setCurrentChar(getRandomCharacter());
+    setCurrentChar(getRandomCharacter(characters));
     setUserInput('');
     setIsWrongAnswer(false);
-  }, []);
+    resetTimer();
+  }, [characters, resetTimer]);
 
   const handleTimeout = useCallback(() => {
     setCombo(0);
     setIsWrongAnswer(true);
     setTimeout(nextCharacter, 1500);
   }, [nextCharacter]);
-  const { resetTimer, timeRemainingPct } = useCountdownTimer(
-    QUIZ_TIME_MS,
-    handleTimeout
-  );
 
-  // Update nextCharacter to also reset timer
-  const nextCharacterWithTimer = useCallback(() => {
-    nextCharacter();
-    resetTimer();
-  }, [nextCharacter, resetTimer]);  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isWrongAnswer) return;
 
-    const value = e.target.value;
+    const value = e.target.value.toLowerCase().trim();
     setUserInput(value);
 
     if (value.length === 0) return;
 
     // Check if answer is correct
-    const isCorrect = checkAnswerMatch(value, currentChar.validAnswers);
+    const isCorrect = currentChar.validAnswers.some(answer => 
+      answer.toLowerCase() === value
+    );
 
     if (isCorrect) {
       setScore(prev => prev + 1);
       setCombo(prev => prev + 1);
-      nextCharacterWithTimer();
+      nextCharacter();
       return;
     }
 
     // Check if it's a valid start
-    const isValidStart = checkValidStart(value, currentChar.validAnswers);
+    const isValidStart = currentChar.validAnswers.some(answer =>
+      answer.toLowerCase().startsWith(value)
+    );
 
     if (!isValidStart) {
       setCombo(0);
       setIsWrongAnswer(true);
-      setTimeout(nextCharacterWithTimer, 1000);
-    }  };
+      setTimeout(nextCharacter, 1000);
+    }
+  };
+
+  const timeRemainingPct = (timeLeft / QUIZ_TIME_MS) * 100;
+
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-50">
-      <TimerBackground timeRemainingPct={timeRemainingPct} />
+      {/* Timer Background */}
+      <div
+        className="fixed inset-0 flex h-full w-full"
+        style={{
+          width: `${timeRemainingPct}%`,
+          background: '#e6ffe6',
+        }}
+      />
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
         {/* Score Display */}
