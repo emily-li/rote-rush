@@ -1,4 +1,4 @@
-import SimpleQuizMode from './components/gameModes/simpleQuiz/SimpleQuizMode';
+import SimpleQuizMode from './components/SimpleQuizMode';
 
 function App() {
   return <SimpleQuizMode />;

@@ -1,10 +1,6 @@
 import hiraganaData from '@/resources/hiragana.json';
 import katakanaData from '@/resources/katakana.json';
-
-export interface PracticeCharacter {
-  char: string;
-  validAnswers: string[];
-}
+import type { PracticeCharacter } from '@/types';
 
 export const loadPracticeCharacters = (): PracticeCharacter[] => {
   return [
