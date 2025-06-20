@@ -59,7 +59,6 @@ export function useQuizGameOrchestrator(): QuizGameInterface {
     handlers: {
       handleSubmit: () => {}, // Not needed with new input handling
       handleInputChange: input.handlers.handleInputChange,
-      handleKeyPress: input.handlers.handleKeyPress,
     },
   };
 }

@@ -20,7 +20,6 @@ export interface UseQuizInputActions {
 
 export interface UseQuizInputHandlers {
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 export interface UseQuizInputOptions {
@@ -99,15 +98,6 @@ export function useQuizInput({
     [isWrongAnswer, currentChar, handleSubmit],
   );
 
-  const handleKeyPress = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        handleSubmit(userInput);
-      }
-    },
-    [handleSubmit, userInput],
-  );
-
   return {
     userInput,
     isWrongAnswer,
@@ -119,7 +109,6 @@ export function useQuizInput({
     },
     handlers: {
       handleInputChange,
-      handleKeyPress,
     },
   };
 }

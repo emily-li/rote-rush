@@ -104,33 +104,4 @@ describe('useQuizInput', () => {
     expect(onIncorrectAnswer).not.toHaveBeenCalled();
     expect(result.current.userInput).toBe('s');
   });
-
-  it('should handle Enter key submission', () => {
-    const onCorrectAnswer = vi.fn();
-    const onIncorrectAnswer = vi.fn();
-
-    const { result } = renderHook(() =>
-      useQuizInput({
-        currentChar: mockCharacter,
-        onCorrectAnswer,
-        onIncorrectAnswer,
-      }),
-    );
-
-    // Set input first
-    act(() => {
-      result.current.actions.setUserInput('a');
-    });
-
-    // Press Enter
-    const mockKeyEvent = {
-      key: 'Enter',
-    } as React.KeyboardEvent<HTMLInputElement>;
-
-    act(() => {
-      result.current.handlers.handleKeyPress(mockKeyEvent);
-    });
-
-    expect(onCorrectAnswer).toHaveBeenCalledTimes(1);
-  });
 });

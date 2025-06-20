@@ -1,9 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
-import {
-  getRandomCharacter,
-  loadPracticeCharacters,
-  type PracticeCharacter,
-} from '@/lib/characterLoading';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTimer } from '@/lib/useTimer';
 import {
   checkAnswerMatch,
@@ -11,118 +6,77 @@ import {
   normalizeInput,
 } from './inputValidation';
 import type { QuizGameInterface } from './types';
+import { useQuizGameState } from './useQuizGameState';
 
-export type {
-  QuizGameState,
-  QuizInputState,
-  QuizTimerState,
-  QuizGameHandlers,
-  QuizGameInterface,
-} from './types';
+const TOTAL_TIME_MS = 5000;
 
-// Timeout management interface for better testability
-interface TimeoutManager {
-  setTimeout: (callback: () => void, delay: number) => number;
-  clearTimeout: (id: number) => void;
-}
+export function useQuizGame(): QuizGameInterface {
+  const {
+    currentChar,
+    score,
+    combo,
+    actions: gameStateActions,
+  } = useQuizGameState();
 
-// Default timeout manager using browser APIs
-const defaultTimeoutManager: TimeoutManager = {
-  setTimeout: (callback: () => void, delay: number) =>
-    window.setTimeout(callback, delay),
-  clearTimeout: (id: number) => window.clearTimeout(id),
-};
-
-const practiceCharacters = loadPracticeCharacters();
-const totalTimeMs = 5000;
-
-export function useQuizGame(
-  timeoutManager: TimeoutManager = defaultTimeoutManager,
-): QuizGameInterface {
-  const [currentChar, setCurrentChar] = useState<PracticeCharacter>(
-    practiceCharacters[0],
-  );
   const [userInput, setUserInput] = useState('');
-  const [score, setScore] = useState(0);
-  const [combo, setCombo] = useState(0);
-  const [isInputDisabled, setIsInputDisabled] = useState(false);
+  const [isWrongAnswer, setIsWrongAnswer] = useState(false);
 
-  const getRandomChar = useCallback(() => {
-    return getRandomCharacter(practiceCharacters);
-  }, []);
-
-  const resetQuizState = useCallback(() => {
-    setCurrentChar(getRandomChar());
-    setUserInput('');
-    setIsInputDisabled(false);
-  }, [getRandomChar]);
-
-  // Flow control state
   const timeoutRef = useRef<number | null>(null);
+  const resetTimerRef = useRef<() => void>(() => {});
 
-  const clearPendingTimeout = useCallback(() => {
+  const cancelPendingTransition = useCallback(() => {
     if (timeoutRef.current) {
-      timeoutManager.clearTimeout(timeoutRef.current);
+      clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-  }, [timeoutManager]);
+  }, []);
 
-  // Timer setup
-  const handleTimeout = useCallback(() => {
-    setCombo(0);
-    setIsInputDisabled(true);
-    // Show timeout and proceed after delay
-    clearPendingTimeout();
-    timeoutRef.current = timeoutManager.setTimeout(() => {
-      resetQuizState();
-      resetTimer();
-    }, 1500);
-  }, [clearPendingTimeout, resetQuizState, timeoutManager]);
+  const clearInput = useCallback(() => {
+    setUserInput('');
+    setIsWrongAnswer(false);
+  }, []);
 
-  const {
-    timeLeftMs,
-    resetTimer,
-    totalTimeMs: timerTotalTimeMs,
-  } = useTimer({
-    totalTimeMs: totalTimeMs,
-    onTimeout: handleTimeout,
-  });
-
-  // Flow control functions
   const proceedToNext = useCallback(() => {
-    clearPendingTimeout();
-    resetQuizState();
-    resetTimer();
-  }, [clearPendingTimeout, resetQuizState, resetTimer]);
+    cancelPendingTransition();
+    gameStateActions.nextCharacter();
+    clearInput();
+    resetTimerRef.current();
+  }, [cancelPendingTransition, gameStateActions, clearInput]);
 
-  const showIncorrectAndProceed = useCallback(() => {
-    clearPendingTimeout();
-    timeoutRef.current = timeoutManager.setTimeout(() => {
-      resetQuizState();
-      resetTimer();
-    }, 1000);
-  }, [clearPendingTimeout, resetQuizState, resetTimer, timeoutManager]);
+  const proceedWithDelay = useCallback(
+    (delay: number) => {
+      cancelPendingTransition();
+      timeoutRef.current = window.setTimeout(proceedToNext, delay);
+    },
+    [cancelPendingTransition, proceedToNext],
+  );
+
+  const handleCorrectAnswer = useCallback(() => {
+    gameStateActions.incrementScore();
+    proceedToNext();
+  }, [gameStateActions, proceedToNext]);
+
+  const handleIncorrectAnswer = useCallback(() => {
+    gameStateActions.resetCombo();
+    setIsWrongAnswer(true);
+    proceedWithDelay(1000);
+  }, [gameStateActions, proceedWithDelay]);
 
   const handleSubmit = useCallback(
     (input: string) => {
       const isCorrect = checkAnswerMatch(input, currentChar.validAnswers);
-
       if (isCorrect) {
-        setScore((prev) => prev + 1);
-        setCombo((prev) => prev + 1);
-        proceedToNext();
+        handleCorrectAnswer();
       } else {
-        setCombo(0);
-        setIsInputDisabled(true);
-        showIncorrectAndProceed();
+        handleIncorrectAnswer();
       }
     },
-    [currentChar, proceedToNext, showIncorrectAndProceed],
+    [currentChar.validAnswers, handleCorrectAnswer, handleIncorrectAnswer],
   );
 
   const handleInputChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (isInputDisabled) return;
+      if (isWrongAnswer) return;
 
       const value = e.target.value;
       setUserInput(value);
@@ -138,25 +92,31 @@ export function useQuizGame(
         return;
       }
 
-      if (checkValidStart(currentInput, currentChar.validAnswers)) {
-        // Valid input - continue typing
-      } else {
-        setIsInputDisabled(true);
-        setCombo(0);
-        showIncorrectAndProceed();
+      if (!checkValidStart(currentInput, currentChar.validAnswers)) {
+        handleSubmit(value); // This will trigger incorrect flow
       }
     },
-    [isInputDisabled, currentChar, showIncorrectAndProceed, handleSubmit],
+    [isWrongAnswer, currentChar.validAnswers, handleSubmit],
   );
 
-  const handleKeyPress = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        handleSubmit(userInput);
-      }
-    },
-    [handleSubmit, userInput],
-  );
+  const handleTimeout = useCallback(() => {
+    gameStateActions.resetCombo();
+    setIsWrongAnswer(true);
+    proceedWithDelay(1500);
+  }, [gameStateActions, proceedWithDelay]);
+
+  const {
+    timeLeftMs,
+    resetTimer,
+    totalTimeMs: timerTotalTimeMs,
+  } = useTimer({
+    totalTimeMs: TOTAL_TIME_MS,
+    onTimeout: handleTimeout,
+  });
+
+  useEffect(() => {
+    resetTimerRef.current = resetTimer;
+  }, [resetTimer]);
 
   return {
     gameState: {
@@ -166,7 +126,7 @@ export function useQuizGame(
       combo,
     },
     input: {
-      isWrongAnswer: isInputDisabled,
+      isWrongAnswer: isWrongAnswer,
     },
     timer: {
       totalTimeMs: timerTotalTimeMs,
@@ -175,7 +135,6 @@ export function useQuizGame(
     handlers: {
       handleSubmit,
       handleInputChange,
-      handleKeyPress,
     },
   };
 }

@@ -31,7 +31,6 @@ export interface QuizTimerState {
 export interface QuizGameHandlers {
   handleSubmit: (input: string) => void;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleKeyPress: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 /**

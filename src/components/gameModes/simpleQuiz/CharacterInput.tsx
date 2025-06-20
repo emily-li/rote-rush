@@ -8,7 +8,6 @@ interface CharacterInputProps {
   isWrongAnswer: boolean;
   timeLeftMs: number;
   onInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 export function CharacterInput({
@@ -16,7 +15,6 @@ export function CharacterInput({
   userInput,
   isWrongAnswer,
   onInputChange,
-  onKeyDown,
 }: CharacterInputProps) {
   return (
     <>
@@ -29,7 +27,6 @@ export function CharacterInput({
           type="text"
           value={userInput}
           onChange={onInputChange}
-          onKeyDown={onKeyDown}
           placeholder={userInput || 'Type the romanized reading...'}
           className={`border-2 py-4 text-center text-xl transition-colors focus:ring-0 ${
             isWrongAnswer
