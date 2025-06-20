@@ -13,4 +13,5 @@ export interface GameResult {
 export interface PracticeCharacter {
   char: string;
   validAnswers: string[];
+  weight?: number; // Add weight property for adaptive selection
 }

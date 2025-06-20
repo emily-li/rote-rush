@@ -1,13 +1,36 @@
 import { useCallback, useEffect, useState } from 'react';
-import { loadPracticeCharacters, getRandomCharacter } from '@/lib/characterLoading';
+import { loadPracticeCharacters, getWeightedRandomCharacter, saveCharacterWeights } from '@/lib/characterLoading';
 import type { PracticeCharacter } from '@/types';
 
 const QUIZ_TIME_MS = 5000;
+const WEIGHT_DECREASE = 1;
+const WEIGHT_INCREASE = 2;
+const MIN_WEIGHT = 1;
+
+function decreaseWeight(characters: PracticeCharacter[], char: string) {
+  return characters.map(c =>
+    c.char === char ? { ...c, weight: Math.max(MIN_WEIGHT, (c.weight || 1) - WEIGHT_DECREASE) } : c
+  );
+}
+
+function increaseWeight(characters: PracticeCharacter[], char: string) {
+  return characters.map(c =>
+    c.char === char ? { ...c, weight: (c.weight || 1) + WEIGHT_INCREASE } : c
+  );
+}
+
+function isAnswerCorrect(input: string, validAnswers: string[]): boolean {
+  return validAnswers.some(answer => answer.toLowerCase() === input);
+}
+
+function isValidStart(input: string, validAnswers: string[]): boolean {
+  return validAnswers.some(answer => answer.toLowerCase().startsWith(input));
+}
 
 export default function SimpleQuizMode() {
   // Game state
-  const [characters] = useState(() => loadPracticeCharacters());
-  const [currentChar, setCurrentChar] = useState<PracticeCharacter>(() => getRandomCharacter(loadPracticeCharacters()));
+  const [characters, setCharacters] = useState(() => loadPracticeCharacters());
+  const [currentChar, setCurrentChar] = useState<PracticeCharacter>(() => getWeightedRandomCharacter(loadPracticeCharacters()));
   const [userInput, setUserInput] = useState('');
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
@@ -28,12 +51,17 @@ export default function SimpleQuizMode() {
     return () => clearInterval(interval);
   }, [timeLeft]);
 
+  // Save weights to localStorage whenever they change
+  useEffect(() => {
+    saveCharacterWeights(characters);
+  }, [characters]);
+
   const resetTimer = useCallback(() => {
     setTimeLeft(QUIZ_TIME_MS);
   }, []);
 
   const nextCharacter = useCallback(() => {
-    setCurrentChar(getRandomCharacter(characters));
+    setCurrentChar(getWeightedRandomCharacter(characters));
     setUserInput('');
     setIsWrongAnswer(false);
     resetTimer();
@@ -54,25 +82,19 @@ export default function SimpleQuizMode() {
     if (value.length === 0) return;
 
     // Check if answer is correct
-    const isCorrect = currentChar.validAnswers.some(answer => 
-      answer.toLowerCase() === value
-    );
-
-    if (isCorrect) {
+    if (isAnswerCorrect(value, currentChar.validAnswers)) {
       setScore(prev => prev + 1);
       setCombo(prev => prev + 1);
+      setCharacters(prevChars => decreaseWeight(prevChars, currentChar.char));
       nextCharacter();
       return;
     }
 
     // Check if it's a valid start
-    const isValidStart = currentChar.validAnswers.some(answer =>
-      answer.toLowerCase().startsWith(value)
-    );
-
-    if (!isValidStart) {
+    if (!isValidStart(value, currentChar.validAnswers)) {
       setCombo(0);
       setIsWrongAnswer(true);
+      setCharacters(prevChars => increaseWeight(prevChars, currentChar.char));
       setTimeout(nextCharacter, 1000);
     }
   };
