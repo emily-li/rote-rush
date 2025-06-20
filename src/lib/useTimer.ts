@@ -6,11 +6,13 @@ interface UseTimerOptions {
 }
 
 export function useTimer({ totalTimeMs, onTimeout }: UseTimerOptions) {
-  const [timeLeftMs, setTimeLeftMs] = useState(totalTimeMs);
+  // Handle negative totalTimeMs by defaulting to 0
+  const sanitizedTotalTimeMs = Math.max(0, totalTimeMs);
+  const [timeLeftMs, setTimeLeftMs] = useState(sanitizedTotalTimeMs);
 
   const resetTimer = useCallback(() => {
-    setTimeLeftMs(totalTimeMs);
-  }, [totalTimeMs]);
+    setTimeLeftMs(sanitizedTotalTimeMs);
+  }, [sanitizedTotalTimeMs]);
 
   useEffect(() => {
     if (timeLeftMs <= 0) {
@@ -27,7 +29,7 @@ export function useTimer({ totalTimeMs, onTimeout }: UseTimerOptions) {
 
   return {
     timeLeftMs,
-    totalTimeMs,
+    totalTimeMs: sanitizedTotalTimeMs,
     resetTimer,
   };
 }
