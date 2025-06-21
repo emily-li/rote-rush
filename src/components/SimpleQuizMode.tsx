@@ -56,6 +56,10 @@ export default function SimpleQuizMode() {
   }, [characters]);
 
   const nextCharacter = useCallback((resetToDefault = false) => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
     setCurrentChar(getWeightedRandomCharacter(characters));
     resetForNextCharacter(setUserInput, setIsWrongAnswer);
     if (resetToDefault) {
@@ -64,7 +68,7 @@ export default function SimpleQuizMode() {
       setNextTimeMs(DEFAULT_TIME_MS);
     } else {
       setCurrentTimeMs(nextTimeMs);
-      setTimeLeft(nextTimeMs);
+      setTimeLeft(nextTimeMs > 0 ? nextTimeMs : DEFAULT_TIME_MS);
     }
   }, [characters, nextTimeMs]);
 

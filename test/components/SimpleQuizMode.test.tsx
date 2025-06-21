@@ -1,4 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import SimpleQuizMode from '../../src/components/SimpleQuizMode';
+import { vi, beforeEach, afterEach, describe, it, expect } from 'vitest';
 import type { PracticeCharacter } from '../../src/types';
 
 const WEIGHT_DECREASE = 1;
@@ -16,6 +19,45 @@ function increaseWeight(characters: PracticeCharacter[], char: string) {
     c.char === char ? { ...c, weight: (c.weight || 1) + WEIGHT_INCREASE } : c
   );
 }
+
+vi.mock('../../src/lib/characterLoading', () => {
+  return {
+    loadPracticeCharacters: () => [
+      { char: 'あ', validAnswers: ['a'], weight: 5 },
+      { char: 'い', validAnswers: ['i'], weight: 3 },
+    ],
+    getWeightedRandomCharacter: (chars: any[]) => chars[0],
+    saveCharacterWeights: vi.fn(),
+  };
+});
+
+describe('SimpleQuizMode bug regression', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.clearAllTimers();
+  });
+
+  it('does not immediately skip to the next character after answering or skipping', () => {
+    render(<SimpleQuizMode />);
+    const input = screen.getByPlaceholderText(/romanized/i);
+    // Correct answer
+    fireEvent.change(input, { target: { value: 'a' } });
+    act(() => {
+      vi.advanceTimersByTime(10);
+    });
+    // Should still be on the next character, not immediately skipped
+    expect(screen.getByText('あ')).toBeInTheDocument();
+    // Wait less than the timeout
+    act(() => {
+      vi.advanceTimersByTime(1000);
+    });
+    // Should still be on the same character
+    expect(screen.getByText('あ')).toBeInTheDocument();
+  });
+});
 
 describe('weight adjustment helpers (from SimpleQuizMode)', () => {
   const base: PracticeCharacter[] = [

@@ -24,5 +24,6 @@ export PATH="$PATH:$pnpm"
 ## Tests
 
 - Run tests: `pnpm test`
+- Watch tests: `pnpm vitest`
 - Run tests with coverage: `pnpm test:coverage`
 - Single test: `pnpm test:coverage useTimer`
