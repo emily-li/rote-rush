@@ -7,11 +7,12 @@ import type { PracticeCharacter } from '@/types';
 const { DEFAULT_TIME_MS, MIN_TIME_MS, TIMER_STEP, WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = QUIZ_CONFIG;
 
 /**
- * Calculate combo multiplier based on the current streak count
- * According to spec:
- * - 10 consecutive correct answers: 1.5x
- * - 50 consecutive correct answers: 2x
- * - 100 consecutive correct answers: 3x
+ * Calculate score multiplier based on the current streak.
+ * Rewards consistent correct answers with increasing multipliers:
+ * - 1.0x : Default multiplier
+ * - 1.5x : After 10 consecutive correct answers
+ * - 2.0x : After 50 consecutive correct answers
+ * - 3.0x : After 100 consecutive correct answers
  */
 function getComboMultiplier(streak: number): number {
   if (streak >= 100) return 3.0;
@@ -20,20 +21,39 @@ function getComboMultiplier(streak: number): number {
   return 1.0;
 }
 
+/**
+ * Adjust the probability weight of a character based on user performance.
+ * - Correct answers decrease the weight (character appears less frequently)
+ * - Wrong answers increase the weight (character appears more frequently)
+ * Weights are clamped to a minimum value to ensure all characters remain in rotation.
+ */
 function adjustWeight(characters: PracticeCharacter[], char: string, delta: number) {
   return characters.map(c =>
     c.char === char ? { ...c, weight: Math.max(MIN_WEIGHT, (c.weight || 1) + delta) } : c
   );
 }
 
+/**
+ * Validate if the user's input exactly matches any of the valid answers.
+ * Comparison is case-insensitive for user convenience.
+ */
 function isAnswerCorrect(input: string, validAnswers: string[]): boolean {
   return validAnswers.some(answer => answer.toLowerCase() === input);
 }
 
+/**
+ * Check if the current partial input could lead to a valid answer.
+ * Used to provide immediate feedback for incorrect inputs rather than
+ * waiting for the full answer to be typed.
+ */
 function isValidStart(input: string, validAnswers: string[]): boolean {
   return validAnswers.some(answer => answer.toLowerCase().startsWith(input));
 }
 
+/**
+ * Reset the input field and error state when moving to a new character.
+ * Called after both correct answers and timeouts.
+ */
 function resetForNextCharacter(setUserInput: (s: string) => void, setIsWrongAnswer: (b: boolean) => void) {
   setUserInput('');
   setIsWrongAnswer(false);
@@ -51,14 +71,19 @@ export default function SimpleQuizMode() {
   const [currentTimeMs, setCurrentTimeMs] = useState(DEFAULT_TIME_MS);
   const [nextTimeMs, setNextTimeMs] = useState(DEFAULT_TIME_MS);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const [_, setTimeoutCount] = useState(0);
+  const timeoutCountRef = useRef(0);
   const [pausedAfterTimeout, setPausedAfterTimeout] = useState(false);
   
-  // Refs to track and clear timeouts to prevent race conditions
-  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const nextCharTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Track ongoing timeouts to prevent race conditions between validation,
+  // character transitions, and game state changes
+  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);  // Input validation delay
+  const nextCharTimeoutRef = useRef<NodeJS.Timeout | null>(null);    // Character transition delay
   
-  // Clear all timeouts to prevent race conditions
+  /**
+   * Cancel all pending timeouts to ensure clean state transitions.
+   * Called before any major game state change (new character, timeout, etc.)
+   * to prevent race conditions between different game mechanics.
+   */
   const clearAllTimeouts = useCallback(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -83,7 +108,7 @@ export default function SimpleQuizMode() {
     
     // Only reset timeout count when explicitly requested
     if (resetTimeout) {
-      setTimeoutCount(0);
+      timeoutCountRef.current = 0;
     }
     
     setPausedAfterTimeout(false);
@@ -106,50 +131,50 @@ export default function SimpleQuizMode() {
     setComboMultiplier(1.0);
     setIsWrongAnswer(true);
     
-    setTimeoutCount(prev => {
-      const newCount = prev + 1;
-      
-      // Handle display of wrong answer for 1.5 seconds
-      nextCharTimeoutRef.current = setTimeout(() => {
-        if (newCount >= 2) {
-          // After two timeouts, show next character but keep timer paused
-          nextCharacter(true, false);
-          // Set paused state to prevent timer from starting
-          setTimeout(() => {
-            setPausedAfterTimeout(true);
-          }, 0);
-        } else {
-          // Regular timeout, show next character with timer running
-          nextCharacter(true, false);
-        }
-      }, 1500);
-      
-      return newCount;
-    });
+    // Increment timeout count and handle consecutive timeouts
+    timeoutCountRef.current += 1;
+    
+    // Show wrong answer for 1.5 seconds
+    nextCharTimeoutRef.current = setTimeout(() => {
+      if (timeoutCountRef.current >= 2) {
+        // Two consecutive timeouts: pause the game
+        nextCharacter(true, false);
+        setPausedAfterTimeout(true);
+      } else {
+        // Single timeout: continue with reset timer
+        nextCharacter(true, false);
+      }
+    }, 1500);
   }, [nextCharacter, clearAllTimeouts]);
   
-  // Timer effect needs to be after handleTimeout is defined
+  /**
+   * Main game timer effect:
+   * - Updates every 50ms for smooth countdown visualization
+   * - Pauses during game pause states
+   * - Triggers timeout handling when time runs out
+   * - Cleans up intervals on unmount or state changes
+   */
   useEffect(() => {
-    // Skip this effect when paused
+    // Skip timer updates when game is paused after timeouts
     if (pausedAfterTimeout) {
       return;
     }
     
-    // If timer reached zero, handle timeout
+    // Handle timer expiration
     if (timeLeft <= 0) {
       handleTimeout();
       return;
     }
     
-    // Otherwise, start/restart timer
+    // Create timer for countdown animation (50ms for smooth updates)
     const timerId = setInterval(() => {
       setTimeLeft(prev => Math.max(0, prev - 50));
     }, 50);
     
-    // Store timer reference to allow cleanup from other functions
+    // Store reference for cleanup in other game state changes
     timerRef.current = timerId;
     
-    // Clear on unmount or when dependencies change
+    // Cleanup function for component unmount or dependency changes
     return () => {
       clearInterval(timerId);
       timerRef.current = null;
@@ -165,7 +190,7 @@ export default function SimpleQuizMode() {
     if (pausedAfterTimeout) {
       // Resume game if paused after timeout
       setPausedAfterTimeout(false);
-      setTimeoutCount(0);
+      timeoutCountRef.current = 0;
       // Reset timer to default time
       setCurrentTimeMs(DEFAULT_TIME_MS);
       setTimeLeft(DEFAULT_TIME_MS);
@@ -175,7 +200,7 @@ export default function SimpleQuizMode() {
         validationTimeoutRef.current = setTimeout(() => {
           if (isAnswerCorrect(value, currentChar.validAnswers)) {
             // Reset timeout count on correct answer
-            setTimeoutCount(0); 
+            timeoutCountRef.current = 0;
             
             // Update streak and combo multiplier
             const newStreak = streak + 1;
@@ -192,7 +217,7 @@ export default function SimpleQuizMode() {
             nextCharacter(false);
           } else if (!isValidStart(value, currentChar.validAnswers)) {
             // Reset timeout count on wrong answer
-            setTimeoutCount(0);
+            timeoutCountRef.current = 0;
             setStreak(0);
             setComboMultiplier(1.0);
             setIsWrongAnswer(true);
@@ -212,7 +237,7 @@ export default function SimpleQuizMode() {
     validationTimeoutRef.current = setTimeout(() => {
       if (isAnswerCorrect(value, currentChar.validAnswers)) {
         // Reset timeout count on correct answer
-        setTimeoutCount(0); 
+        timeoutCountRef.current = 0;
         
         // Update streak and combo multiplier
         const newStreak = streak + 1;
@@ -231,7 +256,7 @@ export default function SimpleQuizMode() {
       
       if (!isValidStart(value, currentChar.validAnswers)) {
         // Reset timeout count on wrong answer
-        setTimeoutCount(0);
+        timeoutCountRef.current = 0;
         setStreak(0);
         setComboMultiplier(1.0);
         setIsWrongAnswer(true);
