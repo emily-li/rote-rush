@@ -70,15 +70,19 @@ export default function SimpleQuizMode() {
   const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME_MS);
   const [currentTimeMs, setCurrentTimeMs] = useState(DEFAULT_TIME_MS);
   const [nextTimeMs, setNextTimeMs] = useState(DEFAULT_TIME_MS);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const timeoutCountRef = useRef(0);
   const [pausedAfterTimeout, setPausedAfterTimeout] = useState(false);
   
-  // Track ongoing timeouts to prevent race conditions between validation,
-  // character transitions, and game state changes
-  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);  // Input validation delay
-  const nextCharTimeoutRef = useRef<NodeJS.Timeout | null>(null);    // Character transition delay
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutCountRef = useRef(0);
+  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const nextCharTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  const updateTimerOnComboThreshold = useCallback((newMultiplier: number) => {
+    if (newMultiplier > comboMultiplier) {
+      setNextTimeMs(() => clamp(currentTimeMs - TIMER_STEP, MIN_TIME_MS, DEFAULT_TIME_MS));
+    }
+  }, [comboMultiplier, currentTimeMs]);
+
   /**
    * Cancel all pending timeouts to ensure clean state transitions.
    * Called before any major game state change (new character, timeout, etc.)
@@ -130,141 +134,90 @@ export default function SimpleQuizMode() {
     setStreak(0);
     setComboMultiplier(1.0);
     setIsWrongAnswer(true);
-    
-    // Increment timeout count and handle consecutive timeouts
     timeoutCountRef.current += 1;
     
-    // Show wrong answer for 1.5 seconds
     nextCharTimeoutRef.current = setTimeout(() => {
-      if (timeoutCountRef.current >= 2) {
-        // Two consecutive timeouts: pause the game
-        nextCharacter(true, false);
+      const shouldPauseGame = timeoutCountRef.current >= 2;
+      nextCharacter(true, false);
+      if (shouldPauseGame) {
         setPausedAfterTimeout(true);
-      } else {
-        // Single timeout: continue with reset timer
-        nextCharacter(true, false);
       }
     }, 1500);
   }, [nextCharacter, clearAllTimeouts]);
   
-  /**
-   * Main game timer effect:
-   * - Updates every 50ms for smooth countdown visualization
-   * - Pauses during game pause states
-   * - Triggers timeout handling when time runs out
-   * - Cleans up intervals on unmount or state changes
-   */
-  useEffect(() => {
-    // Skip timer updates when game is paused after timeouts
-    if (pausedAfterTimeout) {
-      return;
-    }
-    
-    // Handle timer expiration
-    if (timeLeft <= 0) {
-      handleTimeout();
-      return;
-    }
-    
-    // Create timer for countdown animation (50ms for smooth updates)
-    const timerId = setInterval(() => {
-      setTimeLeft(prev => Math.max(0, prev - 50));
-    }, 50);
-    
-    // Store reference for cleanup in other game state changes
-    timerRef.current = timerId;
-    
-    // Cleanup function for component unmount or dependency changes
-    return () => {
-      clearInterval(timerId);
-      timerRef.current = null;
-    };
-  }, [timeLeft, pausedAfterTimeout, handleTimeout]);
+  const updateTimeLeft = useCallback(() => {
+    setTimeLeft(prev => Math.max(0, prev - 50));
+  }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = normalizeInput(e.target.value);
-    
-    // Always set the user input first so the tests can verify it
-    setUserInput(value);
-    
-    if (pausedAfterTimeout) {
-      // Resume game if paused after timeout
-      setPausedAfterTimeout(false);
-      timeoutCountRef.current = 0;
-      // Reset timer to default time
-      setCurrentTimeMs(DEFAULT_TIME_MS);
-      setTimeLeft(DEFAULT_TIME_MS);
-      // Immediately validate the input after resuming
-      if (value.length > 0) {
-        // Introduce a minimal delay for validation to help with testing
-        validationTimeoutRef.current = setTimeout(() => {
-          if (isAnswerCorrect(value, currentChar.validAnswers)) {
-            // Reset timeout count on correct answer
-            timeoutCountRef.current = 0;
-            
-            // Update streak and combo multiplier
-            const newStreak = streak + 1;
-            setStreak(newStreak);
-            const newMultiplier = getComboMultiplier(newStreak);
-            setComboMultiplier(newMultiplier);
-            
-            // Update score with multiplier (base score: 1 points)
-            setScore(prev => prev + Math.floor(10 * newMultiplier));
-            
-            setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_DECREASE));
-            setNextTimeMs(() => clamp(currentTimeMs - TIMER_STEP, MIN_TIME_MS, DEFAULT_TIME_MS));
-            // Immediate advancement to next character
-            nextCharacter(false);
-          } else if (!isValidStart(value, currentChar.validAnswers)) {
-            // Reset timeout count on wrong answer
-            timeoutCountRef.current = 0;
-            setStreak(0);
-            setComboMultiplier(1.0);
-            setIsWrongAnswer(true);
-            setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_INCREASE));
-            // Fixed but short delay for wrong answers
-            nextCharTimeoutRef.current = setTimeout(() => nextCharacter(true), 1000);
-          }
-        }, 10); // Very small delay for testing
-      }
-      return;
-    }
-    
-    if (isWrongAnswer) return;
-    if (value.length === 0) return;
+  const validateAndHandleInput = useCallback((value: string) => {
+    if (!value) return;
 
-    // Introduce a minimal delay for validation to help with testing
     validationTimeoutRef.current = setTimeout(() => {
       if (isAnswerCorrect(value, currentChar.validAnswers)) {
-        // Reset timeout count on correct answer
         timeoutCountRef.current = 0;
         
-        // Update streak and combo multiplier
         const newStreak = streak + 1;
         setStreak(newStreak);
         const newMultiplier = getComboMultiplier(newStreak);
         setComboMultiplier(newMultiplier);
-        
         setScore(prev => prev + Math.floor(10 * newMultiplier));
         
+        updateTimerOnComboThreshold(newMultiplier);
         setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_DECREASE));
-        setNextTimeMs(() => clamp(currentTimeMs - TIMER_STEP, MIN_TIME_MS, DEFAULT_TIME_MS));
-        // Immediate advancement to next character
         nextCharacter(false);
-        return;
-      }
-      
-      if (!isValidStart(value, currentChar.validAnswers)) {
-        // Reset timeout count on wrong answer
+      } else if (!isValidStart(value, currentChar.validAnswers)) {
         timeoutCountRef.current = 0;
         setStreak(0);
         setComboMultiplier(1.0);
         setIsWrongAnswer(true);
         setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_INCREASE));
-        // Fixed but short delay for wrong answers
+        // Lock input by keeping the last wrong value
+        setUserInput(value);
         nextCharTimeoutRef.current = setTimeout(() => nextCharacter(true), 1000);
+      } else {
+        // Allow partial valid inputs
+        setUserInput(value);
       }
-    }, 10); // Very small delay for testing
+    }, 10);
+  }, [currentChar, streak, nextCharacter, updateTimerOnComboThreshold]);
+
+  useEffect(() => {
+    if (pausedAfterTimeout || timeLeft <= 0) {
+      if (timeLeft <= 0) {
+        handleTimeout();
+      }
+      return;
+    }
+
+    const timerId = setInterval(updateTimeLeft, 50);
+    timerRef.current = timerId;
+
+    return () => {
+      clearInterval(timerId);
+      timerRef.current = null;
+    };
+  }, [timeLeft, pausedAfterTimeout, handleTimeout, updateTimeLeft]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Ignore input if wrong answer was already provided
+    if (isWrongAnswer) return;
+    
+    const value = normalizeInput(e.target.value);
+    
+    if (pausedAfterTimeout) {
+      setPausedAfterTimeout(false);
+      timeoutCountRef.current = 0;
+      setCurrentTimeMs(DEFAULT_TIME_MS);
+      setTimeLeft(DEFAULT_TIME_MS);
+      setUserInput(value);  // Set input value immediately
+      validateAndHandleInput(value);
+      return;
+    }
+    
+    setUserInput(value);  // Always update input immediately
+    if (value) {
+      validateAndHandleInput(value);
+    }
   };
 
   const timeRemainingPct = (timeLeft / currentTimeMs) * 100;
