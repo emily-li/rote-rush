@@ -6,6 +6,20 @@ import type { PracticeCharacter } from '@/types';
 
 const { DEFAULT_TIME_MS, MIN_TIME_MS, TIMER_STEP, WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = QUIZ_CONFIG;
 
+/**
+ * Calculate combo multiplier based on the current streak count
+ * According to spec:
+ * - 10 consecutive correct answers: 1.5x
+ * - 50 consecutive correct answers: 2x
+ * - 100 consecutive correct answers: 3x
+ */
+function getComboMultiplier(streak: number): number {
+  if (streak >= 100) return 3.0;
+  if (streak >= 50) return 2.0;
+  if (streak >= 10) return 1.5;
+  return 1.0;
+}
+
 function adjustWeight(characters: PracticeCharacter[], char: string, delta: number) {
   return characters.map(c =>
     c.char === char ? { ...c, weight: Math.max(MIN_WEIGHT, (c.weight || 1) + delta) } : c
@@ -30,7 +44,8 @@ export default function SimpleQuizMode() {
   const [currentChar, setCurrentChar] = useState<PracticeCharacter>(() => getWeightedRandomCharacter(loadPracticeCharacters()));
   const [userInput, setUserInput] = useState('');
   const [score, setScore] = useState(0);
-  const [combo, setCombo] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const [comboMultiplier, setComboMultiplier] = useState(1.0);
   const [isWrongAnswer, setIsWrongAnswer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME_MS);
   const [currentTimeMs, setCurrentTimeMs] = useState(DEFAULT_TIME_MS);
@@ -74,7 +89,8 @@ export default function SimpleQuizMode() {
       timerRef.current = null;
     }
     
-    setCombo(0);
+    setStreak(0);
+    setComboMultiplier(1.0);
     setIsWrongAnswer(true);
     
     setTimeoutCount(prev => {
@@ -117,8 +133,14 @@ export default function SimpleQuizMode() {
       setTimeLeft(prev => Math.max(0, prev - 50));
     }, 50);
     
+    // Store timer reference to allow cleanup from other functions
+    timerRef.current = timerId;
+    
     // Clear on unmount or when dependencies change
-    return () => clearInterval(timerId);
+    return () => {
+      clearInterval(timerId);
+      timerRef.current = null;
+    };
   }, [timeLeft, pausedAfterTimeout, handleTimeout]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -139,15 +161,25 @@ export default function SimpleQuizMode() {
         if (isAnswerCorrect(value, currentChar.validAnswers)) {
           // Reset timeout count on correct answer
           setTimeoutCount(0); 
-          setScore(prev => prev + 1);
-          setCombo(prev => prev + 1);
+          
+          // Update streak and combo multiplier
+          const newStreak = streak + 1;
+          setStreak(newStreak);
+          const newMultiplier = getComboMultiplier(newStreak);
+          setComboMultiplier(newMultiplier);
+          
+          // Update score with multiplier (base score: 1 points)
+          setScore(prev => prev + Math.floor(10 * newMultiplier));
+          
           setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_DECREASE));
           setNextTimeMs(() => clamp(currentTimeMs - TIMER_STEP, MIN_TIME_MS, DEFAULT_TIME_MS));
-          setTimeout(() => nextCharacter(false), 0);
+          // Use a small delay to prevent immediate advancement
+          setTimeout(() => nextCharacter(false), 300);
         } else if (!isValidStart(value, currentChar.validAnswers)) {
           // Reset timeout count on wrong answer
           setTimeoutCount(0);
-          setCombo(0);
+          setStreak(0);
+          setComboMultiplier(1.0);
           setIsWrongAnswer(true);
           setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_INCREASE));
           // Fixed but short delay for wrong answers
@@ -163,17 +195,26 @@ export default function SimpleQuizMode() {
     if (isAnswerCorrect(value, currentChar.validAnswers)) {
       // Reset timeout count on correct answer
       setTimeoutCount(0); 
-      setScore(prev => prev + 1);
-      setCombo(prev => prev + 1);
+      
+      // Update streak and combo multiplier
+      const newStreak = streak + 1;
+      setStreak(newStreak);
+      const newMultiplier = getComboMultiplier(newStreak);
+      setComboMultiplier(newMultiplier);
+      
+      setScore(prev => prev + Math.floor(10 * newMultiplier));
+      
       setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_DECREASE));
       setNextTimeMs(() => clamp(currentTimeMs - TIMER_STEP, MIN_TIME_MS, DEFAULT_TIME_MS));
-      setTimeout(() => nextCharacter(false), 0);
+      // Use a small delay to prevent immediate advancement
+      setTimeout(() => nextCharacter(false), 300);
       return;
     }
     if (!isValidStart(value, currentChar.validAnswers)) {
       // Reset timeout count on wrong answer
       setTimeoutCount(0);
-      setCombo(0);
+      setStreak(0);
+      setComboMultiplier(1.0);
       setIsWrongAnswer(true);
       setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_INCREASE));
       // Fixed but short delay for wrong answers
@@ -193,9 +234,9 @@ export default function SimpleQuizMode() {
         }}
       />
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
-        <div className="absolute left-4 top-4 text-left">
-          <div className="text-3xl font-bold text-fuchsia-800">Score: {score}</div>
-          <div className="text-3xl font-bold text-fuchsia-800">Combo: {combo}</div>
+        <div className=" text-fuchsia-800 text-3xl font-bold absolute left-4 top-4 text-left">
+          <div >Score: {score}</div>
+          <div >Streak: {streak}</div><div >Combo: ×{comboMultiplier}</div>
         </div>
         <div className="kana mb-8 select-none text-9xl font-light text-gray-800">
           {currentChar.char}

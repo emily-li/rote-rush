@@ -14,39 +14,39 @@ This document details the Minimum Viable Product (MVP) for the Rote Rush game, b
 - [/] As a user, I cannot enter more characters than the answer length.
 - [/] As a user, I receive immediate feedback on whether my answer is correct or incorrect.
 - [/] As a user, I immediately see the answer for an incorrect entry.
-- [ ] As a user, I see my current score and combo multiplier.
-- [ ] As a user, I am timed for each character and see the timer visually.
+- [/] As a user, I see my current score and combo multiplier.
+- [/] As a user, I am timed for each character and see the timer visually.
 
 ### Game Flow
 
 - [/] User launches the app (desktop only)
 - [/] User is presented with a character and an input box
-- [ ] Timer starts for the character
-- [ ] User enters an answer:
-  - [ ] If correct:
-    - [ ] Score increases
-    - [ ] Timer for that character is reduced
-    - [ ] Combo increases
-    - [ ] Next character is shown
-  - [ ] If incorrect or timer resets:
-    - [ ] Score does not increase
-    - [ ] Combo resets
-    - [ ] Timer resets
-    - [ ] Correct answer is shown, then next character is shown
-- [ ] Session continues until user chooses to stop
+- [/] Timer starts for the character
+- [/] User enters an answer:
+  - [/] If correct:
+    - [/] Score increases
+    - [/] Timer for that character is reduced
+    - [/] Combo increases
+    - [/] Next character is shown
+  - [/] If incorrect or timer resets:
+    - [/] Score does not increase
+    - [/] Combo resets
+    - [/] Timer resets
+    - [/] Correct answer is shown, then next character is shown
+- [/] Session continues until user chooses to stop
 
 ## Non-Functional Requirements
 
-- [ ] App should respond to user input within 50ms
-- [ ] Timer should be visually clear and update smoothly
-- [ ] It should be obvious to the user if they answer incorrectly and what the correct answer is
+- [/] App should respond to user input within 50ms
+- [/] Timer should be visually clear and update smoothly
+- [/] It should be obvious to the user if they answer incorrectly and what the correct answer is
 - [ ] App should work on all modern browsers
 
 ## Data Structures & Models
 
 ### Character Data
 
-- [ ] Store Hiragana and Katakana characters in JSON files
+- [/] Store Hiragana and Katakana characters in JSON files
 
 Example character data extract:
 
@@ -77,11 +77,10 @@ Example character data extract:
 
 ### User Progress (Session only)
 
-- [ ] Track current score (integer)
-- [ ] Track current combo count (integer)
-- [ ] Track current combo multiplier (float)
-- [ ] Track timer value for each character (ms)
-- [ ] Session is cleared on when user closes the tab or refreshes
+- [/] Track current score (integer)
+- [/] Track current combo count (integer)
+- [/] Track current combo multiplier (float)
+- [/] Track timer value for each streak (ms)
 
 Example session state:
 

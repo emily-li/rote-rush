@@ -110,7 +110,7 @@ describe('SimpleQuizMode functionality', () => {
         vi.advanceTimersByTime(100);
       });
       
-      expect(screen.getByText('Score: 1')).toBeInTheDocument();
+      expect(screen.getByText('Score: 10')).toBeInTheDocument();
 
       // Trigger another timeout
       triggerTimeout();
@@ -122,7 +122,7 @@ describe('SimpleQuizMode functionality', () => {
         vi.advanceTimersByTime(100);
       });
       
-      expect(screen.getByText('Score: 2')).toBeInTheDocument();
+      expect(screen.getByText('Score: 20')).toBeInTheDocument();
     });
 
     it('pauses after two consecutive timeouts', () => {
@@ -161,7 +161,7 @@ describe('SimpleQuizMode functionality', () => {
         vi.advanceTimersByTime(100);
       });
       
-      expect(screen.getByText('Score: 1')).toBeInTheDocument();
+      expect(screen.getByText('Score: 10')).toBeInTheDocument();
     });
     
     it('validates correct answers immediately after pause', () => {
@@ -175,11 +175,11 @@ describe('SimpleQuizMode functionality', () => {
       fireEvent.change(input, { target: { value: 'a' } });
       
       // Score should increase immediately
-      expect(screen.getByText('Score: 1')).toBeInTheDocument();
+      expect(screen.getByText('Score: 10')).toBeInTheDocument();
       
       // Allow nextCharacter setTimeout to run
       act(() => {
-        vi.advanceTimersByTime(10);
+        vi.advanceTimersByTime(300);
       });
       
       // Input should be cleared for the next character
