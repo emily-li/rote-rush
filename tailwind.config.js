@@ -1,4 +1,7 @@
-/** @type {import('tailwindcss').Config} */
+/** @type      fontFamily: {
+        'sans': ['Comfortaa', 'cursive'],  // Modern rounded font - fun but professional
+        'kana': ['Noto Sans JP', 'sans-serif'], // Clear font for Japanese characters
+      },port('tailwindcss').Config} */
 
 const plugin = require('tailwindcss/plugin')
 export default {
@@ -8,7 +11,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'kana': ['Noto Sans JP', 'sans-serif'],
+        'sans': ['Comfortaa', 'cursive'],  // Fun but elegant default font
+        'kana': ['Noto Sans JP', 'sans-serif'], // Clear font for Japanese characters
       },
       keyframes: {
         'score-pop': {
