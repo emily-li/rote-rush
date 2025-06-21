@@ -51,7 +51,6 @@ export default function SimpleQuizMode() {
     
     // Only reset timeout count when explicitly requested
     if (resetTimeout) {
-      console.log('Resetting timeout count');
       setTimeoutCount(0);
     }
     
@@ -69,31 +68,29 @@ export default function SimpleQuizMode() {
   }, [characters, nextTimeMs]);
 
   const handleTimeout = useCallback(() => {
-    setCombo(0);
-    setIsWrongAnswer(true);
-    
-    // Clear any existing timer
+    // Clear any existing timer immediately to prevent race conditions
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
     
+    setCombo(0);
+    setIsWrongAnswer(true);
+    
     setTimeoutCount(prev => {
       const newCount = prev + 1;
-      console.log('Timeout count:', newCount);
       
       // Handle display of wrong answer for 1.5 seconds
       setTimeout(() => {
         if (newCount >= 2) {
           // After two timeouts, show next character but keep timer paused
-          // Important: Use nextCharacter with false for resetTimeout to preserve count
           nextCharacter(true, false);
           // Set paused state to prevent timer from starting
-          setPausedAfterTimeout(true);
-          console.log('Timer paused after two timeouts');
+          setTimeout(() => {
+            setPausedAfterTimeout(true);
+          }, 0);
         } else {
           // Regular timeout, show next character with timer running
-          // Important: Don't reset timeout count on first timeout
           nextCharacter(true, false);
         }
       }, 1500);
@@ -106,7 +103,6 @@ export default function SimpleQuizMode() {
   useEffect(() => {
     // Skip this effect when paused
     if (pausedAfterTimeout) {
-      console.log('Timer effect skipped due to paused state');
       return;
     }
     
@@ -117,7 +113,6 @@ export default function SimpleQuizMode() {
     }
     
     // Otherwise, start/restart timer
-    console.log('Starting timer', { timeLeft, pausedAfterTimeout });
     const timerId = setInterval(() => {
       setTimeLeft(prev => Math.max(0, prev - 50));
     }, 50);
@@ -127,18 +122,21 @@ export default function SimpleQuizMode() {
   }, [timeLeft, pausedAfterTimeout, handleTimeout]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = normalizeInput(e.target.value);
+    
     if (pausedAfterTimeout) {
-      console.log('Resuming after pause');
       // Resume game if paused after timeout
       setPausedAfterTimeout(false);
       setTimeoutCount(0);
       // Reset timer to default time
       setCurrentTimeMs(DEFAULT_TIME_MS);
       setTimeLeft(DEFAULT_TIME_MS);
+      // IMPORTANT: Set the input value so first character is registered
+      setUserInput(value);
       return;
     }
+    
     if (isWrongAnswer) return;
-    const value = normalizeInput(e.target.value);
     setUserInput(value);
     if (value.length === 0) return;
     if (isAnswerCorrect(value, currentChar.validAnswers)) {
@@ -157,6 +155,7 @@ export default function SimpleQuizMode() {
       setCombo(0);
       setIsWrongAnswer(true);
       setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_INCREASE));
+      // Fixed but short delay for wrong answers
       setTimeout(() => nextCharacter(true), 1000);
     }
   };
