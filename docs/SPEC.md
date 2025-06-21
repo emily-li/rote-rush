@@ -98,8 +98,8 @@ Example session state:
 
 ## UI Details
 
-- [ ] Main screen: Character centered, input box below, timer bar above, score and combo in top right
-- [ ] No 'enter' button for text entry; input is validated as the user types
-- [ ] Input is limited to the length of the correct answer
-- [ ] Incorrect input is detected and feedback is given as soon as a mismatch occurs
-- [ ] Timer bar visually shrinks as time elapses
+- [/] Main screen: Character centered, input box below, timer bar above, score and combo in top right
+- [/] No 'enter' button for text entry; input is validated as the user types
+- [/] Input is limited to the length of the correct answer
+- [/] Incorrect input is detected and feedback is given as soon as a mismatch occurs
+- [/] Timer bar visually shrinks as time elapses

@@ -2,83 +2,118 @@ import hiraganaData from '@/resources/hiragana.json';
 import katakanaData from '@/resources/katakana.json';
 import type { PracticeCharacter } from '@/types';
 
-const WEIGHTS_KEY = 'practiceCharacterWeights';
-const INITIAL_WEIGHT = 5;
-const MIN_WEIGHT = 1;
-const MAX_WEIGHT = 20;
+/**
+ * Character loading and weight management utilities
+ */
+
+/** Local storage key for persisting character weights */
+const WEIGHTS_KEY = 'practiceCharacterWeights' as const;
+
+/** Default weight for new characters */
+const INITIAL_WEIGHT = 5 as const;
+
+/** Minimum allowed weight (ensures all characters stay in rotation) */
+const MIN_WEIGHT = 1 as const;
+
+/** Maximum allowed weight (prevents one character from dominating) */
+const MAX_WEIGHT = 20 as const;
 
 /**
- * Save the weights of practice characters to localStorage.
- * @param characters - The array of practice characters to save.
+ * Character weight data structure for localStorage
  */
-export const saveCharacterWeights = (characters: PracticeCharacter[]) => {
+type CharacterWeights = Record<string, number>;
+
+/**
+ * Save character weights to localStorage with error handling
+ * @param characters - Array of practice characters with current weights
+ */
+export const saveCharacterWeights = (characters: readonly PracticeCharacter[]): void => {
   try {
-    const weights: Record<string, number> = {};
-    characters.forEach(c => { weights[c.char] = c.weight || INITIAL_WEIGHT; });
+    const weights: CharacterWeights = {};
+    characters.forEach(character => { 
+      weights[character.char] = character.weight ?? INITIAL_WEIGHT; 
+    });
     localStorage.setItem(WEIGHTS_KEY, JSON.stringify(weights));
-  } catch (e) {
-    // Fallback: ignore quota errors or localStorage issues
+  } catch (error) {
+    // Silently handle localStorage quota errors or access issues
+    console.warn('Failed to save character weights:', error);
   }
 };
 
 /**
- * Load saved character weights from localStorage.
- * @returns An object mapping character to its weight.
+ * Load saved character weights from localStorage with error handling
+ * @returns Object mapping character to its weight, or empty object if loading fails
  */
-export const loadSavedWeights = (): Record<string, number> => {
+export const loadSavedWeights = (): CharacterWeights => {
   try {
     const raw = localStorage.getItem(WEIGHTS_KEY);
     if (!raw) return {};
-    return JSON.parse(raw);
-  } catch {
+    const parsed = JSON.parse(raw);
+    return typeof parsed === 'object' && parsed !== null ? parsed : {};
+  } catch (error) {
+    console.warn('Failed to load character weights:', error);
     return {};
   }
 };
 
 /**
- * Load practice characters from the data files, applying saved weights.
- * @returns An array of practice characters with their weights.
+ * Load practice characters from JSON data files with saved weights applied
+ * @returns Array of practice characters ready for use
  */
 export const loadPracticeCharacters = (): PracticeCharacter[] => {
   const savedWeights = loadSavedWeights();
+  
+  const mapCharacterData = (item: { character: string; answers: string[] }): PracticeCharacter => ({
+    char: item.character,
+    validAnswers: item.answers,
+    weight: clampWeight(savedWeights[item.character] ?? INITIAL_WEIGHT),
+  });
+
   return [
-    ...hiraganaData.values.map((item: any) => ({
-      char: item.character,
-      validAnswers: item.answers,
-      weight: clampWeight(savedWeights[item.character] ?? INITIAL_WEIGHT),
-    })),
-    ...katakanaData.values.map((item: any) => ({
-      char: item.character,
-      validAnswers: item.answers,
-      weight: clampWeight(savedWeights[item.character] ?? INITIAL_WEIGHT),
-    })),
+    ...(hiraganaData.values as { character: string; answers: string[] }[]).map(mapCharacterData),
+    ...(katakanaData.values as { character: string; answers: string[] }[]).map(mapCharacterData),
   ];
 };
 
 /**
- * Clamp a weight value to be within the defined min and max bounds.
- * @param weight - The weight value to clamp.
- * @returns The clamped weight value.
+ * Clamp a weight value within the defined min/max bounds
+ * @param weight - Weight value to clamp
+ * @returns Clamped weight between MIN_WEIGHT and MAX_WEIGHT
  */
-function clampWeight(weight: number) {
+const clampWeight = (weight: number): number => {
   return Math.max(MIN_WEIGHT, Math.min(MAX_WEIGHT, weight));
-}
+};
 
 /**
- * Get a weighted random character from the array of practice characters.
- * @param characters - The array of practice characters.
- * @param randomFn - Optional custom random function.
- * @returns A weighted random practice character.
+ * Select a random character using weighted probability distribution
+ * Characters with higher weights are more likely to be selected
+ * @param characters - Array of available practice characters
+ * @param randomFn - Random number generator function (0-1), defaults to Math.random
+ * @returns Randomly selected character based on weights
+ * @throws Error if characters array is empty
  */
 export const getWeightedRandomCharacter = (
-  characters: PracticeCharacter[],
+  characters: readonly PracticeCharacter[],
   randomFn: () => number = Math.random,
 ): PracticeCharacter => {
-  const totalWeight = characters.reduce((sum, c) => sum + (c.weight || INITIAL_WEIGHT), 0);
-  let rand = randomFn() * totalWeight;
-  for (const c of characters) {
-    rand -= c.weight || INITIAL_WEIGHT;
-    if (rand <= 0) return c;
+  if (characters.length === 0) {
+    throw new Error('Cannot select from empty characters array');
   }
-  return characters[characters.length - 1]; // fallback
+
+  const totalWeight = characters.reduce(
+    (sum, character) => sum + (character.weight ?? INITIAL_WEIGHT), 
+    0
+  );
+  
+  let randomValue = randomFn() * totalWeight;
+  
+  for (const character of characters) {
+    randomValue -= character.weight ?? INITIAL_WEIGHT;
+    if (randomValue <= 0) {
+      return character;
+    }
+  }
+  
+  // Fallback to last character (should rarely happen due to floating point precision)
+  return characters[characters.length - 1];
 };

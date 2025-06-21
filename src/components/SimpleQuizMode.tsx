@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { loadPracticeCharacters, getWeightedRandomCharacter, saveCharacterWeights } from '@/lib/characterLoading';
-import { normalizeInput, clamp } from '@/lib/validation';
+import { normalizeInput, clamp, checkAnswerMatch, checkValidStart } from '@/lib/validation';
 import { QUIZ_CONFIG } from '@/config/quiz';
 import type { PracticeCharacter } from '@/types';
 import { ScoreDisplay } from './ui/ScoreDisplay';
@@ -37,54 +37,58 @@ function adjustWeight(characters: PracticeCharacter[], char: string, delta: numb
 }
 
 /**
- * Validate if the user's input exactly matches any of the valid answers.
- * Comparison is case-insensitive for user convenience.
- */
-function isAnswerCorrect(input: string, validAnswers: string[]): boolean {
-  return validAnswers.some(answer => answer.toLowerCase() === input);
-}
-
-/**
- * Check if the current partial input could lead to a valid answer.
- * Used to provide immediate feedback for incorrect inputs rather than
- * waiting for the full answer to be typed.
- */
-function isValidStart(input: string, validAnswers: string[]): boolean {
-  return validAnswers.some(answer => answer.toLowerCase().startsWith(input));
-}
-
-/**
  * Reset the input field and error state when moving to a new character.
  * Called after both correct answers and timeouts.
  */
-function resetForNextCharacter(setUserInput: (s: string) => void, setIsWrongAnswer: (b: boolean) => void) {
+const resetForNextCharacter = (
+  setUserInput: (s: string) => void, 
+  setIsWrongAnswer: (b: boolean) => void
+): void => {
   setUserInput('');
   setIsWrongAnswer(false);
 }
 
-export default function SimpleQuizMode() {
+/**
+ * Main quiz component for practicing Japanese characters
+ * Features adaptive difficulty, combo system, and timed challenges
+ */
+const SimpleQuizMode = (): JSX.Element => {
+  // Character and game state
   const [characters, setCharacters] = useState(() => loadPracticeCharacters());
-  const [currentChar, setCurrentChar] = useState<PracticeCharacter>(() => getWeightedRandomCharacter(loadPracticeCharacters()));
+  const [currentChar, setCurrentChar] = useState<PracticeCharacter>(() => 
+    getWeightedRandomCharacter(loadPracticeCharacters())
+  );
   const [userInput, setUserInput] = useState('');
+  
+  // Score and progress state
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [comboMultiplier, setComboMultiplier] = useState(1.0);
   const [isWrongAnswer, setIsWrongAnswer] = useState(false);
+  
+  // Timer state
   const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME_MS);
   const [currentTimeMs, setCurrentTimeMs] = useState(DEFAULT_TIME_MS);
   const [nextTimeMs, setNextTimeMs] = useState(DEFAULT_TIME_MS);
   const [pausedAfterTimeout, setPausedAfterTimeout] = useState(false);
   
+  // Refs for cleanup and state tracking
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const timeoutCountRef = useRef(0);
   const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const nextCharTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
-  const shouldAnimateCombo = useComboAnimation(comboMultiplier);
+  // Animation state from custom hook
+  const { shouldAnimateCombo, shouldAnimateStreak, shouldAnimateComboReset } = 
+    useComboAnimation(comboMultiplier, streak);
   
-  const updateTimerOnComboThreshold = useCallback((newMultiplier: number) => {
+  /**
+   * Update timer on combo threshold - reduces time for next character when combo increases
+   * @param newMultiplier - The new combo multiplier value
+   */
+  const updateTimerOnComboThreshold = useCallback((newMultiplier: number): void => {
     if (newMultiplier > comboMultiplier) {
-      setNextTimeMs(() => clamp(currentTimeMs - TIMER_STEP, MIN_TIME_MS, DEFAULT_TIME_MS));
+      setNextTimeMs(clamp(currentTimeMs - TIMER_STEP, MIN_TIME_MS, DEFAULT_TIME_MS));
     }
   }, [comboMultiplier, currentTimeMs]);
 
@@ -158,7 +162,7 @@ export default function SimpleQuizMode() {
     if (!value) return;
 
     validationTimeoutRef.current = setTimeout(() => {
-      if (isAnswerCorrect(value, currentChar.validAnswers)) {
+      if (checkAnswerMatch(value, currentChar.validAnswers)) {
         timeoutCountRef.current = 0;
         
         const newStreak = streak + 1;
@@ -170,7 +174,7 @@ export default function SimpleQuizMode() {
         updateTimerOnComboThreshold(newMultiplier);
         setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_DECREASE));
         nextCharacter(false);
-      } else if (!isValidStart(value, currentChar.validAnswers)) {
+      } else if (!checkValidStart(value, currentChar.validAnswers)) {
         timeoutCountRef.current = 0;
         setStreak(0);
         setComboMultiplier(1.0);
@@ -203,27 +207,33 @@ export default function SimpleQuizMode() {
     };
   }, [timeLeft, pausedAfterTimeout, handleTimeout, updateTimeLeft]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  /**
+   * Handle user input changes with validation and game state management
+   * @param e - Input change event
+   */
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>): void => {
     // Ignore input if wrong answer was already provided
     if (isWrongAnswer) return;
     
     const value = normalizeInput(e.target.value);
     
+    // Handle input when game is paused after timeout
     if (pausedAfterTimeout) {
       setPausedAfterTimeout(false);
       timeoutCountRef.current = 0;
       setCurrentTimeMs(DEFAULT_TIME_MS);
       setTimeLeft(DEFAULT_TIME_MS);
-      setUserInput(value);  // Set input value immediately
+      setUserInput(value);
       validateAndHandleInput(value);
       return;
     }
     
-    setUserInput(value);  // Always update input immediately
+    // Normal input handling
+    setUserInput(value);
     if (value) {
       validateAndHandleInput(value);
     }
-  };
+  }, [isWrongAnswer, pausedAfterTimeout, validateAndHandleInput]);
 
   const timeRemainingPct = (timeLeft / currentTimeMs) * 100;
 
@@ -237,6 +247,8 @@ export default function SimpleQuizMode() {
           streak={streak}
           comboMultiplier={comboMultiplier}
           shouldAnimateCombo={shouldAnimateCombo}
+          shouldAnimateStreak={shouldAnimateStreak}
+          shouldAnimateComboReset={shouldAnimateComboReset}
         />
         
         {/* Main Kana Character Display */}
@@ -251,23 +263,32 @@ export default function SimpleQuizMode() {
             value={userInput}
             onChange={handleInputChange}
             placeholder="Type the romanized reading..."
-            className={`w-full border-2 py-4 text-center text-xl transition-colors 
-              focus:ring-0 focus:outline-none
-              ${isWrongAnswer
+            className={`w-full border-2 py-4 text-center text-xl transition-colors focus:ring-0 focus:outline-none ${
+              isWrongAnswer
                 ? 'border-fuchsia-800 bg-fuchsia-50 text-fuchsia-800'
                 : 'border-gray-300 focus:border-blue-500'
             }`}
             autoFocus
+            autoComplete="off"
+            spellCheck={false}
+            aria-label="Type the romanized reading for the displayed character"
+            aria-describedby={isWrongAnswer ? 'error-display' : undefined}
           />
         </div>
         
         {/* Error Answer Display */}
         <div className="mt-6 flex h-12 items-center justify-center">
-          <div className="text-3xl font-bold text-fuchsia-800">
+          <div 
+            id="error-display"
+            className="text-3xl font-bold text-fuchsia-800"
+            aria-live="polite"
+          >
             {isWrongAnswer ? currentChar.validAnswers[0] : ''}
           </div>
         </div>
       </div>
     </div>
   );
-}
+};
+
+export default SimpleQuizMode;
