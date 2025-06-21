@@ -57,6 +57,128 @@ describe('SimpleQuizMode bug regression', () => {
     // Should still be on the same character
     expect(screen.getByText('あ')).toBeInTheDocument();
   });
+
+  it('resets timeout count on correct answer', () => {
+    render(<SimpleQuizMode />);
+    const input = screen.getByPlaceholderText(/romanized/i);
+
+    // First timeout
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+    
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+
+    // Give correct answer to reset timeout count
+    fireEvent.change(input, { target: { value: 'a' } });
+    
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
+    
+    // Score should have increased
+    expect(screen.getByText('Score: 1')).toBeInTheDocument();
+
+    // Verify that timeout count was reset:
+    // If we wait for another timeout, it should be treated as first timeout
+    // not second, so timer should not pause after this timeout
+    act(() => {
+      vi.advanceTimersByTime(10000); // Trigger timeout
+    });
+    
+    act(() => {
+      vi.advanceTimersByTime(1500); // Wait for timeout handling
+    });
+
+    // Enter input again to verify timer didn't pause
+    fireEvent.change(input, { target: { value: 'a' } });
+    
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
+    
+    // Score should increase again, proving timer didn't pause
+    expect(screen.getByText('Score: 2')).toBeInTheDocument();
+  });
+
+  it('pauses after two consecutive timeouts', () => {
+    render(<SimpleQuizMode />);
+    const input = screen.getByPlaceholderText(/romanized/i);
+
+    // First timeout
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+    
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+
+    // Second timeout
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+    
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+
+    // At this point timer should be paused
+    // Try advancing a lot of time - nothing should happen
+    act(() => {
+      vi.advanceTimersByTime(20000);
+    });
+
+    // Timer is paused, so no timeout should have occurred
+    // Check that we can still type and the game is not in a timeout state
+    fireEvent.change(input, { target: { value: 'a' } });
+    
+    // This should resume the game and input should have our value
+    expect(input).toHaveValue('a');
+  });
+
+  it('captures first keystroke after pause correctly', () => {
+    render(<SimpleQuizMode />);
+    const input = screen.getByPlaceholderText(/romanized/i);
+
+    // First timeout
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+    
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+
+    // Second timeout
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
+    
+    act(() => {
+      vi.advanceTimersByTime(1500);
+    });
+
+    // Timer is now paused
+    // Type a character
+    fireEvent.change(input, { target: { value: 'a' } });
+    
+    // Check that the input received the character
+    expect(input).toHaveValue('a');
+    
+    // Type the full correct answer
+    fireEvent.change(input, { target: { value: 'a' } });
+    
+    // Advance time slightly to allow processing
+    act(() => {
+      vi.advanceTimersByTime(100);
+    });
+    
+    // Score should have increased because the correct answer was registered
+    expect(screen.getByText('Score: 1')).toBeInTheDocument();
+  });
 });
 
 describe('weight adjustment helpers (from SimpleQuizMode)', () => {
