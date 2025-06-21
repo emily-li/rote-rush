@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { loadPracticeCharacters, getWeightedRandomCharacter, saveCharacterWeights } from '@/lib/characterLoading';
+import { normalizeInput, clamp } from '@/lib/validation';
 import type { PracticeCharacter } from '@/types';
 
 const DEFAULT_TIME_MS = 5000;
@@ -11,7 +12,9 @@ const MIN_WEIGHT = 1;
 
 function decreaseWeight(characters: PracticeCharacter[], char: string) {
   return characters.map(c =>
-    c.char === char ? { ...c, weight: Math.max(MIN_WEIGHT, (c.weight || 1) - WEIGHT_DECREASE) } : c
+    c.char === char
+      ? { ...c, weight: Math.max(MIN_WEIGHT, (c.weight || 1) - WEIGHT_DECREASE) }
+      : c
   );
 }
 
@@ -27,6 +30,16 @@ function isAnswerCorrect(input: string, validAnswers: string[]): boolean {
 
 function isValidStart(input: string, validAnswers: string[]): boolean {
   return validAnswers.some(answer => answer.toLowerCase().startsWith(input));
+}
+
+function resetTimerToDefault(setCurrentTimeMs: (ms: number) => void, setTimeLeft: (ms: number) => void) {
+  setCurrentTimeMs(DEFAULT_TIME_MS);
+  setTimeLeft(DEFAULT_TIME_MS);
+}
+
+function resetForNextCharacter(setUserInput: (s: string) => void, setIsWrongAnswer: (b: boolean) => void) {
+  setUserInput('');
+  setIsWrongAnswer(false);
 }
 
 export default function SimpleQuizMode() {
@@ -59,50 +72,38 @@ export default function SimpleQuizMode() {
     saveCharacterWeights(characters);
   }, [characters]);
 
-  const resetTimer = useCallback(() => {
-    setTimeLeft(currentTimeMs);
-  }, [currentTimeMs]);
-
   const nextCharacter = useCallback(() => {
     setCurrentChar(getWeightedRandomCharacter(characters));
-    setUserInput('');
-    setIsWrongAnswer(false);
-    resetTimer();
-  }, [characters, resetTimer]);
+    resetForNextCharacter(setUserInput, setIsWrongAnswer);
+    resetTimerToDefault(setCurrentTimeMs, setTimeLeft);
+  }, [characters]);
 
   const handleTimeout = useCallback(() => {
     setCombo(0);
     setIsWrongAnswer(true);
-    setCurrentTimeMs(DEFAULT_TIME_MS); // Reset timer to 5s on timeout
-    setTimeLeft(DEFAULT_TIME_MS); // Also reset the timer bar immediately
     setTimeout(nextCharacter, 1500);
   }, [nextCharacter]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (isWrongAnswer) return;
-
-    const value = e.target.value.toLowerCase().trim();
+    const value = normalizeInput(e.target.value);
     setUserInput(value);
-
     if (value.length === 0) return;
-
     // Check if answer is correct
     if (isAnswerCorrect(value, currentChar.validAnswers)) {
       setScore(prev => prev + 1);
       setCombo(prev => prev + 1);
       setCharacters(prevChars => decreaseWeight(prevChars, currentChar.char));
-      setCurrentTimeMs(prev => Math.max(MIN_TIME_MS, prev - TIMER_STEP));
+      setCurrentTimeMs(prev => clamp(prev - TIMER_STEP, MIN_TIME_MS, DEFAULT_TIME_MS));
       nextCharacter();
       return;
     }
-
     // Check if it's a valid start
     if (!isValidStart(value, currentChar.validAnswers)) {
       setCombo(0);
       setIsWrongAnswer(true);
       setCharacters(prevChars => increaseWeight(prevChars, currentChar.char));
-      setCurrentTimeMs(DEFAULT_TIME_MS); // Reset timer to 5s
-      setTimeLeft(DEFAULT_TIME_MS); // Force timer bar to full immediately
+      resetTimerToDefault(setCurrentTimeMs, setTimeLeft);
       setTimeout(() => {
         setTimeLeft(DEFAULT_TIME_MS); // Ensure timer bar is still full after nextCharacter resets
         nextCharacter();

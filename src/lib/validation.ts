@@ -18,3 +18,8 @@ export const checkValidStart = (
   if (normalized.length === 0) return false;
   return validAnswers.some((ans) => normalizeInput(ans).startsWith(normalized));
 };
+
+// Utility: Clamp a value between min and max
+export function clamp(val: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, val));
+}
