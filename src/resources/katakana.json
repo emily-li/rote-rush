@@ -105,6 +105,24 @@
     { "character": "ビョ", "answers": ["byo"] },
     { "character": "ピャ", "answers": ["pya"] },
     { "character": "ピュ", "answers": ["pyu"] },
-    { "character": "ピョ", "answers": ["pyo"] }
+    { "character": "ピョ", "answers": ["pyo"] },
+    { "character": "ヴ", "answers": ["vu"] },
+    { "character": "ヴァ", "answers": ["va"] },
+    { "character": "ヴィ", "answers": ["vi"] },
+    { "character": "ヴェ", "answers": ["ve"] },
+    { "character": "ヴォ", "answers": ["vo"] },
+    { "character": "ファ", "answers": ["fa"] },
+    { "character": "フィ", "answers": ["fi"] },
+    { "character": "フェ", "answers": ["fe"] },
+    { "character": "フォ", "answers": ["fo"] },
+    { "character": "シェ", "answers": ["she", "sye"] },
+    { "character": "ジェ", "answers": ["je", "zye"] },
+    { "character": "チェ", "answers": ["che", "tye"] },
+    { "character": "ティ", "answers": ["ti", "thi"] },
+    { "character": "ディ", "answers": ["di", "dhi"] },
+    { "character": "デュ", "answers": ["du", "dyu"] },
+    { "character": "ウィ", "answers": ["wi", "whi"] },
+    { "character": "ウェ", "answers": ["we", "whe"] },
+    { "character": "ウォ", "answers": ["wo", "who"] }
   ]
 }
