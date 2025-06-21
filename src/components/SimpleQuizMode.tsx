@@ -1,26 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { loadPracticeCharacters, getWeightedRandomCharacter, saveCharacterWeights } from '@/lib/characterLoading';
 import { normalizeInput, clamp } from '@/lib/validation';
+import { QUIZ_CONFIG } from '@/config/quiz';
 import type { PracticeCharacter } from '@/types';
 
-const DEFAULT_TIME_MS = 5000;
-const MIN_TIME_MS = 1000;
-const TIMER_STEP = 250;
-const WEIGHT_DECREASE = 1;
-const WEIGHT_INCREASE = 2;
-const MIN_WEIGHT = 1;
+const { DEFAULT_TIME_MS, MIN_TIME_MS, TIMER_STEP, WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = QUIZ_CONFIG;
 
-function decreaseWeight(characters: PracticeCharacter[], char: string) {
+function adjustWeight(characters: PracticeCharacter[], char: string, delta: number) {
   return characters.map(c =>
-    c.char === char
-      ? { ...c, weight: Math.max(MIN_WEIGHT, (c.weight || 1) - WEIGHT_DECREASE) }
-      : c
-  );
-}
-
-function increaseWeight(characters: PracticeCharacter[], char: string) {
-  return characters.map(c =>
-    c.char === char ? { ...c, weight: (c.weight || 1) + WEIGHT_INCREASE } : c
+    c.char === char ? { ...c, weight: Math.max(MIN_WEIGHT, (c.weight || 1) + delta) } : c
   );
 }
 
@@ -32,18 +20,12 @@ function isValidStart(input: string, validAnswers: string[]): boolean {
   return validAnswers.some(answer => answer.toLowerCase().startsWith(input));
 }
 
-function resetTimerToDefault(setCurrentTimeMs: (ms: number) => void, setTimeLeft: (ms: number) => void) {
-  setCurrentTimeMs(DEFAULT_TIME_MS);
-  setTimeLeft(DEFAULT_TIME_MS);
-}
-
 function resetForNextCharacter(setUserInput: (s: string) => void, setIsWrongAnswer: (b: boolean) => void) {
   setUserInput('');
   setIsWrongAnswer(false);
 }
 
 export default function SimpleQuizMode() {
-  // Game state
   const [characters, setCharacters] = useState(() => loadPracticeCharacters());
   const [currentChar, setCurrentChar] = useState<PracticeCharacter>(() => getWeightedRandomCharacter(loadPracticeCharacters()));
   const [userInput, setUserInput] = useState('');
@@ -52,36 +34,44 @@ export default function SimpleQuizMode() {
   const [isWrongAnswer, setIsWrongAnswer] = useState(false);
   const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME_MS);
   const [currentTimeMs, setCurrentTimeMs] = useState(DEFAULT_TIME_MS);
+  const [nextTimeMs, setNextTimeMs] = useState(DEFAULT_TIME_MS);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Timer logic
   useEffect(() => {
     if (timeLeft <= 0) {
       handleTimeout();
       return;
     }
-
-    const interval = setInterval(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    timerRef.current = setInterval(() => {
       setTimeLeft(prev => Math.max(0, prev - 50));
     }, 50);
-
-    return () => clearInterval(interval);
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, [timeLeft]);
 
-  // Save weights to localStorage whenever they change
   useEffect(() => {
     saveCharacterWeights(characters);
   }, [characters]);
 
-  const nextCharacter = useCallback(() => {
+  const nextCharacter = useCallback((resetToDefault = false) => {
     setCurrentChar(getWeightedRandomCharacter(characters));
     resetForNextCharacter(setUserInput, setIsWrongAnswer);
-    resetTimerToDefault(setCurrentTimeMs, setTimeLeft);
-  }, [characters]);
+    if (resetToDefault) {
+      setCurrentTimeMs(DEFAULT_TIME_MS);
+      setTimeLeft(DEFAULT_TIME_MS);
+      setNextTimeMs(DEFAULT_TIME_MS);
+    } else {
+      setCurrentTimeMs(nextTimeMs);
+      setTimeLeft(nextTimeMs);
+    }
+  }, [characters, nextTimeMs]);
 
   const handleTimeout = useCallback(() => {
     setCombo(0);
     setIsWrongAnswer(true);
-    setTimeout(nextCharacter, 1500);
+    setTimeout(() => nextCharacter(true), 1500);
   }, [nextCharacter]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,25 +79,19 @@ export default function SimpleQuizMode() {
     const value = normalizeInput(e.target.value);
     setUserInput(value);
     if (value.length === 0) return;
-    // Check if answer is correct
     if (isAnswerCorrect(value, currentChar.validAnswers)) {
       setScore(prev => prev + 1);
       setCombo(prev => prev + 1);
-      setCharacters(prevChars => decreaseWeight(prevChars, currentChar.char));
-      setCurrentTimeMs(prev => clamp(prev - TIMER_STEP, MIN_TIME_MS, DEFAULT_TIME_MS));
-      nextCharacter();
+      setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_DECREASE));
+      setNextTimeMs(() => clamp(currentTimeMs - TIMER_STEP, MIN_TIME_MS, DEFAULT_TIME_MS));
+      setTimeout(() => nextCharacter(false), 0);
       return;
     }
-    // Check if it's a valid start
     if (!isValidStart(value, currentChar.validAnswers)) {
       setCombo(0);
       setIsWrongAnswer(true);
-      setCharacters(prevChars => increaseWeight(prevChars, currentChar.char));
-      resetTimerToDefault(setCurrentTimeMs, setTimeLeft);
-      setTimeout(() => {
-        setTimeLeft(DEFAULT_TIME_MS); // Ensure timer bar is still full after nextCharacter resets
-        nextCharacter();
-      }, 1000);
+      setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_INCREASE));
+      setTimeout(() => nextCharacter(true), 1000);
     }
   };
 
@@ -115,7 +99,6 @@ export default function SimpleQuizMode() {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-50">
-      {/* Timer Background */}
       <div
         className="fixed inset-0 flex h-full w-full transition-all duration-75"
         style={{
@@ -123,20 +106,14 @@ export default function SimpleQuizMode() {
           background: '#e6ffe6',
         }}
       />
-
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
-        {/* Score Display */}
         <div className="absolute right-4 top-4 text-right">
           <div className="text-2xl font-bold text-gray-800">Score: {score}</div>
           <div className="text-lg text-gray-600">Combo: {combo}</div>
         </div>
-
-        {/* Character Display */}
         <div className="kana mb-8 select-none text-9xl font-light text-gray-800">
           {currentChar.char}
         </div>
-
-        {/* Input */}
         <div className="w-full max-w-md">
           <input
             type="text"
@@ -151,8 +128,6 @@ export default function SimpleQuizMode() {
             autoFocus
           />
         </div>
-
-        {/* Answer display when wrong */}
         <div className="mt-6 flex h-8 items-center justify-center">
           <div className={`text-lg font-medium ${isWrongAnswer ? 'text-red-600' : 'text-green-600'}`}>
             {isWrongAnswer ? currentChar.validAnswers[0] : ''}
