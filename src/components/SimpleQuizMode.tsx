@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import { loadPracticeCharacters, getWeightedRandomCharacter, saveCharacterWeights } from '@/lib/characterLoading';
 import type { PracticeCharacter } from '@/types';
 
-const QUIZ_TIME_MS = 5000;
+const DEFAULT_TIME_MS = 5000;
+const MIN_TIME_MS = 1000;
+const TIMER_STEP = 250;
 const WEIGHT_DECREASE = 1;
 const WEIGHT_INCREASE = 2;
 const MIN_WEIGHT = 1;
@@ -35,7 +37,8 @@ export default function SimpleQuizMode() {
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [isWrongAnswer, setIsWrongAnswer] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(QUIZ_TIME_MS);
+  const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME_MS);
+  const [currentTimeMs, setCurrentTimeMs] = useState(DEFAULT_TIME_MS);
 
   // Timer logic
   useEffect(() => {
@@ -57,8 +60,8 @@ export default function SimpleQuizMode() {
   }, [characters]);
 
   const resetTimer = useCallback(() => {
-    setTimeLeft(QUIZ_TIME_MS);
-  }, []);
+    setTimeLeft(currentTimeMs);
+  }, [currentTimeMs]);
 
   const nextCharacter = useCallback(() => {
     setCurrentChar(getWeightedRandomCharacter(characters));
@@ -70,6 +73,8 @@ export default function SimpleQuizMode() {
   const handleTimeout = useCallback(() => {
     setCombo(0);
     setIsWrongAnswer(true);
+    setCurrentTimeMs(DEFAULT_TIME_MS); // Reset timer to 5s on timeout
+    setTimeLeft(DEFAULT_TIME_MS); // Also reset the timer bar immediately
     setTimeout(nextCharacter, 1500);
   }, [nextCharacter]);
 
@@ -86,6 +91,7 @@ export default function SimpleQuizMode() {
       setScore(prev => prev + 1);
       setCombo(prev => prev + 1);
       setCharacters(prevChars => decreaseWeight(prevChars, currentChar.char));
+      setCurrentTimeMs(prev => Math.max(MIN_TIME_MS, prev - TIMER_STEP));
       nextCharacter();
       return;
     }
@@ -95,17 +101,22 @@ export default function SimpleQuizMode() {
       setCombo(0);
       setIsWrongAnswer(true);
       setCharacters(prevChars => increaseWeight(prevChars, currentChar.char));
-      setTimeout(nextCharacter, 1000);
+      setCurrentTimeMs(DEFAULT_TIME_MS); // Reset timer to 5s
+      setTimeLeft(DEFAULT_TIME_MS); // Force timer bar to full immediately
+      setTimeout(() => {
+        setTimeLeft(DEFAULT_TIME_MS); // Ensure timer bar is still full after nextCharacter resets
+        nextCharacter();
+      }, 1000);
     }
   };
 
-  const timeRemainingPct = (timeLeft / QUIZ_TIME_MS) * 100;
+  const timeRemainingPct = (timeLeft / currentTimeMs) * 100;
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-50">
       {/* Timer Background */}
       <div
-        className="fixed inset-0 flex h-full w-full"
+        className="fixed inset-0 flex h-full w-full transition-all duration-75"
         style={{
           width: `${timeRemainingPct}%`,
           background: '#e6ffe6',
