@@ -131,8 +131,29 @@ export default function SimpleQuizMode() {
       // Reset timer to default time
       setCurrentTimeMs(DEFAULT_TIME_MS);
       setTimeLeft(DEFAULT_TIME_MS);
-      // IMPORTANT: Set the input value so first character is registered
+      // Set the input value AND validate it
       setUserInput(value);
+      
+      // Immediately validate the input after resuming
+      if (value.length > 0) {
+        if (isAnswerCorrect(value, currentChar.validAnswers)) {
+          // Reset timeout count on correct answer
+          setTimeoutCount(0); 
+          setScore(prev => prev + 1);
+          setCombo(prev => prev + 1);
+          setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_DECREASE));
+          setNextTimeMs(() => clamp(currentTimeMs - TIMER_STEP, MIN_TIME_MS, DEFAULT_TIME_MS));
+          setTimeout(() => nextCharacter(false), 0);
+        } else if (!isValidStart(value, currentChar.validAnswers)) {
+          // Reset timeout count on wrong answer
+          setTimeoutCount(0);
+          setCombo(0);
+          setIsWrongAnswer(true);
+          setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_INCREASE));
+          // Fixed but short delay for wrong answers
+          setTimeout(() => nextCharacter(true), 1000);
+        }
+      }
       return;
     }
     

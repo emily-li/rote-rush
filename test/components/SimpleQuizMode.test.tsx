@@ -173,6 +173,73 @@ describe('SimpleQuizMode functionality', () => {
     
     expect(screen.getByText('Score: 1')).toBeInTheDocument();
   });
+  
+  it('validates first character after pause for correct answers', () => {
+    render(<SimpleQuizMode />);
+    const input = screen.getByPlaceholderText(/romanized/i);
+
+    // Trigger two timeouts to pause the game
+    act(() => {
+      vi.advanceTimersByTime(DEFAULT_TIMEOUT);
+    });
+    
+    act(() => {
+      vi.advanceTimersByTime(WRONG_ANSWER_DISPLAY_TIME);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(DEFAULT_TIMEOUT);
+    });
+    
+    act(() => {
+      vi.advanceTimersByTime(WRONG_ANSWER_DISPLAY_TIME);
+    });
+
+    // Enter correct answer as first keystroke after pause
+    fireEvent.change(input, { target: { value: 'a' } });
+    
+    // Without waiting for any user action, score should increase immediately
+    expect(screen.getByText('Score: 1')).toBeInTheDocument();
+    
+    // Need to wait for the nextCharacter setTimeout to run
+    act(() => {
+      vi.advanceTimersByTime(10);
+    });
+    
+    // Input should be cleared for the next character
+    expect(input).toHaveValue('');
+  });
+  
+  it('validates first character after pause for incorrect answers', () => {
+    render(<SimpleQuizMode />);
+    const input = screen.getByPlaceholderText(/romanized/i);
+
+    // Trigger two timeouts to pause the game
+    act(() => {
+      vi.advanceTimersByTime(DEFAULT_TIMEOUT);
+    });
+    
+    act(() => {
+      vi.advanceTimersByTime(WRONG_ANSWER_DISPLAY_TIME);
+    });
+
+    act(() => {
+      vi.advanceTimersByTime(DEFAULT_TIMEOUT);
+    });
+    
+    act(() => {
+      vi.advanceTimersByTime(WRONG_ANSWER_DISPLAY_TIME);
+    });
+
+    // Enter incorrect answer as first keystroke after pause
+    fireEvent.change(input, { target: { value: 'z' } });
+    
+    // Should show error state immediately
+    expect(input).toHaveClass('border-fuchsia-800');
+    
+    // Score should remain at 0
+    expect(screen.getByText('Score: 0')).toBeInTheDocument();
+  });
 });
 
 describe('Weight adjustment mechanics', () => {
