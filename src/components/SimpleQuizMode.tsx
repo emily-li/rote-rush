@@ -36,30 +36,26 @@ export default function SimpleQuizMode() {
   const [currentTimeMs, setCurrentTimeMs] = useState(DEFAULT_TIME_MS);
   const [nextTimeMs, setNextTimeMs] = useState(DEFAULT_TIME_MS);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (timeLeft <= 0) {
-      handleTimeout();
-      return;
-    }
-    if (timerRef.current) clearInterval(timerRef.current);
-    timerRef.current = setInterval(() => {
-      setTimeLeft(prev => Math.max(0, prev - 50));
-    }, 50);
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [timeLeft]);
+  const [timeoutCount, setTimeoutCount] = useState(0);
+  const [pausedAfterTimeout, setPausedAfterTimeout] = useState(false);
 
   useEffect(() => {
     saveCharacterWeights(characters);
   }, [characters]);
 
-  const nextCharacter = useCallback((resetToDefault = false) => {
+  const nextCharacter = useCallback((resetToDefault = false, resetTimeout = true) => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    
+    // Only reset timeout count when explicitly requested
+    if (resetTimeout) {
+      console.log('Resetting timeout count');
+      setTimeoutCount(0);
+    }
+    
+    setPausedAfterTimeout(false);
     setCurrentChar(getWeightedRandomCharacter(characters));
     resetForNextCharacter(setUserInput, setIsWrongAnswer);
     if (resetToDefault) {
@@ -75,15 +71,79 @@ export default function SimpleQuizMode() {
   const handleTimeout = useCallback(() => {
     setCombo(0);
     setIsWrongAnswer(true);
-    setTimeout(() => nextCharacter(true), 1500);
+    
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
+    setTimeoutCount(prev => {
+      const newCount = prev + 1;
+      console.log('Timeout count:', newCount);
+      
+      // Handle display of wrong answer for 1.5 seconds
+      setTimeout(() => {
+        if (newCount >= 2) {
+          // After two timeouts, show next character but keep timer paused
+          // Important: Use nextCharacter with false for resetTimeout to preserve count
+          nextCharacter(true, false);
+          // Set paused state to prevent timer from starting
+          setPausedAfterTimeout(true);
+          console.log('Timer paused after two timeouts');
+        } else {
+          // Regular timeout, show next character with timer running
+          // Important: Don't reset timeout count on first timeout
+          nextCharacter(true, false);
+        }
+      }, 1500);
+      
+      return newCount;
+    });
   }, [nextCharacter]);
+  
+  // Timer effect needs to be after handleTimeout is defined
+  useEffect(() => {
+    // Skip this effect when paused
+    if (pausedAfterTimeout) {
+      console.log('Timer effect skipped due to paused state');
+      return;
+    }
+    
+    // If timer reached zero, handle timeout
+    if (timeLeft <= 0) {
+      handleTimeout();
+      return;
+    }
+    
+    // Otherwise, start/restart timer
+    console.log('Starting timer', { timeLeft, pausedAfterTimeout });
+    const timerId = setInterval(() => {
+      setTimeLeft(prev => Math.max(0, prev - 50));
+    }, 50);
+    
+    // Clear on unmount or when dependencies change
+    return () => clearInterval(timerId);
+  }, [timeLeft, pausedAfterTimeout, handleTimeout]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (pausedAfterTimeout) {
+      console.log('Resuming after pause');
+      // Resume game if paused after timeout
+      setPausedAfterTimeout(false);
+      setTimeoutCount(0);
+      // Reset timer to default time
+      setCurrentTimeMs(DEFAULT_TIME_MS);
+      setTimeLeft(DEFAULT_TIME_MS);
+      return;
+    }
     if (isWrongAnswer) return;
     const value = normalizeInput(e.target.value);
     setUserInput(value);
     if (value.length === 0) return;
     if (isAnswerCorrect(value, currentChar.validAnswers)) {
+      // Reset timeout count on correct answer
+      setTimeoutCount(0); 
       setScore(prev => prev + 1);
       setCombo(prev => prev + 1);
       setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_DECREASE));
@@ -92,6 +152,8 @@ export default function SimpleQuizMode() {
       return;
     }
     if (!isValidStart(value, currentChar.validAnswers)) {
+      // Reset timeout count on wrong answer
+      setTimeoutCount(0);
       setCombo(0);
       setIsWrongAnswer(true);
       setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_INCREASE));
