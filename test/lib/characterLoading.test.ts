@@ -1,9 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  getRandomCharacter,
   loadPracticeCharacters,
-  type PracticeCharacter,
 } from '../../src/lib/characterLoading';
+import type { PracticeCharacter } from '../../src/types';
 
 describe('characterLoading', () => {
   // Load characters once for all tests in this suite
@@ -34,32 +33,6 @@ describe('characterLoading', () => {
           expect(answer).toMatch(/^[a-z]+$/);
         });
       });
-    });
-  });
-
-  describe('getRandomCharacter', () => {
-    const characters: PracticeCharacter[] = [
-      { char: 'あ', validAnswers: ['a'] },
-      { char: 'か', validAnswers: ['ka'] },
-    ];
-
-    it('should return a character from the provided array', () => {
-      const randomChar = getRandomCharacter(characters);
-
-      expect(characters).toContain(randomChar);
-    });
-    it('should return different characters over multiple calls', () => {
-      const firstChar = getRandomCharacter(characters, () => 0); // index 0
-      const secondChar = getRandomCharacter(characters, () => 0.9); // index 1
-
-      expect(firstChar.char).toBe('あ');
-      expect(secondChar.char).toBe('か');
-    });
-
-    it('should work with the actual loaded characters', () => {
-      const randomChar = getRandomCharacter(loadedCharacters);
-
-      expect(loadedCharacters).toContain(randomChar);
     });
   });
 });
