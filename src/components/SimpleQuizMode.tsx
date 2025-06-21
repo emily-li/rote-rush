@@ -172,9 +172,9 @@ export default function SimpleQuizMode() {
         }}
       />
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
-        <div className="absolute right-4 top-4 text-right">
-          <div className="text-2xl font-bold text-gray-800">Score: {score}</div>
-          <div className="text-lg text-gray-600">Combo: {combo}</div>
+        <div className="absolute left-4 top-4 text-left">
+          <div className="text-3xl font-bold text-fuchsia-800">Score: {score}</div>
+          <div className="text-3xl font-bold text-fuchsia-800">Combo: {combo}</div>
         </div>
         <div className="kana mb-8 select-none text-9xl font-light text-gray-800">
           {currentChar.char}
@@ -187,14 +187,14 @@ export default function SimpleQuizMode() {
             placeholder="Type the romanized reading..."
             className={`w-full border-2 py-4 text-center text-xl transition-colors focus:ring-0 focus:outline-none ${
               isWrongAnswer
-                ? 'border-red-500 bg-red-50 text-red-600'
+                ? 'border-fuchsia-800 bg-fuchsia-50 text-fuchsia-800'
                 : 'border-gray-300 focus:border-blue-500'
             }`}
             autoFocus
           />
         </div>
-        <div className="mt-6 flex h-8 items-center justify-center">
-          <div className={`text-lg font-medium ${isWrongAnswer ? 'text-red-600' : 'text-green-600'}`}>
+        <div className="mt-6 flex h-12 items-center justify-center">
+          <div className={`text-3xl font-bold text-fuchsia-800`}>
             {isWrongAnswer ? currentChar.validAnswers[0] : ''}
           </div>
         </div>
