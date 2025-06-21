@@ -51,7 +51,7 @@ export default function SimpleQuizMode() {
   const [currentTimeMs, setCurrentTimeMs] = useState(DEFAULT_TIME_MS);
   const [nextTimeMs, setNextTimeMs] = useState(DEFAULT_TIME_MS);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const [setTimeoutCount] = useState(0);
+  const [_, setTimeoutCount] = useState(0);
   const [pausedAfterTimeout, setPausedAfterTimeout] = useState(false);
   
   // Refs to track and clear timeouts to prevent race conditions
