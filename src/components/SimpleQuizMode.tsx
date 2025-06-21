@@ -3,6 +3,9 @@ import { loadPracticeCharacters, getWeightedRandomCharacter, saveCharacterWeight
 import { normalizeInput, clamp } from '@/lib/validation';
 import { QUIZ_CONFIG } from '@/config/quiz';
 import type { PracticeCharacter } from '@/types';
+import { ScoreDisplay } from './ui/ScoreDisplay';
+import { TimerBackground } from './ui/TimerBackground';
+import { useComboAnimation } from '@/hooks/useComboAnimation';
 
 const { DEFAULT_TIME_MS, MIN_TIME_MS, TIMER_STEP, WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = QUIZ_CONFIG;
 
@@ -76,6 +79,8 @@ export default function SimpleQuizMode() {
   const timeoutCountRef = useRef(0);
   const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const nextCharTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
+  const shouldAnimateCombo = useComboAnimation(comboMultiplier);
   
   const updateTimerOnComboThreshold = useCallback((newMultiplier: number) => {
     if (newMultiplier > comboMultiplier) {
@@ -224,37 +229,41 @@ export default function SimpleQuizMode() {
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-50">
-      <div
-        className="fixed inset-0 flex h-full w-full transition-all duration-75"
-        style={{
-          width: `${timeRemainingPct}%`,
-          background: '#e6ffe6',
-        }}
-      />
+      <TimerBackground timeRemainingPct={timeRemainingPct} />
+      
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
-        <div className=" text-fuchsia-800 text-3xl font-bold absolute left-4 top-4 text-left">
-          <div >Score: {score}</div>
-          <div >Streak: {streak}</div><div >Combo: ×{comboMultiplier}</div>
-        </div>
-        <div className="kana mb-8 select-none text-9xl font-light text-gray-800">
+        <ScoreDisplay 
+          score={score}
+          streak={streak}
+          comboMultiplier={comboMultiplier}
+          shouldAnimateCombo={shouldAnimateCombo}
+        />
+        
+        {/* Main Kana Character Display */}
+        <div className="font-kana mb-8 select-none text-9xl font-light text-gray-700">
           {currentChar.char}
         </div>
+        
+        {/* Input Field */}
         <div className="w-full max-w-md">
           <input
             type="text"
             value={userInput}
             onChange={handleInputChange}
             placeholder="Type the romanized reading..."
-            className={`w-full border-2 py-4 text-center text-xl transition-colors focus:ring-0 focus:outline-none ${
-              isWrongAnswer
+            className={`w-full border-2 py-4 text-center text-xl transition-colors 
+              focus:ring-0 focus:outline-none
+              ${isWrongAnswer
                 ? 'border-fuchsia-800 bg-fuchsia-50 text-fuchsia-800'
                 : 'border-gray-300 focus:border-blue-500'
             }`}
             autoFocus
           />
         </div>
+        
+        {/* Error Answer Display */}
         <div className="mt-6 flex h-12 items-center justify-center">
-          <div className={`text-3xl font-bold text-fuchsia-800`}>
+          <div className="text-3xl font-bold text-fuchsia-800">
             {isWrongAnswer ? currentChar.validAnswers[0] : ''}
           </div>
         </div>

@@ -117,7 +117,8 @@ describe('SimpleQuizMode functionality', () => {
         vi.advanceTimersByTime(90);
       });
       
-      expect(screen.getByText('Score: 10')).toBeInTheDocument();
+      expect(screen.getByText('Score:')).toBeInTheDocument();
+      expect(screen.getByLabelText('Current score: 10')).toBeInTheDocument();
 
       // Trigger another timeout
       triggerTimeout();
@@ -135,7 +136,8 @@ describe('SimpleQuizMode functionality', () => {
         vi.advanceTimersByTime(90);
       });
       
-      expect(screen.getByText('Score: 20')).toBeInTheDocument();
+      expect(screen.getByText('Score:')).toBeInTheDocument();
+      expect(screen.getByLabelText('Current score: 20')).toBeInTheDocument();
     });
 
     it('pauses after two consecutive timeouts', () => {
@@ -190,7 +192,8 @@ describe('SimpleQuizMode functionality', () => {
         vi.advanceTimersByTime(90);
       });
       
-      expect(screen.getByText('Score: 10')).toBeInTheDocument();
+      expect(screen.getByText('Score:')).toBeInTheDocument();
+      expect(screen.getByLabelText('Current score: 10')).toBeInTheDocument();
     });
     
     it('validates correct answers immediately after pause', () => {
@@ -209,7 +212,8 @@ describe('SimpleQuizMode functionality', () => {
       });
       
       // Score should increase immediately
-      expect(screen.getByText('Score: 10')).toBeInTheDocument();
+      expect(screen.getByText('Score:')).toBeInTheDocument();
+      expect(screen.getByLabelText('Current score: 10')).toBeInTheDocument();
       
       // Input should be cleared for the next character (happens immediately now)
       expect(input).toHaveValue('');
@@ -234,7 +238,7 @@ describe('SimpleQuizMode functionality', () => {
       expect(input).toHaveClass('border-fuchsia-800');
       
       // Score should remain at 0
-      expect(screen.getByText('Score: 0')).toBeInTheDocument();
+      expect(screen.getByLabelText('Current score: 0')).toBeInTheDocument();
     });
   });
 });
