@@ -81,6 +81,7 @@ describe('SimpleQuizMode functionality', () => {
       // Enter correct answer
       fireEvent.change(input, { target: { value: 'a' } });
       
+      // Need to wait for the validation delay
       act(() => {
         vi.advanceTimersByTime(10);
       });
@@ -106,8 +107,14 @@ describe('SimpleQuizMode functionality', () => {
       // Give correct answer to reset timeout count
       fireEvent.change(input, { target: { value: 'a' } });
       
+      // Need to wait for the validation delay
       act(() => {
-        vi.advanceTimersByTime(100);
+        vi.advanceTimersByTime(10);
+      });
+      
+      // Need more time for score update
+      act(() => {
+        vi.advanceTimersByTime(90);
       });
       
       expect(screen.getByText('Score: 10')).toBeInTheDocument();
@@ -118,8 +125,14 @@ describe('SimpleQuizMode functionality', () => {
       // Enter input again
       fireEvent.change(input, { target: { value: 'a' } });
       
+      // Need to wait for the validation delay
       act(() => {
-        vi.advanceTimersByTime(100);
+        vi.advanceTimersByTime(10);
+      });
+      
+      // Need more time for score update
+      act(() => {
+        vi.advanceTimersByTime(90);
       });
       
       expect(screen.getByText('Score: 20')).toBeInTheDocument();
@@ -140,6 +153,11 @@ describe('SimpleQuizMode functionality', () => {
       // Test input after pause
       fireEvent.change(input, { target: { value: 'a' } });
       
+      // Need to flush any pending state updates
+      act(() => {
+        vi.advanceTimersByTime(0);
+      });
+      
       expect(input).toHaveValue('a');
     });
   });
@@ -155,10 +173,21 @@ describe('SimpleQuizMode functionality', () => {
       // Type after pause
       fireEvent.change(input, { target: { value: 'a' } });
       
+      // Need to flush any pending state updates
+      act(() => {
+        vi.advanceTimersByTime(0);
+      });
+      
       expect(input).toHaveValue('a');
       
+      // Need to wait for the validation delay
       act(() => {
-        vi.advanceTimersByTime(100);
+        vi.advanceTimersByTime(10);
+      });
+      
+      // Need more time for score update
+      act(() => {
+        vi.advanceTimersByTime(90);
       });
       
       expect(screen.getByText('Score: 10')).toBeInTheDocument();
@@ -174,15 +203,15 @@ describe('SimpleQuizMode functionality', () => {
       // Enter correct answer as first keystroke after pause
       fireEvent.change(input, { target: { value: 'a' } });
       
+      // Need to wait for the validation delay
+      act(() => {
+        vi.advanceTimersByTime(10);
+      });
+      
       // Score should increase immediately
       expect(screen.getByText('Score: 10')).toBeInTheDocument();
       
-      // Allow nextCharacter setTimeout to run
-      act(() => {
-        vi.advanceTimersByTime(300);
-      });
-      
-      // Input should be cleared for the next character
+      // Input should be cleared for the next character (happens immediately now)
       expect(input).toHaveValue('');
     });
     
@@ -195,6 +224,11 @@ describe('SimpleQuizMode functionality', () => {
 
       // Enter incorrect answer as first keystroke after pause
       fireEvent.change(input, { target: { value: 'z' } });
+      
+      // Need to wait for the validation delay
+      act(() => {
+        vi.advanceTimersByTime(10);
+      });
       
       // Should show error state immediately
       expect(input).toHaveClass('border-fuchsia-800');
