@@ -47,7 +47,7 @@
     { "character": "ロ", "answers": ["ro"] },
     { "character": "ワ", "answers": ["wa"] },
     { "character": "ヲ", "answers": ["wo", "o"] },
-    { "character": "ン", "answers": ["n", "nn"] },
+    { "character": "ン", "answers": ["n"] },
     { "character": "ガ", "answers": ["ga"] },
     { "character": "ギ", "answers": ["gi"] },
     { "character": "グ", "answers": ["gu"] },

@@ -64,10 +64,6 @@ Example character data extract:
       "answers": ["gyu"]
     },
     {
-      "character": "ん",
-      "answers": ["n", "nn"]
-    },
-    {
       "character": "し",
       "answers": ["shi", "si"]
     }

@@ -26,3 +26,6 @@ Keep comments minimal - only explain complex logic, not obvious properties or st
 
 ### Commands & Paths
 Always use Unix-style commands and forward slashes in paths
+
+### Package Manager
+Always use `pnpm` for package management - never npm or yarn

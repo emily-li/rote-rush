@@ -13,6 +13,13 @@ export interface PracticeCharacter {
   weight?: number;
 }
 
+export interface CharacterStats {
+  readonly char: string;
+  readonly attempts: number;
+  readonly correct: number;
+  readonly successRate: number;
+}
+
 /**
  * Configuration for quiz timing and scoring
  */

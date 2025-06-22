@@ -14,6 +14,14 @@ export default {
         'sans': ['Comfortaa', 'cursive'],  // Fun but elegant default font
         'kana': ['Noto Sans JP', 'sans-serif'], // Clear font for Japanese characters
       },
+      gridTemplateColumns: {
+        '15': 'repeat(15, minmax(0, 1fr))',
+        '16': 'repeat(16, minmax(0, 1fr))',
+        '20': 'repeat(20, minmax(0, 1fr))',
+        '24': 'repeat(24, minmax(0, 1fr))',
+        '25': 'repeat(25, minmax(0, 1fr))',
+        '30': 'repeat(30, minmax(0, 1fr))',
+      },
       keyframes: {
         'score-pop': {
           '0%': { transform: 'scale(1)' },

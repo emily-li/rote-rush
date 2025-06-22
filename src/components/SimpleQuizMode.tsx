@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { loadPracticeCharacters, getWeightedRandomCharacter, saveCharacterWeights } from '@/lib/characterLoading';
 import { normalizeInput, clamp, checkAnswerMatch, checkValidStart } from '@/lib/validation';
+import { recordCharacterAttempt } from '@/lib/characterStats';
 import { QUIZ_CONFIG } from '@/config/quiz';
 import type { PracticeCharacter } from '@/types';
 import { ScoreDisplay } from './ui/ScoreDisplay';
 import { TimerBackground } from './ui/TimerBackground';
+import { SettingsButton } from './ui/SettingsButton';
 import { useComboAnimation } from '@/hooks/useComboAnimation';
 
 const { DEFAULT_TIME_MS, MIN_TIME_MS, TIMER_STEP, WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = QUIZ_CONFIG;
@@ -138,6 +140,8 @@ const SimpleQuizMode = (): JSX.Element => {
   }, [characters, nextTimeMs, clearAllTimeouts]);
 
   const handleTimeout = useCallback(() => {
+    recordCharacterAttempt(currentChar.char, false);
+    
     clearAllTimeouts();
     
     setStreak(0);
@@ -152,7 +156,7 @@ const SimpleQuizMode = (): JSX.Element => {
         setPausedAfterTimeout(true);
       }
     }, 1500);
-  }, [nextCharacter, clearAllTimeouts]);
+  }, [currentChar.char, nextCharacter, clearAllTimeouts]);
   
   const updateTimeLeft = useCallback(() => {
     setTimeLeft(prev => Math.max(0, prev - 50));
@@ -163,6 +167,8 @@ const SimpleQuizMode = (): JSX.Element => {
 
     validationTimeoutRef.current = setTimeout(() => {
       if (checkAnswerMatch(value, currentChar.validAnswers)) {
+        recordCharacterAttempt(currentChar.char, true);
+        
         timeoutCountRef.current = 0;
         
         const newStreak = streak + 1;
@@ -175,12 +181,13 @@ const SimpleQuizMode = (): JSX.Element => {
         setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_DECREASE));
         nextCharacter(false);
       } else if (!checkValidStart(value, currentChar.validAnswers)) {
+        recordCharacterAttempt(currentChar.char, false);
+        
         timeoutCountRef.current = 0;
         setStreak(0);
         setComboMultiplier(1.0);
         setIsWrongAnswer(true);
         setCharacters(prevChars => adjustWeight(prevChars, currentChar.char, WEIGHT_INCREASE));
-        // Lock input by keeping the last wrong value
         setUserInput(value);
         nextCharTimeoutRef.current = setTimeout(() => nextCharacter(true), 1000);
       } else {
@@ -240,6 +247,7 @@ const SimpleQuizMode = (): JSX.Element => {
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-50">
       <TimerBackground timeRemainingPct={timeRemainingPct} />
+      <SettingsButton />
       
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
         <ScoreDisplay 
