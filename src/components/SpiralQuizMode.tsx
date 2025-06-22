@@ -24,8 +24,7 @@ const { WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = WEIGHT_CONFIG;
 interface SpiralCharacter {
   char: PracticeCharacter;
   id: string;
-  progress: number; // 0 to 1, where 1 is closest to user
-  angle: number; // angle in the spiral
+  position: number; // 0 = center/head, highest = tail
 }
 
 function getComboMultiplier(streak: number): number {
@@ -45,6 +44,31 @@ function adjustWeight(
       ? { ...c, weight: Math.max(MIN_WEIGHT, (c.weight || 1) + delta) }
       : c,
   );
+}
+
+// Calculate responsive character count based on viewport
+function calculateCharacterCount(): number {
+  const viewportArea = window.innerWidth * window.innerHeight;
+  const baseArea = 1920 * 1080; // Base reference area
+  const maxCharacters = 30;
+  const minCharacters = 15;
+
+  const areaRatio = Math.min(1, viewportArea / baseArea);
+  return Math.max(
+    minCharacters,
+    Math.floor(minCharacters + (maxCharacters - minCharacters) * areaRatio),
+  );
+}
+
+// Calculate spiral turns based on viewport size
+function calculateSpiralTurns(): number {
+  const viewportArea = window.innerWidth * window.innerHeight;
+  const baseArea = 1920 * 1080;
+  const minTurns = 3;
+  const maxTurns = 5;
+
+  const areaRatio = Math.min(1, viewportArea / baseArea);
+  return minTurns + (maxTurns - minTurns) * areaRatio;
 }
 
 interface SpiralQuizModeProps {
@@ -70,97 +94,155 @@ const SpiralQuizMode = ({
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
   const [comboMultiplier, setComboMultiplier] = useState(1.0);
-  const [isWrongAnswer, setIsWrongAnswer] = useState(false); // Timer state
+  const [isWrongAnswer, setIsWrongAnswer] = useState(false);
+
+  // Timer state
   const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME_MS);
   const [currentTimeMs, setCurrentTimeMs] = useState(DEFAULT_TIME_MS);
   const [nextTimeMs, setNextTimeMs] = useState(DEFAULT_TIME_MS);
+  const [isGamePaused, setIsGamePaused] = useState(false);
 
   // Refs for cleanup and state tracking
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const animationRef = useRef<number | null>(null);
-  const timeoutCountRef = useRef(0);
-  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const nextCharTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Animation state
   const { shouldAnimateCombo, shouldAnimateStreak, shouldAnimateComboReset } =
-    useComboAnimation(comboMultiplier, streak); // Initialize spiral with characters
-  const initializeSpiral = useCallback(() => {
-    const initialSpiral: SpiralCharacter[] = [];
-    for (let i = 0; i < 50; i++) {
-      // Increased from 12 to 50 characters
-      // Variable spacing: closer characters at the tail (far out), spread out at head (center)
-      // Head characters (low i) get larger spacing, tail characters (high i) get smaller spacing
-      const baseSpacing = 0.012; // Reduced base spacing for denser tail
-      const spacingMultiplier = 1 + i * 0.015; // Reduced multiplier for even denser tail
-      const spacing = baseSpacing * spacingMultiplier;
+    useComboAnimation(comboMultiplier, streak);
 
+  // Initialize spiral with characters
+  const initializeSpiral = useCallback(() => {
+    const characterCount = calculateCharacterCount();
+    const initialSpiral: SpiralCharacter[] = [];
+
+    for (let i = 0; i < characterCount; i++) {
       initialSpiral.push({
         char: getWeightedRandomCharacter(characters),
         id: `spiral-${i}-${Date.now()}`,
-        progress: (49 - i) * spacing, // Variable spacing: head gets more space, tail gets less
-        angle: i * (Math.PI / 8), // Tighter angle spacing for more characters (22.5 degrees apart)
+        position: i, // 0 = center/head, higher = further out
       });
     }
+
     setSpiralCharacters(initialSpiral);
     setCurrentChar(initialSpiral[0]?.char || null);
   }, [characters]);
 
-  // Add new character to the back of the spiral
-  const addCharacterToSpiral = useCallback(() => {
-    const newChar: SpiralCharacter = {
-      char: getWeightedRandomCharacter(characters),
-      id: `spiral-${Date.now()}`,
-      progress: 0,
-      angle: Math.random() * Math.PI * 2,
-    };
+  // Calculate spiral path coordinates for a character
+  const getSpiralCoordinates = useCallback(
+    (position: number, totalCharacters: number) => {
+      if (position === 0) {
+        // Head character is always at center
+        return { x: 0, y: 0 };
+      }
 
-    setSpiralCharacters((prev) => [...prev, newChar]);
-  }, [characters]); // Update spiral animation
-  const updateSpiral = useCallback(() => {
-    // Always run spiral animation - no pauses
+      const spiralTurns = calculateSpiralTurns();
+      const maxRadius = Math.min(
+        window.innerWidth * 0.4, // Slightly larger radius for hectic feeling
+        window.innerHeight * 0.3,
+      );
 
-    // Speed based on time remaining (faster as time runs out)
-    const timeProgress = 1 - timeLeft / currentTimeMs;
-    const baseSpeed = 0.003;
-    const speedMultiplier = 1 + timeProgress * 2; // Up to 3x speed as timer runs out
-    const spiralSpeed = baseSpeed * speedMultiplier;
+      // Calculate normalized position (0 to 1, where 1 is outermost)
+      const normalizedPosition = position / (totalCharacters - 1);
 
+      // Calculate radius and angle
+      const radius = maxRadius * normalizedPosition;
+      const angle = normalizedPosition * spiralTurns * 2 * Math.PI;
+
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+
+      return { x, y };
+    },
+    [],
+  );
+
+  // Calculate character style based on position in spiral
+  const getCharacterStyle = useCallback(
+    (spiralChar: SpiralCharacter) => {
+      const { position } = spiralChar;
+      const totalCharacters = spiralCharacters.length;
+      const { x, y } = getSpiralCoordinates(position, totalCharacters);
+
+      const isHead = position === 0;
+
+      // Calculate size and opacity gradients
+      let fontSize: string;
+      let opacity: number;
+      let scale = 1;
+
+      if (isHead) {
+        // Head character scaling based on timer
+        const timerProgress = 1 - timeLeft / currentTimeMs;
+        const baseScale = 1.0;
+        const maxScale = 2.0; // Responsive scaling limit
+
+        // Gradual scaling throughout timer
+        scale = baseScale + (maxScale - baseScale) * timerProgress;
+
+        // Whoosh effect in final phase
+        if (timeLeft <= currentTimeMs * 0.1) {
+          // Final 10% of timer
+          const whooshProgress = 1 - timeLeft / (currentTimeMs * 0.1);
+          scale *= 1 + whooshProgress * 0.5; // Additional dramatic scaling
+        }
+
+        fontSize = `clamp(3rem, 8vw, 6rem)`;
+        opacity = 1.0;
+      } else {
+        // Background characters with gradual size/opacity decrease
+        const normalizedPosition = position / (totalCharacters - 1);
+        const sizeMultiplier = 1 - normalizedPosition * 0.6; // Decrease to 40% of original
+        opacity = 1 - normalizedPosition * 0.7; // Fade to 30% opacity
+
+        fontSize = `clamp(1.5rem, ${6 * sizeMultiplier}vw, ${4 * sizeMultiplier}rem)`;
+      }
+
+      return {
+        position: 'absolute' as const,
+        left: `calc(50% + ${x}px)`,
+        top: `calc(50% + ${y}px)`,
+        transform: `translate(-50%, -50%) scale(${scale})`,
+        fontSize,
+        opacity,
+        fontWeight: isHead ? 'bold' : 'normal',
+        color: isHead ? 'rgb(217 70 239)' : 'rgb(232 121 249)', // fuchsia-500, fuchsia-300
+        textShadow: isHead ? '0 0 20px rgba(217, 70, 239, 0.8)' : 'none',
+        zIndex: isHead ? 1000 : 1,
+        transition: isHead
+          ? 'transform 0.1s ease-out'
+          : 'opacity 0.3s ease-out',
+        pointerEvents: 'none' as const,
+      };
+    },
+    [spiralCharacters.length, timeLeft, currentTimeMs, getSpiralCoordinates],
+  );
+
+  // Character advancement logic
+  const advanceCharacters = useCallback(() => {
     setSpiralCharacters((prev) => {
-      const updated = prev.map((spiralChar) => ({
-        ...spiralChar,
-        progress: spiralChar.progress + spiralSpeed, // Characters move inward (higher progress = closer to center)
-        angle: spiralChar.angle + 0.02, // Rotate the spiral
+      // Move all characters one position toward center
+      const advanced = prev.map((char) => ({
+        ...char,
+        position: Math.max(0, char.position - 1),
       }));
 
-      // Check if front character has reached the center (progress >= 1)
-      const frontChar = updated[0];
-      if (frontChar && frontChar.progress >= 1) {
-        // Character reached the center - trigger timeout through timer mechanism
-        setTimeLeft(0); // This will trigger handleTimeout through timer effect
-        return updated;
-      }
+      // Add new character at outermost position
+      const maxPosition = Math.max(...advanced.map((c) => c.position), 0);
+      const newChar: SpiralCharacter = {
+        char: getWeightedRandomCharacter(characters),
+        id: `spiral-${Date.now()}`,
+        position: maxPosition + 1,
+      };
+
+      const updated = [...advanced, newChar];
+
+      // Set new head character
+      const headChar = updated.find((c) => c.position === 0);
+      setCurrentChar(headChar?.char || null);
 
       return updated;
     });
-
-    animationRef.current = requestAnimationFrame(updateSpiral);
-  }, [timeLeft, currentTimeMs]); // Start spiral animation
-  useEffect(() => {
-    // Always run spiral animation - no pauses
-    animationRef.current = requestAnimationFrame(updateSpiral);
-
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [updateSpiral]);
-
-  // Initialize game
-  useEffect(() => {
-    initializeSpiral();
-  }, [initializeSpiral]);
+  }, [characters]);
 
   // Timer management
   const updateTimerOnComboThreshold = useCallback(
@@ -179,213 +261,145 @@ const SpiralQuizMode = ({
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-    if (validationTimeoutRef.current) {
-      clearTimeout(validationTimeoutRef.current);
-      validationTimeoutRef.current = null;
-    }
-    if (nextCharTimeoutRef.current) {
-      clearTimeout(nextCharTimeoutRef.current);
-      nextCharTimeoutRef.current = null;
-    }
     if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
       animationRef.current = null;
     }
   }, []);
-  const nextCharacter = useCallback(
-    (resetToDefault = false) => {
-      clearAllTimeouts();
 
-      // Remove the front character and move to next
-      setSpiralCharacters((prev) => {
-        const remaining = prev.slice(1);
-        setCurrentChar(remaining[0]?.char || null);
-        return remaining;
-      });
+  // Handle correct answer
+  const handleCorrectAnswer = useCallback(() => {
+    if (!currentChar) return;
 
-      // Add new character to back
-      addCharacterToSpiral();
+    recordCharacterAttempt(currentChar.char, true);
 
-      setUserInput('');
-      setIsWrongAnswer(false);
+    const newStreak = streak + 1;
+    setStreak(newStreak);
+    const newMultiplier = getComboMultiplier(newStreak);
+    setComboMultiplier(newMultiplier);
+    setScore((prev) => prev + Math.floor(10 * newMultiplier));
 
-      if (resetToDefault) {
-        setCurrentTimeMs(DEFAULT_TIME_MS);
-        setTimeLeft(DEFAULT_TIME_MS);
-        setNextTimeMs(DEFAULT_TIME_MS);
-      } else {
-        setCurrentTimeMs(nextTimeMs);
-        setTimeLeft(nextTimeMs > 0 ? nextTimeMs : DEFAULT_TIME_MS);
-      }
-    },
-    [clearAllTimeouts, addCharacterToSpiral, nextTimeMs],
-  );
-  const handleTimeout = useCallback(() => {
+    updateTimerOnComboThreshold(newMultiplier);
+    setCharacters((prevChars) =>
+      adjustWeight(prevChars, currentChar.char, WEIGHT_DECREASE),
+    );
+
+    // Advance characters and reset timer
+    advanceCharacters();
+    setUserInput('');
+    setIsWrongAnswer(false);
+    setIsGamePaused(false);
+
+    setCurrentTimeMs(nextTimeMs);
+    setTimeLeft(nextTimeMs > 0 ? nextTimeMs : DEFAULT_TIME_MS);
+  }, [
+    currentChar,
+    streak,
+    nextTimeMs,
+    updateTimerOnComboThreshold,
+    advanceCharacters,
+  ]);
+
+  // Handle incorrect answer or timeout
+  const handleIncorrectAnswer = useCallback(() => {
     if (!currentChar) return;
 
     recordCharacterAttempt(currentChar.char, false);
-    clearAllTimeouts();
 
     setStreak(0);
     setComboMultiplier(1.0);
     setIsWrongAnswer(true);
+    setIsGamePaused(true);
+    setUserInput('');
 
-    // Immediate continuation - no gameOver state, no pause
-    nextCharacter(true);
-  }, [currentChar, nextCharacter, clearAllTimeouts]);
+    setCharacters((prevChars) =>
+      adjustWeight(prevChars, currentChar.char, WEIGHT_INCREASE),
+    );
 
-  const updateTimeLeft = useCallback(() => {
-    setTimeLeft((prev) => Math.max(0, prev - 50));
-  }, []);
+    // Reset timer
+    setCurrentTimeMs(DEFAULT_TIME_MS);
+    setTimeLeft(DEFAULT_TIME_MS);
+    setNextTimeMs(DEFAULT_TIME_MS);
+  }, [currentChar]);
+
+  // Input validation and handling
   const validateAndHandleInput = useCallback(
     (value: string) => {
-      if (!value || !currentChar) return;
+      if (!value || !currentChar || isGamePaused) return;
 
-      // Immediate validation - no timeout delay
       if (checkAnswerMatch(value, currentChar.validAnswers)) {
-        recordCharacterAttempt(currentChar.char, true);
-
-        timeoutCountRef.current = 0;
-
-        const newStreak = streak + 1;
-        setStreak(newStreak);
-        const newMultiplier = getComboMultiplier(newStreak);
-        setComboMultiplier(newMultiplier);
-        setScore((prev) => prev + Math.floor(10 * newMultiplier));
-
-        updateTimerOnComboThreshold(newMultiplier);
-        setCharacters((prevChars) =>
-          adjustWeight(prevChars, currentChar.char, WEIGHT_DECREASE),
-        );
-        nextCharacter(false);
+        handleCorrectAnswer();
       } else if (!checkValidStart(value, currentChar.validAnswers)) {
-        recordCharacterAttempt(currentChar.char, false);
-
-        timeoutCountRef.current = 0;
-        setStreak(0);
-        setComboMultiplier(1.0);
-        setIsWrongAnswer(true);
-        setCharacters((prevChars) =>
-          adjustWeight(prevChars, currentChar.char, WEIGHT_INCREASE),
-        );
-        setUserInput(value);
-
-        // Immediate continuation - no timeout delay
-        nextCharacter(true);
-      } else {
-        setUserInput(value);
+        handleIncorrectAnswer();
       }
     },
-    [currentChar, streak, nextCharacter, updateTimerOnComboThreshold],
+    [currentChar, isGamePaused, handleCorrectAnswer, handleIncorrectAnswer],
   );
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>): void => {
+      if (isWrongAnswer && !isGamePaused) return;
+
+      const value = normalizeInput(e.target.value);
+      setUserInput(value);
+
+      if (isWrongAnswer && isGamePaused) {
+        // In retry mode, check if input matches correct answer
+        if (currentChar && checkAnswerMatch(value, currentChar.validAnswers)) {
+          setIsWrongAnswer(false);
+          setIsGamePaused(false);
+          setUserInput('');
+        }
+      } else if (value) {
+        validateAndHandleInput(value);
+      }
+    },
+    [isWrongAnswer, isGamePaused, currentChar, validateAndHandleInput],
+  );
+
   // Timer effect
   useEffect(() => {
-    if (timeLeft <= 0) {
-      handleTimeout();
+    if (isGamePaused || timeLeft <= 0) {
+      if (timeLeft <= 0) {
+        handleIncorrectAnswer();
+      }
       return;
     }
 
-    const timerId = setInterval(updateTimeLeft, 50);
+    const timerId = setInterval(() => {
+      setTimeLeft((prev) => Math.max(0, prev - 50));
+    }, 50);
+
     timerRef.current = timerId;
 
     return () => {
       clearInterval(timerId);
       timerRef.current = null;
     };
-  }, [timeLeft, handleTimeout, updateTimeLeft]);
-  const handleInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>): void => {
-      if (isWrongAnswer) return;
+  }, [timeLeft, isGamePaused, handleIncorrectAnswer]);
 
-      const value = normalizeInput(e.target.value);
+  // Initialize game
+  useEffect(() => {
+    initializeSpiral();
+  }, [initializeSpiral]);
 
-      // Continuous input handling - never pause
-      setUserInput(value);
-      if (value) {
-        validateAndHandleInput(value);
-      }
-    },
-    [isWrongAnswer, validateAndHandleInput],
-  ); // Calculate character positions in 3D spiral
-  const getCharacterStyle = (spiralChar: SpiralCharacter, index: number) => {
-    const { progress, angle } = spiralChar; // Reversed spiral: progress 0 = far out, progress 1 = center
-    // Use almost the entire screen width - much more aggressive
-    const maxRadius = Math.max(
-      window.innerWidth * 0.6, // 120% of screen width from center = edge to edge
-      window.innerHeight * 0.55, // Or 110% of screen height
-    ); // Take the larger value to ensure we use maximum space
-    const radius = maxRadius * (1 - progress);
-    const x = Math.cos(angle) * radius;
-    const y = Math.sin(angle) * radius * 0.9; // Minimal vertical flattening
-
-    // Much larger scale differences between characters
-    const scale = 0.2 + progress * 2.0; // Increased range for bigger size differences
-
-    // Adjusted opacity system for 50 characters
-    let baseOpacity;
-    if (index === 0) {
-      // Head character: full opacity
-      baseOpacity = 1.0;
-    } else if (index === 1) {
-      // Second character: much dimmer
-      baseOpacity = 0.25; // Large drop from 1.0 to 0.25
-    } else if (index <= 5) {
-      // Next few characters: gradual fade
-      baseOpacity = Math.max(0.08, 0.25 - (index - 1) * 0.04);
-    } else {
-      // Distant characters: very faint but visible
-      baseOpacity = Math.max(0.02, 0.08 - (index - 5) * 0.002);
-    }
-
-    // Further adjust based on progress (closer to center = more visible)
-    const progressBonus = progress * 0.4;
-    const opacity = Math.min(1.0, baseOpacity + progressBonus);
-
-    // Much larger font size differences, adjusted for 50 characters
-    let baseFontSize;
-    if (index === 0) {
-      baseFontSize = 120; // Much larger head character
-    } else if (index === 1) {
-      baseFontSize = 50; // Significant drop for second character
-    } else if (index <= 10) {
-      baseFontSize = Math.max(30, 50 - (index - 1) * 2);
-    } else {
-      baseFontSize = Math.max(20, 30 - (index - 10) * 0.5);
-    }
-    const fontSize = `${baseFontSize + progress * 80}px`;
-
-    // Simple transform and opacity - no special effects
-    const transform = `translate(-50%, -50%) scale(${scale})`;
-    const finalOpacity = Math.min(1.0, baseOpacity + progressBonus);
-
-    return {
-      position: 'absolute' as const,
-      left: `calc(50% + ${x}px)`,
-      top: `calc(50% + ${y}px)`,
-      transform,
-      opacity: finalOpacity,
-      fontSize,
-      zIndex: Math.floor(progress * 100) + (index === 0 ? 1000 : 0), // Head gets highest z-index      color: index === 0 ? '#d946ef' : '#e879f9', // Bright fuchsia for head (fuchsia-500), lighter fuchsia for background (fuchsia-400)
-      fontWeight: index === 0 ? 'bold' : 'normal',
-      textShadow:
-        index === 0
-          ? '0 0 20px rgba(112, 26, 117, 0.8)' // Dark fuchsia glow for head
-          : '0 0 10px rgba(112, 26, 117, 0.4)', // Subtle dark fuchsia glow for background characters
-      transition: 'opacity 0.2s ease-out', // Smooth opacity transitions
-      pointerEvents: 'none' as const, // Prevent character overlap interaction issues
-    };
-  };
-
+  // Save character weights
   useEffect(() => {
     saveCharacterWeights(characters);
   }, [characters]);
+
   return (
-    <div className="relative flex min-h-screen flex-col bg-gradient-to-b from-purple-50 to-blue-50">
+    <div
+      className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b
+        from-purple-50 to-blue-50"
+    >
       <SettingsButton
         currentGameMode={currentGameMode}
         onGameModeChange={onGameModeChange}
-      />{' '}
+      />
+
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center">
+        {/* Score Display */}
         <div className="px-8">
           <ScoreDisplay
             score={score}
@@ -397,13 +411,17 @@ const SpiralQuizMode = ({
           />
         </div>
 
-        {/* 3D Spiral Display - Full screen, no restrictions */}
-        <div className="relative mb-8 h-[80vh] w-screen">
-          {spiralCharacters.map((spiralChar, index) => (
+        {/* Spiral Display */}
+        <div className="relative mb-8 h-[70vh] w-full">
+          {spiralCharacters.map((spiralChar) => (
             <div
               key={spiralChar.id}
-              className="select-none font-kana"
-              style={getCharacterStyle(spiralChar, index)}
+              className={`select-none font-kana ${
+              spiralChar.position === 0 && isWrongAnswer
+                  ? 'animate-pulse'
+                  : ''
+              }`}
+              style={getCharacterStyle(spiralChar)}
             >
               {spiralChar.char.char}
             </div>
@@ -429,6 +447,7 @@ const SpiralQuizMode = ({
             aria-label="Type the romanized reading for the displayed character"
           />
         </div>
+
         {/* Error Answer Display */}
         <div className="mt-6 flex h-12 items-center justify-center">
           <div
@@ -437,13 +456,6 @@ const SpiralQuizMode = ({
           >
             {isWrongAnswer && currentChar ? currentChar.validAnswers[0] : ''}
           </div>
-        </div>
-        {/* Timer Bar */}
-        <div className="fixed bottom-4 left-4 right-4 h-2 bg-gray-200">
-          <div
-            className="h-full bg-gradient-to-r from-green-400 to-red-500 transition-all duration-75"
-            style={{ width: `${(timeLeft / currentTimeMs) * 100}%` }}
-          />
         </div>
       </div>
     </div>
