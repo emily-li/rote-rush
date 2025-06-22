@@ -135,18 +135,23 @@ const SpiralQuizMode = ({
         return { x: 0, y: 0 };
       }
 
-      const spiralTurns = calculateSpiralTurns();
       const maxRadius = Math.min(
-        window.innerWidth * 0.4, // Slightly larger radius for hectic feeling
-        window.innerHeight * 0.3,
+        window.innerWidth * 0.35,
+        window.innerHeight * 0.25,
       );
 
-      // Calculate normalized position (0 to 1, where 1 is outermost)
-      const normalizedPosition = position / (totalCharacters - 1);
+      // Create a continuous spiral like the classic spiral shape
+      // Start from center and wind outward with increasing radius and angle
+      const totalTurns = 3; // Number of complete spirals from center to edge
 
-      // Calculate radius and angle
-      const radius = maxRadius * normalizedPosition;
-      const angle = normalizedPosition * spiralTurns * 2 * Math.PI;
+      // Calculate spiral parameters
+      const maxAngle = totalTurns * 2 * Math.PI;
+      const angleStep = maxAngle / (totalCharacters - 1);
+      const radiusStep = maxRadius / (totalCharacters - 1);
+
+      // For this position, calculate angle and radius
+      const angle = position * angleStep;
+      const radius = position * radiusStep;
 
       const x = Math.cos(angle) * radius;
       const y = Math.sin(angle) * radius;
@@ -187,11 +192,12 @@ const SpiralQuizMode = ({
         }
 
         fontSize = `clamp(3rem, 8vw, 6rem)`;
-        opacity = 1.0;      } else {
+        opacity = 1.0;
+      } else {
         // Background characters with dramatic opacity drop after head
         const normalizedPosition = position / (totalCharacters - 1);
         const sizeMultiplier = 1 - normalizedPosition * 0.6; // Decrease to 40% of original
-          // Dramatic opacity drop: second character starts at 0.3, then gradual fade
+        // Dramatic opacity drop: second character starts at 0.3, then gradual fade
         if (position === 1) {
           opacity = 0.3; // Much lower opacity for second character
         } else {
