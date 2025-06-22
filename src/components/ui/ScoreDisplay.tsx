@@ -16,7 +16,7 @@ export const ScoreDisplay = ({
   shouldAnimateComboReset,
 }: ScoreDisplayProps) => {
   return (
-    <div className="absolute left-4 top-4 z-20 space-y-2 text-left text-2xl text-fuchsia-800">
+    <div className="absolute left-4 top-4 z-20 space-y-2 p-2 text-left text-2xl text-fuchsia-800">
       <div className="flex flex-col border-2 border-fuchsia-300 p-3">
         <div>
           <span>Score: </span>

@@ -22,7 +22,7 @@ export const SettingsButton = () => {
         {' '}
         <button
           onClick={() => setShowReport(true)}
-          className="bg-white/10 p-3 backdrop-blur-sm transition-colors hover:bg-white/20"
+          className="p-3"
           aria-label="Open settings and reports"
         >
           <Settings size={24} className="text-fuchsia-800" />
