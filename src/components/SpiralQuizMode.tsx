@@ -447,16 +447,6 @@ const SpiralQuizMode = ({
             aria-label="Type the romanized reading for the displayed character"
           />
         </div>
-
-        {/* Error Answer Display */}
-        <div className="mt-6 flex h-12 items-center justify-center">
-          <div
-            className="text-3xl font-bold text-fuchsia-800"
-            aria-live="polite"
-          >
-            {isWrongAnswer && currentChar ? currentChar.validAnswers[0] : ''}
-          </div>
-        </div>
       </div>
     </div>
   );
