@@ -7,16 +7,17 @@ export const SettingsButton = () => {
 
   return (
     <>
-      <div className="absolute top-4 right-4 z-20">
+      <div className="absolute right-4 top-4 z-20">
+        {' '}
         <button
           onClick={() => setShowReport(true)}
-          className="bg-white/10 backdrop-blur-sm rounded-lg p-3 shadow-lg hover:bg-white/20 transition-colors"
+          className="bg-white/10 p-3 backdrop-blur-sm transition-colors hover:bg-white/20"
           aria-label="Open settings and reports"
         >
           <Settings size={24} className="text-fuchsia-800" />
         </button>
       </div>
-      
+
       {showReport && <ReportView onClose={() => setShowReport(false)} />}
     </>
   );
