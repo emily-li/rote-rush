@@ -6,9 +6,9 @@ export interface PracticeCharacter {
   readonly char: string;
   /** Array of valid romanized readings for this character */
   readonly validAnswers: readonly string[];
-  /** 
+  /**
    * Weight for selection probability (higher = more likely to appear)
-   * @default 5 
+   * @default 5
    */
   weight?: number;
 }
@@ -21,16 +21,28 @@ export interface CharacterStats {
 }
 
 /**
- * Configuration for quiz timing and scoring
+ * Configuration for quiz timing
  */
-export interface QuizConfig {
+export interface TimerConfig {
   readonly DEFAULT_TIME_MS: number;
   readonly MIN_TIME_MS: number;
   readonly TIMER_STEP: number;
+}
+
+/**
+ * Configuration for character weight adjustments
+ */
+export interface WeightConfig {
   readonly WEIGHT_DECREASE: number;
   readonly WEIGHT_INCREASE: number;
   readonly MIN_WEIGHT: number;
 }
+
+/**
+ * Configuration for quiz timing and scoring
+ * @deprecated Use TimerConfig instead
+ */
+export interface QuizConfig extends TimerConfig, WeightConfig {}
 
 /**
  * Animation state for score display components

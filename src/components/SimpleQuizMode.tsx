@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { QUIZ_CONFIG } from '@/config/quiz';
+import { WEIGHT_CONFIG } from '@/config/weights';
 import { useComboAnimation } from '@/hooks/useComboAnimation';
 import {
   getWeightedRandomCharacter,
@@ -18,14 +19,9 @@ import { ScoreDisplay } from './ui/ScoreDisplay';
 import { SettingsButton } from './ui/SettingsButton';
 import { TimerBackground } from './ui/TimerBackground';
 
-const {
-  DEFAULT_TIME_MS,
-  MIN_TIME_MS,
-  TIMER_STEP,
-  WEIGHT_DECREASE,
-  WEIGHT_INCREASE,
-  MIN_WEIGHT,
-} = QUIZ_CONFIG;
+const { DEFAULT_TIME_MS, MIN_TIME_MS, TIMER_STEP } = QUIZ_CONFIG;
+
+const { WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = WEIGHT_CONFIG;
 
 /**
  * Calculate score multiplier based on the current streak.
@@ -76,7 +72,15 @@ const resetForNextCharacter = (
  * Main quiz component for practicing Japanese characters
  * Features adaptive difficulty, combo system, and timed challenges
  */
-const SimpleQuizMode = (): JSX.Element => {
+interface SimpleQuizModeProps {
+  readonly currentGameMode: 'simple' | 'spiral';
+  readonly onGameModeChange: (mode: 'simple' | 'spiral') => void;
+}
+
+const SimpleQuizMode = ({
+  currentGameMode,
+  onGameModeChange,
+}: SimpleQuizModeProps): JSX.Element => {
   // Character and game state
   const [characters, setCharacters] = useState(() => loadPracticeCharacters());
   const [currentChar, setCurrentChar] = useState<PracticeCharacter>(() =>
@@ -290,7 +294,10 @@ const SimpleQuizMode = (): JSX.Element => {
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-gray-50">
       <TimerBackground timeRemainingPct={timeRemainingPct} />
-      <SettingsButton />
+      <SettingsButton
+        currentGameMode={currentGameMode}
+        onGameModeChange={onGameModeChange}
+      />
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
         <ScoreDisplay

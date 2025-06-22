@@ -10,9 +10,15 @@ import type { CharacterStats } from '@/types';
 
 interface ReportViewProps {
   readonly onClose: () => void;
+  readonly currentGameMode: 'simple' | 'spiral';
+  readonly onGameModeChange: (mode: 'simple' | 'spiral') => void;
 }
 
-export const ReportView = ({ onClose }: ReportViewProps) => {
+export const ReportView = ({
+  onClose,
+  currentGameMode,
+  onGameModeChange,
+}: ReportViewProps) => {
   const { hiraganaStats, katakanaStats } = useMemo(() => {
     const characters = loadPracticeCharacters();
     const allStats = getCharacterStatsWithRates(characters);
@@ -91,7 +97,41 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
                 >
                   <X size={16} />
                 </button>
+              </div>{' '}
+            </div>
+
+            {/* Game Mode Selection */}
+            <div className="mb-6 border border-gray-200 bg-gray-50 p-4">
+              <h2 className="mb-3 text-lg font-bold text-gray-800">
+                Game Mode
+              </h2>
+              <div className="flex gap-3">
+                <button
+                  onClick={() => onGameModeChange('simple')}
+                  className={`border-2 px-4 py-2 transition-colors ${
+                    currentGameMode === 'simple'
+                      ? 'border-fuchsia-400 bg-fuchsia-50 font-bold text-fuchsia-800'
+                      : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                  Simple Mode
+                </button>
+                <button
+                  onClick={() => onGameModeChange('spiral')}
+                  className={`border-2 px-4 py-2 transition-colors ${
+                    currentGameMode === 'spiral'
+                      ? 'border-purple-400 bg-purple-50 font-bold text-purple-800'
+                      : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                    }`}
+                >
+                  Spiral Mode
+                </button>
               </div>
+              <p className="mt-2 text-sm text-gray-600">
+                {currentGameMode === 'simple'
+                  ? 'Classic kana practice with timer background'
+                  : 'Characters approach in a 3D spiral - answer before they reach you!'}
+              </p>
             </div>
 
             {renderCharacterGrid(hiraganaStats, 'Hiragana')}
