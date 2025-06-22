@@ -187,12 +187,16 @@ const SpiralQuizMode = ({
         }
 
         fontSize = `clamp(3rem, 8vw, 6rem)`;
-        opacity = 1.0;
-      } else {
-        // Background characters with gradual size/opacity decrease
+        opacity = 1.0;      } else {
+        // Background characters with dramatic opacity drop after head
         const normalizedPosition = position / (totalCharacters - 1);
         const sizeMultiplier = 1 - normalizedPosition * 0.6; // Decrease to 40% of original
-        opacity = 1 - normalizedPosition * 0.7; // Fade to 30% opacity
+          // Dramatic opacity drop: second character starts at 0.3, then gradual fade
+        if (position === 1) {
+          opacity = 0.3; // Much lower opacity for second character
+        } else {
+          opacity = Math.max(0.2, 0.3 - (position - 1) * 0.05); // Gradual fade from 0.3
+        }
 
         fontSize = `clamp(1.5rem, ${6 * sizeMultiplier}vw, ${4 * sizeMultiplier}rem)`;
       }
@@ -205,7 +209,7 @@ const SpiralQuizMode = ({
         fontSize,
         opacity,
         fontWeight: isHead ? 'bold' : 'normal',
-        color: isHead ? 'rgb(217 70 239)' : 'rgb(232 121 249)', // fuchsia-500, fuchsia-300
+        color: 'rgb(107 114 128)', // gray-500 for all characters
         textShadow: isHead ? '0 0 20px rgba(217, 70, 239, 0.8)' : 'none',
         zIndex: isHead ? 1000 : 1,
         transition: isHead
