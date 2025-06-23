@@ -1,9 +1,7 @@
-/** @type      fontFamily: {
-        'sans': ['Comfortaa', 'cursive'],  // Modern rounded font - fun but professional
-        'kana': ['Noto Sans JP', 'sans-serif'], // Clear font for Japanese characters
-      },port('tailwindcss').Config} */
+/** @type {import('tailwindcss').Config} */
 
 const plugin = require('tailwindcss/plugin');
+
 export default {
   darkMode: 'selector',
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -100,34 +98,34 @@ export default {
           '0%': {
             transform: 'scale(1) rotate(0deg) translateY(0)',
             filter: 'brightness(1)',
-            textShadow: '0 0 0px rgb(192 38 211 / 0)',
+            textShadow: '0 0 2px rgba(192, 38, 211, 0.2)',
           },
           '25%': {
             transform: 'scale(3) rotate(-8deg) translateY(-5px)',
             filter: 'brightness(2)',
-            textShadow: '0 0 30px rgb(192 38 211 / 0.9)',
+            textShadow: '0 0 3px rgba(192, 38, 211, 0.7)', // DEFAULT
             color: 'rgb(192 38 211)',
           },
           '40%': {
             transform: 'scale(1.8) rotate(5deg)',
             filter: 'brightness(1.8)',
-            textShadow: '0 0 30px rgb(192 38 211 / 1)',
+            textShadow: '0 0 3px rgba(192, 38, 211, 0.7)', // DEFAULT
           },
           '60%': {
             transform: 'scale(2.2) rotate(-3deg)',
             filter: 'brightness(2)',
             color: 'rgb(192 38 211)',
-            textShadow: '0 0 25px rgb(192 38 211 / 0.9)',
+            textShadow: '0 0 3px rgba(192, 38, 211, 0.7)', // DEFAULT
           },
           '80%': {
             transform: 'scale(1.5) rotate(2deg)',
             filter: 'brightness(1.5)',
-            textShadow: '0 0 15px rgb(192 38 211 / 0.6)',
+            textShadow: '0 0 3px rgba(192, 38, 211, 0.7)', // DEFAULT
           },
           '100%': {
             transform: 'scale(1) rotate(0deg)',
             filter: 'brightness(1)',
-            textShadow: '0 0 0px rgb(192 38 211 / 0)',
+            textShadow: '0 0 2px rgba(192, 38, 211, 0.2)',
           },
         },
         pulse: {
@@ -152,34 +150,34 @@ export default {
           '0%': {
             transform: 'scale(1) rotate(0deg)',
             filter: 'brightness(1) blur(0px)',
-            textShadow: '0 0 0px rgb(192 38 211 / 0)',
+            textShadow: '0 0 2px rgba(192, 38, 211, 0.2)',
           },
           '25%': {
             transform: 'scale(5) rotate(-12deg)',
             filter: 'brightness(3) blur(2px)',
-            textShadow: '0 0 50px rgb(192 38 211 / 1)',
+            textShadow: '0 0 3px rgba(192, 38, 211, 0.7)', // DEFAULT
             color: 'rgb(192 38 211)',
           },
           '40%': {
             transform: 'scale(3) rotate(8deg)',
             filter: 'brightness(2.5) blur(1px)',
-            textShadow: '0 0 60px rgb(192 38 211 / 1)',
+            textShadow: '0 0 3px rgba(192, 38, 211, 0.7)', // DEFAULT
           },
           '60%': {
             transform: 'scale(4) rotate(-5deg)',
             filter: 'brightness(3) blur(2px)',
             color: 'rgb(192 38 211)',
-            textShadow: '0 0 70px rgb(192 38 211 / 1)',
+            textShadow: '0 0 3px rgba(192, 38, 211, 0.7)', // DEFAULT
           },
           '80%': {
             transform: 'scale(2.5) rotate(3deg)',
             filter: 'brightness(2) blur(1px)',
-            textShadow: '0 0 40px rgb(192 38 211 / 0.8)',
+            textShadow: '0 0 3px rgba(192, 38, 211, 0.7)', // DEFAULT
           },
           '100%': {
             transform: 'scale(1) rotate(0deg)',
             filter: 'brightness(1) blur(0px)',
-            textShadow: '0 0 0px rgb(192 38 211 / 0)',
+            textShadow: '0 0 2px rgba(192, 38, 211, 0.2)',
           },
         },
       },
@@ -194,7 +192,22 @@ export default {
         'bounce-subtle': 'bounce-subtle 3s infinite ease-in-out',
         'mega-explosion': 'mega-explosion 1.5s cubic-bezier(0.2, 0, 0.4, 1)',
       },
+      textShadow: {
+        sm: '0 0 2px rgba(192, 38, 211, 0.2)',
+        DEFAULT: '0 0 3px rgba(192, 38, 211, 0.7)',
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ matchUtilities, theme }) {
+      matchUtilities(
+        {
+          'text-shadow': (value) => ({
+            textShadow: value,
+          }),
+        },
+        { values: theme('textShadow') },
+      );
+    }),
+  ],
 };

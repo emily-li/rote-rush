@@ -47,13 +47,13 @@ const SimpleQuizMode = ({
       currentChar={currentChar}
       className="relative flex min-h-screen overflow-hidden"
     >
+      {' '}
       <div className="relative mb-8 flex h-[70vh] w-full items-center justify-center">
         <div
-          className="relative z-10 font-kana"
+          className="text-shadow relative z-10 font-kana"
           style={{
             fontSize: 'clamp(8rem, 20vw, 15rem)',
             fontWeight: 'bold',
-            textShadow: '0 0 3px rgba(192, 38, 211, 0.7)',
           }}
         >
           {currentChar.char}
