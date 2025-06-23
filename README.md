@@ -19,7 +19,7 @@ export PATH="$PATH:$pnpm"
 ## Build
 
 1. `pnpm install`
-2. `pnpm run dev`
+2. `pnpm dev`
 
 ## Tests
 
