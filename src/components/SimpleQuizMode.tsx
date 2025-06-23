@@ -3,10 +3,6 @@ import { useQuizGame } from '@/hooks/useQuizGame';
 import type { GameMode } from '@/types';
 import { BaseQuizMode } from './BaseQuizMode';
 
-/**
- * Main quiz component for practicing Japanese characters
- * Features adaptive difficulty, combo system, and timed challenges
- */
 interface SimpleQuizModeProps {
   readonly currentGameMode: GameMode;
   readonly onGameModeChange: (mode: GameMode) => void;
@@ -16,48 +12,36 @@ const SimpleQuizMode = ({
   currentGameMode,
   onGameModeChange,
 }: SimpleQuizModeProps): JSX.Element => {
-  // Use the shared quiz game logic with Simple quiz configuration
-  const {
-    currentChar,
-    userInput,
-    score,
-    streak,
-    comboMultiplier,
-    isWrongAnswer,
-    timeRemainingPct,
-    handleInputChange,
-    shouldAnimateCombo,
-    shouldAnimateStreak,
-    shouldAnimateComboReset,
-  } = useQuizGame({ timerConfig: QUIZ_CONFIG });
+  const { characterState, scoreState, timerState, animationState, actions } =
+    useQuizGame({ timerConfig: QUIZ_CONFIG });
 
   return (
     <BaseQuizMode
       currentGameMode={currentGameMode}
       onGameModeChange={onGameModeChange}
-      score={score}
-      streak={streak}
-      comboMultiplier={comboMultiplier}
-      shouldAnimateCombo={shouldAnimateCombo}
-      shouldAnimateStreak={shouldAnimateStreak}
-      shouldAnimateComboReset={shouldAnimateComboReset}
-      timeRemainingPct={timeRemainingPct}
-      userInput={userInput}
-      isWrongAnswer={isWrongAnswer}
-      handleInputChange={handleInputChange}
-      currentChar={currentChar}
+      score={scoreState.score}
+      streak={scoreState.streak}
+      comboMultiplier={scoreState.comboMultiplier}
+      shouldAnimateCombo={animationState.shouldAnimateCombo}
+      shouldAnimateStreak={animationState.shouldAnimateStreak}
+      shouldAnimateComboReset={animationState.shouldAnimateComboReset}
+      timeRemainingPct={timerState.timeRemainingPct}
+      userInput={characterState.userInput}
+      isWrongAnswer={scoreState.isWrongAnswer}
+      handleInputChange={actions.handleInputChange}
+      currentChar={characterState.currentChar}
       className="relative flex min-h-screen overflow-hidden"
     >
       {' '}
       <div className="relative mb-8 flex h-[70vh] w-full items-center justify-center">
         <div
-          className="text-shadow relative z-10 font-kana"
+          className="relative z-10 font-kana text-shadow"
           style={{
             fontSize: '20vw',
             fontWeight: 'bold',
           }}
         >
-          {currentChar.char}
+          {characterState.currentChar.char}
         </div>
       </div>
     </BaseQuizMode>

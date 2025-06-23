@@ -29,35 +29,48 @@ export interface UseQuizGameParams {
   onCharacterComplete?: () => void;
 }
 
-export interface UseQuizGameReturn {
-  // Character and game state
+// --- Grouped state types ---
+export interface CharacterState {
   characters: PracticeCharacter[];
   currentChar: PracticeCharacter;
   userInput: string;
   setUserInput: (input: string) => void;
+}
 
-  // Score and progress state
+export interface ScoreState {
   score: number;
   streak: number;
   comboMultiplier: number;
   isWrongAnswer: boolean;
+}
 
-  // Timer state
+export interface TimerState {
   timeLeft: number;
   currentTimeMs: number;
   isPaused: boolean;
   timeRemainingPct: number;
+}
 
-  // Animation state
+export interface AnimationState {
   shouldAnimateCombo: boolean;
   shouldAnimateStreak: boolean;
   shouldAnimateComboReset: boolean;
+}
 
-  // Game actions
+export interface QuizGameActions {
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   nextCharacter: (resetToDefault?: boolean, resetTimeout?: boolean) => void;
   validateAndHandleInput: (value: string) => void;
   handleTimeout: () => void;
+}
+
+// Main return type for the hook
+export interface SimpleQuizModeState {
+  characterState: CharacterState;
+  scoreState: ScoreState;
+  timerState: TimerState;
+  animationState: AnimationState;
+  actions: QuizGameActions;
 }
 
 /**
@@ -66,7 +79,7 @@ export interface UseQuizGameReturn {
 export const useQuizGame = ({
   timerConfig,
   onCharacterComplete,
-}: UseQuizGameParams): UseQuizGameReturn => {
+}: UseQuizGameParams): SimpleQuizModeState => {
   const { DEFAULT_TIME_MS, MIN_TIME_MS, TIMER_STEP } = timerConfig;
 
   // Character and game state
@@ -301,33 +314,34 @@ export const useQuizGame = ({
   const timeRemainingPct = (timeLeft / currentTimeMs) * 100;
 
   return {
-    // Character and game state
-    characters,
-    currentChar,
-    userInput,
-    setUserInput,
-
-    // Score and progress state
-    score,
-    streak,
-    comboMultiplier,
-    isWrongAnswer,
-
-    // Timer state
-    timeLeft,
-    currentTimeMs,
-    isPaused,
-    timeRemainingPct,
-
-    // Animation state
-    shouldAnimateCombo,
-    shouldAnimateStreak,
-    shouldAnimateComboReset,
-
-    // Game actions
-    handleInputChange,
-    nextCharacter,
-    validateAndHandleInput,
-    handleTimeout,
+    characterState: {
+      characters,
+      currentChar,
+      userInput,
+      setUserInput,
+    },
+    scoreState: {
+      score,
+      streak,
+      comboMultiplier,
+      isWrongAnswer,
+    },
+    timerState: {
+      timeLeft,
+      currentTimeMs,
+      isPaused,
+      timeRemainingPct,
+    },
+    animationState: {
+      shouldAnimateCombo,
+      shouldAnimateStreak,
+      shouldAnimateComboReset,
+    },
+    actions: {
+      handleInputChange,
+      nextCharacter,
+      validateAndHandleInput,
+      handleTimeout,
+    },
   };
 };
