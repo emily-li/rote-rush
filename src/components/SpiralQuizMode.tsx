@@ -58,7 +58,7 @@ const SpiralQuizMode = ({
           <div
             key={spiralChar.id}
             className={`select-none font-kana ${
-            spiralChar.position === 0 && isWrongAnswer ? 'animate-pulse' : '' }`}
+            spiralChar.position === 0 && isWrongAnswer ? 'animate-bounce' : '' }`}
             style={getCharacterStyle(spiralChar)}
           >
             {spiralChar.char.char}

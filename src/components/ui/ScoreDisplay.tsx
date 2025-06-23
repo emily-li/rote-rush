@@ -25,24 +25,10 @@ const MetricValue: React.FC<{
   isErrorAnimation?: boolean;
   ariaLabel?: string;
 }> = ({ value, isAnimated, isErrorAnimation = false, ariaLabel }) => {
-  // Determine animation based on props
-  const animation = isAnimated
-    ? isErrorAnimation
-      ? 'animate-red-explosion text-red-900' // Error animation (dark red)
-      : 'animate-combo-explosion' // Success animation
-    : 'animate-score-pop'; // Default animation
+  const animation = isAnimated ? 'animate-bounce' : '';
 
   return (
-    <span
-      key={value}
-      className={`ml-10 inline-block transform-gpu font-extrabold transition-colors duration-300
-        ${animation}`}
-      style={{
-        animationDuration: isAnimated ? '1.2s' : '1s',
-        transform: 'scale(1.5)',
-      }}
-      aria-label={ariaLabel}
-    >
+    <span className={`ml-10 ${animation}`} aria-label={ariaLabel}>
       {value}
     </span>
   );
