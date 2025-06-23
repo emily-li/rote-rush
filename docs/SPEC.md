@@ -258,3 +258,70 @@ The Spiral Game is an enhanced version of the basic quiz mode where characters a
 - [ ] Clear size differences between head and background characters
 - [ ] Text shadows/glows for readability on gradient background
 - [ ] Responsive layout that works on various screen sizes
+
+# MVP++ Snake
+
+## Overview
+
+The Snake Game Mode is a pixel-art, keyboard-driven version of the classic Snake game, adapted for kana learning. The player controls a snake on a grid by typing the correct kana character for the desired direction. The UI is blocky and retro, and the game is playable entirely with the keyboard.
+
+## Visual Layout
+
+- [ ] The game area is a square grid (minimum 18x18, scalable for readability)
+- [ ] Each cell is a large, pixelated square (at least 32px)
+- [ ] The snake is a series of green blocks; the head is a darker green, the body is lighter green
+- [ ] The food is a distinct color (e.g., fuchsia)
+- [ ] No direction characters are shown on the grid; only the snake and food are visible
+- [ ] The grid has a dark background and visible cell borders for a retro look
+- [ ] The input box is centered above or below the grid, styled in a pixel/mono font
+- [ ] The UI is responsive and always fits the viewport without scrolling
+
+## Controls & Input
+
+- [ ] The snake can move in four directions: up, down, left, right
+- [ ] Each direction is mapped to a unique kana character (e.g., up=あ, left=う, right=え, down=い)
+- [ ] At any time, only three direction characters are valid (the current direction is excluded)
+- [ ] The user types a kana character to change direction; input is validated in real time
+- [ ] When the user types a valid direction character, the snake turns in that direction
+- [ ] The input box is always focused and ready for input
+- [ ] No other characters are accepted; invalid input is ignored or cleared
+
+## Game Mechanics
+
+- [ ] The snake moves automatically at a fixed pace (e.g., every 350ms)
+- [ ] The snake grows by one block when it eats food
+- [ ] The game ends if the snake collides with itself or the wall
+- [ ] The food always appears in a random empty cell
+- [ ] The score increases by 1 for each food eaten
+- [ ] The game can be restarted after game over
+
+## Visual Feedback
+
+- [ ] The snake and food are always visible and clearly distinguished by color
+- [ ] The snake's head is a solid green block; the body is a lighter green
+- [ ] The food is a solid, contrasting color (e.g., fuchsia)
+- [ ] The grid is visually crisp and pixelated (use CSS image-rendering: pixelated)
+- [ ] The input box uses a mono or pixel font for clarity
+- [ ] The score is displayed above or below the grid in a readable, blocky font
+- [ ] No direction hints or overlays are shown on the grid
+
+## Accessibility & Responsiveness
+
+- [ ] The game is fully keyboard-accessible
+- [ ] All colors are high-contrast for visibility
+- [ ] The grid and UI scale to fit the viewport, maintaining readability
+- [ ] The game works on all modern browsers
+
+## Error Handling
+
+- [ ] If the user types an invalid character, the input is cleared or ignored
+- [ ] If the snake collides with itself or the wall, a clear 'Game Over' message is shown
+- [ ] The user can restart the game with a button
+
+## Technical Notes
+
+- [ ] The game state (snake, food, direction, score) is managed in React state
+- [ ] The game loop uses setInterval or requestAnimationFrame for movement
+- [ ] The input box is always focused unless the game is over
+- [ ] The grid is rendered as a CSS grid with fixed cell size
+- [ ] All logic for movement, collision, and food placement is handled in the component

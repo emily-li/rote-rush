@@ -118,6 +118,8 @@ export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
       <ScoreMetric
         label="Score"
         value={score}
+        isAnimated={false}
+        isErrorAnimation={false}
         ariaLabel={`Current score: ${score}`}
       />
 
@@ -125,9 +127,8 @@ export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
       <ScoreMetric
         label="Streak"
         value={streak}
-        animation={
-          shouldAnimateStreak ? 'animate-streak-reset' : 'animate-score-pop'
-        }
+        isAnimated={shouldAnimateStreak}
+        isErrorAnimation={shouldAnimateComboReset}
         ariaLabel={`Current streak: ${streak}`}
       />
 
@@ -135,8 +136,8 @@ export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
       <ComboMetric
         label="Combo"
         value={comboMultiplier}
-        shouldAnimateCombo={shouldAnimateCombo}
-        shouldAnimateComboReset={shouldAnimateComboReset}
+        isAnimated={shouldAnimateCombo}
+        isErrorAnimation={shouldAnimateComboReset}
         ariaLabel={`Current combo: ${comboMultiplier}`}
       />
     </div>
