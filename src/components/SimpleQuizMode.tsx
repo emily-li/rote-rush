@@ -1,5 +1,6 @@
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
+import type { GameMode } from '@/types';
 import { BaseQuizMode } from './BaseQuizMode';
 
 /**
@@ -7,8 +8,8 @@ import { BaseQuizMode } from './BaseQuizMode';
  * Features adaptive difficulty, combo system, and timed challenges
  */
 interface SimpleQuizModeProps {
-  readonly currentGameMode: 'simple' | 'spiral';
-  readonly onGameModeChange: (mode: 'simple' | 'spiral') => void;
+  readonly currentGameMode: GameMode;
+  readonly onGameModeChange: (mode: GameMode) => void;
 }
 
 const SimpleQuizMode = ({

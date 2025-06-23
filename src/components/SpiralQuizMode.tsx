@@ -1,5 +1,6 @@
 import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useSpiralQuiz } from '@/hooks/useSpiralQuiz';
+import type { GameMode } from '@/types';
 import { BaseQuizMode } from './BaseQuizMode';
 
 /**
@@ -7,8 +8,8 @@ import { BaseQuizMode } from './BaseQuizMode';
  * Features visual display of upcoming characters in a spiral formation
  */
 interface SpiralQuizModeProps {
-  readonly currentGameMode: 'simple' | 'spiral';
-  readonly onGameModeChange: (mode: 'simple' | 'spiral') => void;
+  readonly currentGameMode: GameMode;
+  readonly onGameModeChange: (mode: GameMode) => void;
 }
 
 const SpiralQuizMode = ({

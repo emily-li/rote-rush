@@ -52,3 +52,8 @@ export interface AnimationState {
   readonly shouldAnimateStreak: boolean;
   readonly shouldAnimateComboReset: boolean;
 }
+
+/**
+ * Game modes available in the application
+ */
+export type GameMode = 'simple' | 'spiral';

@@ -9,7 +9,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['Asap', 'sans-serif'],
+        sans: ['Montserrat', 'sans-serif'],
         kana: ['Noto Sans JP', 'sans-serif'],
       },
       textShadow: {

@@ -6,12 +6,12 @@ import {
   resetCharacterStats,
 } from '@/lib/characterStats';
 import hiraganaData from '@/resources/hiragana.json';
-import type { CharacterStats } from '@/types';
+import type { CharacterStats, GameMode } from '@/types';
 
 interface ReportViewProps {
   readonly onClose: () => void;
-  readonly currentGameMode: 'simple' | 'spiral';
-  readonly onGameModeChange: (mode: 'simple' | 'spiral') => void;
+  readonly currentGameMode: GameMode;
+  readonly onGameModeChange: (mode: GameMode) => void;
 }
 
 export const ReportView = ({
