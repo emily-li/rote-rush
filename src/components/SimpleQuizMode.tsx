@@ -52,7 +52,7 @@ const SimpleQuizMode = ({
         <div
           className="text-shadow relative z-10 font-kana"
           style={{
-            fontSize: 'clamp(8rem, 20vw, 15rem)',
+            fontSize: '20vw',
             fontWeight: 'bold',
           }}
         >
