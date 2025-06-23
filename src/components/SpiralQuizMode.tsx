@@ -48,7 +48,8 @@ const SpiralQuizMode = ({
       handleInputChange={handleInputChange}
       currentChar={currentChar}
       showTimer={false}
-      className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b from-purple-50 to-blue-50"
+      className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b
+        from-purple-50 to-blue-50"
     >
       {/* Spiral Display */}
       <div className="relative mb-8 h-[70vh] w-full">
@@ -56,10 +57,7 @@ const SpiralQuizMode = ({
           <div
             key={spiralChar.id}
             className={`select-none font-kana ${
-            spiralChar.position === 0 && isWrongAnswer
-                ? 'animate-pulse'
-                : ''
-            }`}
+            spiralChar.position === 0 && isWrongAnswer ? 'animate-pulse' : '' }`}
             style={getCharacterStyle(spiralChar)}
           >
             {spiralChar.char.char}

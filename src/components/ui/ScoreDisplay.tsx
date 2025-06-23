@@ -1,3 +1,98 @@
+import React from 'react';
+
+// Base props shared by all metric components
+interface BaseMetricProps {
+  label: string;
+  value: number;
+  ariaLabel?: string;
+}
+
+// Props for metrics that can be animated
+interface AnimatedMetricProps extends BaseMetricProps {
+  isAnimated: boolean;
+  isErrorAnimation?: boolean;
+}
+
+// Shared styling component for label part
+const MetricLabel: React.FC<{ label: string }> = ({ label }) => (
+  <span className="font-extrabold">{label}</span>
+);
+
+// Reusable Value component with consistent styling
+const MetricValue: React.FC<{
+  value: number | string;
+  isAnimated: boolean;
+  isErrorAnimation?: boolean;
+  ariaLabel?: string;
+}> = ({ value, isAnimated, isErrorAnimation = false, ariaLabel }) => {
+  // Determine animation based on props
+  const animation = isAnimated
+    ? isErrorAnimation
+      ? 'animate-red-explosion text-red-900' // Error animation (dark red)
+      : 'animate-combo-explosion' // Success animation
+    : 'animate-score-pop'; // Default animation
+
+  return (
+    <span
+      key={value}
+      className={`ml-10 inline-block transform-gpu font-extrabold transition-colors duration-300
+        ${animation}`}
+      style={{
+        animationDuration: isAnimated ? '1.2s' : '1s',
+        transform: 'scale(1.5)',
+        // Add custom animation styles for center movement when animated
+        ...(isAnimated
+          ? {
+              position: 'relative',
+              right: '2rem', // Move towards center
+            }
+          : {}),
+      }}
+      aria-label={ariaLabel}
+    >
+      {value}
+    </span>
+  );
+};
+
+// Score metric row component
+const ScoreMetric: React.FC<AnimatedMetricProps> = ({
+  label,
+  value,
+  isAnimated,
+  isErrorAnimation,
+  ariaLabel,
+}) => (
+  <div className="relative z-10 mb-2 flex items-center justify-between">
+    <MetricLabel label={label} />
+    <MetricValue
+      value={value}
+      isAnimated={isAnimated}
+      isErrorAnimation={isErrorAnimation}
+      ariaLabel={ariaLabel || `${label}: ${value}`}
+    />
+  </div>
+);
+
+// Combo metric component that reuses the same MetricValue component
+const ComboMetric: React.FC<AnimatedMetricProps> = ({
+  label,
+  value,
+  isAnimated,
+  isErrorAnimation,
+  ariaLabel,
+}) => (
+  <div className="relative z-10 mb-2 flex items-center justify-between">
+    <MetricLabel label={label} />
+    <MetricValue
+      value={`×${value}`}
+      isAnimated={isAnimated}
+      isErrorAnimation={isErrorAnimation}
+      ariaLabel={ariaLabel || `${label}: ${value}`}
+    />
+  </div>
+);
+
 export interface ScoreDisplayProps {
   readonly score: number;
   readonly streak: number;
@@ -7,53 +102,43 @@ export interface ScoreDisplayProps {
   readonly shouldAnimateComboReset: boolean;
 }
 
-export const ScoreDisplay = ({
+export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
   score,
   streak,
   comboMultiplier,
   shouldAnimateCombo,
   shouldAnimateStreak,
   shouldAnimateComboReset,
-}: ScoreDisplayProps) => {
+}) => {
   return (
-    <div className="absolute left-4 top-4 z-20 space-y-2 p-2 text-left text-2xl text-fuchsia-800">
-      <div className="flex flex-col border-2 border-fuchsia-300 p-3">
-        <div>
-          <span>Score: </span>
-          <span
-            key={score}
-            className="inline-block animate-score-pop"
-            aria-label={`Current score: ${score}`}
-          >
-            {score}
-          </span>
-        </div>
+    <div className="absolute left-8 top-8 z-20 space-y-4 p-4 text-left text-3xl">
+      <div className="absolute inset-0 rounded-lg bg-fuchsia-200 blur-xl" />
 
-        <div>
-          <span>Streak: </span>
-          <span
-            key={streak}
-            className={`inline-block ${
-              shouldAnimateStreak ? 'animate-streak-reset' : 'animate-score-pop' }`}
-            aria-label={`Current streak: ${streak}`}
-          >
-            {streak}
-          </span>
-        </div>
+      {/* Score row */}
+      <ScoreMetric
+        label="Score"
+        value={score}
+        ariaLabel={`Current score: ${score}`}
+      />
 
-        <div className="relative w-fit whitespace-nowrap">
-          <div className="invisible">Combo: ×{comboMultiplier}</div>
+      {/* Streak row */}
+      <ScoreMetric
+        label="Streak"
+        value={streak}
+        animation={
+          shouldAnimateStreak ? 'animate-streak-reset' : 'animate-score-pop'
+        }
+        ariaLabel={`Current streak: ${streak}`}
+      />
 
-          <div
-            key={comboMultiplier}
-            className={`absolute inset-0 transition-colors duration-300
-              ${shouldAnimateCombo ? 'animate-combo-explosion' : ''}
-              ${shouldAnimateComboReset ? 'animate-red-explosion' : ''}`}
-          >
-            Combo: ×{comboMultiplier}
-          </div>
-        </div>
-      </div>
+      {/* Combo row */}
+      <ComboMetric
+        label="Combo"
+        value={comboMultiplier}
+        shouldAnimateCombo={shouldAnimateCombo}
+        shouldAnimateComboReset={shouldAnimateComboReset}
+        ariaLabel={`Current combo: ${comboMultiplier}`}
+      />
     </div>
   );
 };

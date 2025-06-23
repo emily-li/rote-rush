@@ -33,7 +33,11 @@ export const SettingsButton = ({
           className="p-3"
           aria-label="Open settings and reports"
         >
-          <Settings size={24} className="text-fuchsia-800" />
+          <Settings
+            size={28}
+            className="text-black"
+            style={{ filter: 'drop-shadow(0 0 8px rgba(217, 70, 239, 0.8))' }}
+          />
         </button>
       </div>
 
