@@ -40,13 +40,6 @@ const MetricValue: React.FC<{
       style={{
         animationDuration: isAnimated ? '1.2s' : '1s',
         transform: 'scale(1.5)',
-        // Add custom animation styles for center movement when animated
-        ...(isAnimated
-          ? {
-              position: 'relative',
-              right: '2rem', // Move towards center
-            }
-          : {}),
       }}
       aria-label={ariaLabel}
     >
