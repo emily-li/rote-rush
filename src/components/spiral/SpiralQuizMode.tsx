@@ -1,7 +1,7 @@
+import { BaseQuizMode } from '@/components/BaseQuizMode';
 import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useSpiralQuiz } from '@/hooks/useSpiralQuiz';
 import { GameMode, ScoreState } from '@/types';
-import { BaseQuizMode } from '../BaseQuizMode';
 
 /**
  * Spiral quiz mode with characters arranged in a spiral pattern

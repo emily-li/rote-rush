@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { loadPracticeCharacters } from '../../src/lib/characterLoading';
-import type { PracticeCharacter } from '../../src/types';
+import { loadPracticeCharacters } from '@/lib/characterLoading';
+import type { PracticeCharacter } from '@/types';
 
 // Test suite for character loading utilities
 

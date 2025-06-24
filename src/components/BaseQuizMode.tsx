@@ -1,9 +1,9 @@
 import React from 'react';
+import { CorrectAnswerDisplay } from '@/components/CorrectAnswerDisplay';
+import { QuizInput } from '@/components/QuizInput';
+import { MetricChange, ScoreDisplay } from '@/components/ScoreDisplay';
+import { SettingsButton } from '@/components/SettingsButton';
 import { GameMode, PracticeCharacter, type ScoreState } from '@/types';
-import { CorrectAnswerDisplay } from './CorrectAnswerDisplay';
-import { QuizInput } from './QuizInput';
-import { MetricChange, ScoreDisplay } from './ScoreDisplay';
-import { SettingsButton } from './SettingsButton';
 
 type BaseQuizModeProps = {
   readonly scoreState: ScoreState;

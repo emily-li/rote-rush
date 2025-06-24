@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { loadPracticeCharacters } from '@/lib/characterLoading';
 import {
   checkAnswerMatch,
   checkValidStart,

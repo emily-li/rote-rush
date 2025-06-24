@@ -1,8 +1,8 @@
+import { BaseQuizMode } from '@/components/BaseQuizMode';
+import { TimerBackground } from '@/components/simple/TimerBackground';
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
 import { GameMode } from '@/types';
-import { BaseQuizMode } from '../BaseQuizMode';
-import { TimerBackground } from './TimerBackground';
 
 type SimpleQuizModeProps = {
   readonly currentGameMode: GameMode;

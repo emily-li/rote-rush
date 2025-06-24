@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import hiraganaData from '../../src/resources/hiragana.json';
-import katakanaData from '../../src/resources/katakana.json';
+import hiraganaData from '@/resources/hiragana.json';
+import katakanaData from '@/resources/katakana.json';
 
 describe('Character Data Files', () => {
   describe('hiragana.json', () => {

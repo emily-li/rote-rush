@@ -24,6 +24,7 @@ export default defineConfig({
         'src/main.tsx',
       ],
     },
+    tsconfig: './tsconfig.test.json',
   },
   resolve: {
     alias: {

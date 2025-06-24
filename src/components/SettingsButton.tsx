@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Settings } from 'lucide-react';
+import { ReportView } from '@/components/ReportView';
 import { GameMode } from '@/types';
-import { ReportView } from './ReportView';
 
 type SettingsButtonProps = {
   readonly currentGameMode: GameMode;

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
+import { useQuizGame } from '@/hooks/useQuizGame';
 import { getWeightedRandomCharacter } from '@/lib/characterLoading';
 import type {
   PracticeCharacter,
   SimpleQuizModeState,
   TimerConfig,
 } from '@/types';
-import { useQuizGame } from './useQuizGame';
 
 // Change interface SpiralCharacter to type
 // interface SpiralCharacter {

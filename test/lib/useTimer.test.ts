@@ -1,13 +1,13 @@
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { useTimer } from '../../src/lib/useTimer';
-import { expectTimerState } from '../helpers';
+import { useTimer } from '@/lib/useTimer';
+import { expectTimerState } from '@/test/helpers';
 
 describe('useTimer hook', () => {
   beforeEach(() => {
     vi.useFakeTimers();
   });
-  
+
   afterEach(() => {
     vi.clearAllTimers();
     vi.useRealTimers();
@@ -33,7 +33,7 @@ describe('useTimer hook', () => {
       expectTimerState(result.current, { timeLeft: 0, total: 0 });
       expect(onTimeout).toHaveBeenCalledTimes(1);
     });
-    
+
     it('should initialize with negative time as zero and trigger timeout', () => {
       const onTimeout = vi.fn();
       const { result } = renderHook(() =>
@@ -59,13 +59,13 @@ describe('useTimer hook', () => {
         vi.advanceTimersByTime(200);
       });
       expect(result.current.timeLeftMs).toBe(800);
-      
+
       // Advance by another 300ms and check
       act(() => {
         vi.advanceTimersByTime(300);
       });
       expect(result.current.timeLeftMs).toBe(500);
-      
+
       expect(onTimeout).not.toHaveBeenCalled();
     });
 
@@ -82,12 +82,12 @@ describe('useTimer hook', () => {
 
       expect(result.current.timeLeftMs).toBe(0);
       expect(onTimeout).toHaveBeenCalledTimes(1);
-      
+
       // Ensure timer doesn't go below zero
       act(() => {
         vi.advanceTimersByTime(100);
       });
-      
+
       expect(result.current.timeLeftMs).toBe(0);
       expect(onTimeout).toHaveBeenCalledTimes(1); // Still only called once
     });

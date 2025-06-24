@@ -1,8 +1,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import SimpleQuizMode from '../../src/components/simple/SimpleQuizMode';
-import { GameMode, type PracticeCharacter } from '../../src/types';
+import SimpleQuizMode from '@/components/simple/SimpleQuizMode';
+import { GameMode, type PracticeCharacter } from '@/types';
 
 // Testing constants - match these with the app config for consistency
 const WEIGHT_DECREASE = 1;
