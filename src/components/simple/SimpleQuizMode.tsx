@@ -1,6 +1,6 @@
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
-import type { GameMode, ScoreProps } from '@/types';
+import type { GameMode } from '@/types';
 import { BaseQuizMode } from '../BaseQuizMode';
 import { TimerBackground } from './TimerBackground';
 
@@ -17,18 +17,12 @@ const SimpleQuizMode = ({
     timerConfig: QUIZ_CONFIG,
   });
 
-  const scoreProps: ScoreProps = {
-    score: scoreState.score,
-    streak: scoreState.streak,
-    comboMultiplier: scoreState.comboMultiplier,
-  };
-
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden">
       <BaseQuizMode
         currentGameMode={currentGameMode}
         onGameModeChange={onGameModeChange}
-        scoreProps={scoreProps}
+        scoreState={scoreState}
         userInput={characterState.userInput}
         isWrongAnswer={scoreState.isWrongAnswer}
         handleInputChange={actions.handleInputChange}

@@ -1,6 +1,6 @@
 import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useSpiralQuiz } from '@/hooks/useSpiralQuiz';
-import type { GameMode, ScoreProps } from '@/types';
+import type { GameMode, ScoreState } from '@/types';
 import { BaseQuizMode } from '../BaseQuizMode';
 
 /**
@@ -18,16 +18,17 @@ const SpiralQuizMode = ({
 }: SpiralQuizModeProps): JSX.Element => {
   const {
     characterState,
-    scoreState,
+    scoreState: { score, streak, comboMultiplier, isWrongAnswer },
     actions,
     spiralCharacters,
     getCharacterStyle,
   } = useSpiralQuiz({ timerConfig: SPIRAL_CONFIG });
 
-  const scoreProps: ScoreProps = {
-    score: scoreState.score,
-    streak: scoreState.streak,
-    comboMultiplier: scoreState.comboMultiplier,
+  const scoreState: ScoreState = {
+    score,
+    streak,
+    comboMultiplier,
+    isWrongAnswer,
   };
 
   return (
@@ -38,14 +39,14 @@ const SpiralQuizMode = ({
       <BaseQuizMode
         currentGameMode={currentGameMode}
         onGameModeChange={onGameModeChange}
-        scoreProps={scoreProps}
+        scoreState={scoreState}
         userInput={characterState.userInput}
         isWrongAnswer={scoreState.isWrongAnswer}
         handleInputChange={actions.handleInputChange}
         currentChar={characterState.currentChar}
         mainContent={
           <div className="relative mb-8 h-[70vh] w-full">
-            {spiralCharacters.map((spiralChar) => (
+            {spiralCharacters.map((spiralChar: any) => (
               <div
                 key={spiralChar.id}
                 className={`select-none font-kana ${

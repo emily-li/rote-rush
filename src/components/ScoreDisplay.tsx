@@ -1,5 +1,5 @@
 import React from 'react';
-import type { ScoreProps } from '@/types';
+import type { ScoreState } from '@/types';
 
 type AnimatedMetricProps = {
   label: string;
@@ -75,12 +75,12 @@ const Metric: React.FC<AnimatedMetricProps> = ({
 };
 
 type ScoreDisplayProps = {
-  readonly scoreProps: ScoreProps;
+  readonly scoreState: ScoreState;
   readonly scoreAnimationProps: ScoreAnimationProps;
 };
 
 export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
-  scoreProps,
+  scoreState,
   scoreAnimationProps,
 }) => {
   return (
@@ -89,27 +89,27 @@ export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
 
       <Metric
         label="Score"
-        value={scoreProps.score}
+        value={scoreState.score}
         isErrorAnimation={false}
-        ariaLabel={`Current score: ${scoreProps.score}`}
+        ariaLabel={`Current score: ${scoreState.score}`}
       />
 
       <Metric
         label="Streak"
-        value={scoreProps.streak}
+        value={scoreState.streak}
         isErrorAnimation={
           scoreAnimationProps.streakChange === MetricChange.DECREASE
         }
-        ariaLabel={`Current streak: ${scoreProps.streak}`}
+        ariaLabel={`Current streak: ${scoreState.streak}`}
       />
 
       <Metric
         label="Combo"
-        value={`×${scoreProps.comboMultiplier}`}
+        value={`×${scoreState.comboMultiplier}`}
         isErrorAnimation={
           scoreAnimationProps.comboMultiplierChange === MetricChange.DECREASE
         }
-        ariaLabel={`Current combo: ${scoreProps.comboMultiplier}`}
+        ariaLabel={`Current combo: ${scoreState.comboMultiplier}`}
       />
     </div>
   );

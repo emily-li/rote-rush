@@ -18,60 +18,13 @@ import {
   clamp,
   normalizeInput,
 } from '@/lib/validation';
-import type { PracticeCharacter, TimerConfig } from '@/types';
+import type {
+  PracticeCharacter,
+  SimpleQuizModeState,
+  UseQuizGameParams,
+} from '@/types';
 
 const { WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = WEIGHT_CONFIG;
-
-export type UseQuizGameParams = {
-  /** Timer configuration for the quiz */
-  timerConfig: TimerConfig;
-  /** Optional callback when a character is successfully completed */
-  onCharacterComplete?: () => void;
-};
-
-// --- Grouped state types ---
-export type CharacterState = {
-  characters: PracticeCharacter[];
-  currentChar: PracticeCharacter;
-  userInput: string;
-  setUserInput: (input: string) => void;
-};
-
-export type ScoreState = {
-  score: number;
-  streak: number;
-  comboMultiplier: number;
-  isWrongAnswer: boolean;
-};
-
-export type TimerState = {
-  timeLeft: number;
-  currentTimeMs: number;
-  isPaused: boolean;
-  timeRemainingPct: number;
-};
-
-export type AnimationState = {
-  shouldAnimateCombo: boolean;
-  shouldAnimateStreak: boolean;
-  shouldAnimateComboReset: boolean;
-};
-
-export type QuizGameActions = {
-  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  nextCharacter: (resetToDefault?: boolean, resetTimeout?: boolean) => void;
-  validateAndHandleInput: (value: string) => void;
-  handleTimeout: () => void;
-};
-
-// Main return type for the hook
-export type SimpleQuizModeState = {
-  characterState: CharacterState;
-  scoreState: ScoreState;
-  timerState: TimerState;
-  animationState: AnimationState;
-  actions: QuizGameActions;
-};
 
 /**
  * Core quiz game logic shared between different quiz mode components

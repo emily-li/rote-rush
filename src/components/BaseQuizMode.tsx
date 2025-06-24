@@ -1,43 +1,28 @@
 import React from 'react';
-import { PracticeCharacter, type GameMode, type ScoreProps } from '@/types';
+import { PracticeCharacter, type ScoreState } from '@/types';
 import { CorrectAnswerDisplay } from './CorrectAnswerDisplay';
 import { QuizInput } from './QuizInput';
 import { MetricChange, ScoreDisplay } from './ScoreDisplay';
 import { SettingsButton } from './SettingsButton';
 
-// Change interface BaseQuizModeProps to type
-// export interface BaseQuizModeProps {
-//   readonly currentGameMode: 'simple' | 'spiral';
-//   readonly onGameModeChange: (mode: 'simple' | 'spiral') => void;
-//   readonly scoreProps: ScoreProps;
-//   readonly userInput: string;
-//   readonly isWrongAnswer: boolean;
-//   readonly handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-//   readonly currentChar: PracticeCharacter;
-//   readonly className?: string;
-//   readonly backgroundContent?: React.ReactNode; // New: for backgrounds like TimerBackground
-//   readonly mainContent?: React.ReactNode; // New: for main quiz visuals
-// }
 type BaseQuizModeProps = {
-  readonly currentGameMode: GameMode;
-  readonly onGameModeChange: (mode: GameMode) => void;
-  readonly scoreProps: ScoreProps;
+  readonly scoreState: ScoreState;
   readonly userInput: string;
   readonly isWrongAnswer: boolean;
   readonly handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   readonly currentChar: PracticeCharacter;
   readonly className?: string;
-  readonly backgroundContent?: React.ReactNode; // New: for backgrounds like TimerBackground
-  readonly mainContent?: React.ReactNode; // New: for main quiz visuals
+  readonly backgroundContent?: React.ReactNode;
+  readonly mainContent?: React.ReactNode;
+  readonly currentGameMode: 'simple' | 'spiral';
+  readonly onGameModeChange: (mode: 'simple' | 'spiral') => void;
 };
 
 /**
  * Base component for quiz modes with shared layout and functionality
  */
 export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
-  currentGameMode,
-  onGameModeChange,
-  scoreProps,
+  scoreState,
   userInput,
   isWrongAnswer,
   handleInputChange,
@@ -45,6 +30,8 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
   className = 'relative flex min-h-screen flex-col overflow-hidden',
   backgroundContent,
   mainContent,
+  currentGameMode,
+  onGameModeChange,
 }) => {
   return (
     <div className={className}>
@@ -55,7 +42,7 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
       />
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
         <ScoreDisplay
-          scoreProps={scoreProps}
+          scoreState={scoreState}
           scoreAnimationProps={{
             streakChange: MetricChange.NONE,
             comboMultiplierChange: MetricChange.NONE,

@@ -44,28 +44,51 @@ export type WeightConfig = {
  */
 export type QuizConfig = TimerConfig & WeightConfig;
 
-/**
- * Animation state for score display components
- */
+export type UseQuizGameParams = {
+  timerConfig: TimerConfig;
+  onCharacterComplete?: () => void;
+};
+
+export type CharacterState = {
+  characters: PracticeCharacter[];
+  currentChar: PracticeCharacter;
+  userInput: string;
+  setUserInput: (input: string) => void;
+};
+
+export type ScoreState = {
+  score: number;
+  streak: number;
+  comboMultiplier: number;
+  isWrongAnswer: boolean;
+};
+
+export type TimerState = {
+  timeLeft: number;
+  currentTimeMs: number;
+  isPaused: boolean;
+  timeRemainingPct: number;
+};
+
 export type AnimationState = {
-  readonly shouldAnimateCombo: boolean;
-  readonly shouldAnimateStreak: boolean;
-  readonly shouldAnimateComboReset: boolean;
+  shouldAnimateCombo: boolean;
+  shouldAnimateStreak: boolean;
+  shouldAnimateComboReset: boolean;
 };
 
-/**
- * Game modes available in the application
- */
+export type QuizGameActions = {
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  nextCharacter: (resetToDefault?: boolean, resetTimeout?: boolean) => void;
+  validateAndHandleInput: (value: string) => void;
+  handleTimeout: () => void;
+};
+
+export type SimpleQuizModeState = {
+  characterState: CharacterState;
+  scoreState: ScoreState;
+  timerState: TimerState;
+  animationState: AnimationState;
+  actions: QuizGameActions;
+};
+
 export type GameMode = 'simple' | 'spiral';
-
-/**
- * Shared properties for score-related components
- */
-export type ScoreProps = {
-  /** The current score */
-  readonly score: number;
-  /** The current streak of correct answers */
-  readonly streak: number;
-  /** The current combo multiplier */
-  readonly comboMultiplier: number;
-};
