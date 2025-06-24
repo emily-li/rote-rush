@@ -46,9 +46,6 @@ const SpiralQuizMode = ({
         isWrongAnswer={scoreState.isWrongAnswer}
         handleInputChange={actions.handleInputChange}
         currentChar={characterState.currentChar}
-        backgroundContent={
-          <TimerBackground timeRemainingPct={timerState.timeRemainingPct} />
-        }
         mainContent={
           <div className="relative mb-8 h-[70vh] w-full">
             {spiralCharacters.map((spiralChar) => (

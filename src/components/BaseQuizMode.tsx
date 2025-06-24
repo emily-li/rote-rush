@@ -41,11 +41,7 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
 }) => {
   return (
     <div className={className}>
-      {backgroundContent && (
-        <div className="pointer-events-none absolute inset-0 z-0">
-          {backgroundContent}
-        </div>
-      )}
+      {backgroundContent && <div>{backgroundContent}</div>}
       <SettingsButton
         currentGameMode={currentGameMode}
         onGameModeChange={onGameModeChange}
