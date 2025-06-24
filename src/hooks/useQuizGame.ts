@@ -32,8 +32,12 @@ export const useQuizGame = ({
   timerConfig,
   onCharacterComplete,
 }: UseQuizGameParams): SimpleQuizModeState => {
-  const { DEFAULT_TIME_MS, MIN_TIME_MS, TIMER_STEP, WRONG_ANSWER_DISPLAY_MS } =
-    timerConfig;
+  const {
+    DEFAULT_TIME_MS,
+    MIN_TIME_MS,
+    TIMER_STEP_MS,
+    WRONG_ANSWER_DISPLAY_MS,
+  } = timerConfig;
 
   // Character and game state
   const [characters, setCharacters] = useState<PracticeCharacter[]>(() =>
@@ -69,11 +73,17 @@ export const useQuizGame = ({
     (newMultiplier: number): void => {
       if (newMultiplier > comboMultiplier) {
         setNextTimeMs(
-          clamp(currentTimeMs - TIMER_STEP, MIN_TIME_MS, DEFAULT_TIME_MS),
+          clamp(currentTimeMs - TIMER_STEP_MS, MIN_TIME_MS, DEFAULT_TIME_MS),
         );
       }
     },
-    [comboMultiplier, currentTimeMs, MIN_TIME_MS, DEFAULT_TIME_MS, TIMER_STEP],
+    [
+      comboMultiplier,
+      currentTimeMs,
+      MIN_TIME_MS,
+      DEFAULT_TIME_MS,
+      TIMER_STEP_MS,
+    ],
   );
 
   /**

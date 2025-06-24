@@ -26,7 +26,8 @@ export type CharacterStats = {
 export type TimerConfig = {
   readonly DEFAULT_TIME_MS: number;
   readonly MIN_TIME_MS: number;
-  readonly TIMER_STEP: number;
+  readonly TIMER_STEP_MS: number;
+  readonly WRONG_ANSWER_DISPLAY_MS: number;
 };
 
 /**
@@ -76,4 +77,10 @@ export type SimpleQuizModeState = {
 export enum GameMode {
   SIMPLE,
   SPIRAL,
+}
+
+export enum MetricChange {
+  INCREASE,
+  DECREASE,
+  NONE,
 }

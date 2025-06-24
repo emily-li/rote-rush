@@ -1,115 +1,71 @@
-import React from 'react';
-import type { ScoreState } from '@/types';
+import React, { useEffect, useRef, useState } from 'react';
+import { MetricChange, type ScoreState } from '@/types';
 
-type AnimatedMetricProps = {
+type MetricProps = {
   label: string;
-  value: number | string;
-  ariaLabel?: string;
-  isErrorAnimation: boolean;
+  value: string;
+  metricChange: MetricChange;
 };
 
-export enum MetricChange {
-  INCREASE,
-  DECREASE,
-  NONE,
-}
-
-type ScoreAnimationProps = {
-  streakChange: MetricChange;
-  comboMultiplierChange: MetricChange;
-};
-
-type MetricValueProps = {
-  value: number | string;
-  ariaLabel: string;
-  className?: string;
-  style?: React.CSSProperties;
-};
-
-const MetricLabel: React.FC<{ label: string }> = ({ label }) => (
-  <span className="font-extrabold">{label}</span>
-);
-
-const MetricValue: React.FC<MetricValueProps> = ({
-  value,
-  ariaLabel,
-  className,
-  style,
-}) => (
-  <span
-    className={`inline-block min-w-[3ch] text-right font-extrabold ${className || ''}`}
-    style={style}
-    aria-label={ariaLabel}
-  >
-    {value}
-  </span>
-);
-
-const Metric: React.FC<AnimatedMetricProps> = ({
-  label,
-  value,
-  isErrorAnimation,
-  ariaLabel,
-}) => {
-  const animation = isErrorAnimation ? 'animate-score-error' : '';
-  const style = isErrorAnimation
-    ? {
-        fontSize: '2.5em',
-        fontWeight: 900,
-        color: '#991b1b',
-        textShadow: '0 0 16px #991b1b, 0 0 32px #991b1b',
-      }
-    : undefined;
-  const computedAriaLabel = ariaLabel ?? `${label} is ${value}`;
+const Metric: React.FC<MetricProps> = ({ label, value, metricChange }) => {
+  const animation =
+    metricChange === MetricChange.INCREASE
+      ? 'animate-score-increase'
+      : metricChange === MetricChange.DECREASE
+        ? 'animate-score-decrease'
+        : '';
   return (
     <div className="relative z-10 mb-2 flex items-center justify-between">
-      <MetricLabel label={label} />
-      <MetricValue
-        value={value}
-        className={animation}
-        style={style}
-        ariaLabel={computedAriaLabel}
-      />
+      <span className="font-extrabold">{label}</span>
+
+      <span
+        key={value}
+        className={`${animation} inline-block min-w-[3ch] text-right font-extrabold`}
+      >
+        {value}
+      </span>
     </div>
   );
 };
 
-type ScoreDisplayProps = {
-  readonly scoreState: ScoreState;
-  readonly scoreAnimationProps: ScoreAnimationProps;
-};
+function useMetricChange(value: number): MetricChange {
+  const prev = useRef(value);
+  const [change, setChange] = useState(MetricChange.NONE);
 
-export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
-  scoreState,
-  scoreAnimationProps,
-}) => {
+  useEffect(() => {
+    if (value > prev.current) {
+      setChange(MetricChange.INCREASE);
+    } else if (value < prev.current) {
+      setChange(MetricChange.DECREASE);
+    } else {
+      setChange(MetricChange.NONE);
+    }
+    prev.current = value;
+  }, [value]);
+
+  return change;
+}
+
+export const ScoreDisplay: React.FC<ScoreState> = (scoreState) => {
   return (
     <div className="absolute left-8 top-8 z-20 space-y-4 p-4 text-left text-3xl">
-      <div className="absolute inset-0 rounded-lg bg-fuchsia-200 blur-xl" />
-
+      <div className="absolute inset-0 rounded-3xl bg-fuchsia-200 blur-lg" />
       <Metric
         label="Score"
-        value={scoreState.score}
-        isErrorAnimation={false}
-        ariaLabel={`Current score: ${scoreState.score}`}
+        value={scoreState.score.toString()}
+        metricChange={useMetricChange(scoreState.score)}
       />
 
       <Metric
         label="Streak"
-        value={scoreState.streak}
-        isErrorAnimation={
-          scoreAnimationProps.streakChange === MetricChange.DECREASE
-        }
-        ariaLabel={`Current streak: ${scoreState.streak}`}
+        value={scoreState.streak.toString()}
+        metricChange={useMetricChange(scoreState.streak)}
       />
 
       <Metric
         label="Combo"
-        value={`×${scoreState.comboMultiplier}`}
-        isErrorAnimation={
-          scoreAnimationProps.comboMultiplierChange === MetricChange.DECREASE
-        }
-        ariaLabel={`Current combo: ${scoreState.comboMultiplier}`}
+        value={`x${scoreState.comboMultiplier}`}
+        metricChange={useMetricChange(scoreState.comboMultiplier)}
       />
     </div>
   );
