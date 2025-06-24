@@ -1,76 +1,72 @@
 import React from 'react';
 
-// Base props shared by all metric components
-interface BaseMetricProps {
+interface AnimatedMetricProps {
   label: string;
-  value: number;
+  value: number | string;
   ariaLabel?: string;
-}
-
-// Props for metrics that can be animated
-interface AnimatedMetricProps extends BaseMetricProps {
   isAnimated: boolean;
-  isErrorAnimation?: boolean;
+  isErrorAnimation: boolean;
 }
 
-// Shared styling component for label part
+type MetricValueProps = {
+  value: number | string;
+  ariaLabel: string;
+  className?: string;
+  style?: React.CSSProperties;
+};
+
 const MetricLabel: React.FC<{ label: string }> = ({ label }) => (
   <span className="font-extrabold">{label}</span>
 );
 
-// Reusable Value component with consistent styling
-const MetricValue: React.FC<{
-  value: number | string;
-  isAnimated: boolean;
-  isErrorAnimation?: boolean;
-  ariaLabel?: string;
-}> = ({ value, isAnimated, isErrorAnimation = false, ariaLabel }) => {
-  const animation = isAnimated ? 'animate-bounce' : '';
+const MetricValue: React.FC<MetricValueProps> = ({
+  value,
+  ariaLabel,
+  className,
+  style,
+}) => (
+  <span
+    className={`inline-block min-w-[3ch] text-right font-extrabold ${className || ''}`}
+    style={style}
+    aria-label={ariaLabel}
+  >
+    {value}
+  </span>
+);
 
+const Metric: React.FC<AnimatedMetricProps> = ({
+  label,
+  value,
+  isAnimated,
+  isErrorAnimation,
+  ariaLabel,
+}) => {
+  const animation = isErrorAnimation
+    ? 'animate-score-error'
+    : isAnimated
+      ? 'animate-bounce'
+      : '';
+  const style = isErrorAnimation
+    ? {
+        fontSize: '2.5em',
+        fontWeight: 900,
+        color: '#991b1b',
+        textShadow: '0 0 16px #991b1b, 0 0 32px #991b1b',
+      }
+    : undefined;
+  const computedAriaLabel = ariaLabel ?? `${label}: ${value}`;
   return (
-    <span className={`ml-10 ${animation}`} aria-label={ariaLabel}>
-      {value}
-    </span>
+    <div className="relative z-10 mb-2 flex items-center justify-between">
+      <MetricLabel label={label} />
+      <MetricValue
+        value={value}
+        className={animation}
+        style={style}
+        ariaLabel={computedAriaLabel}
+      />
+    </div>
   );
 };
-
-// Score metric row component
-const ScoreMetric: React.FC<AnimatedMetricProps> = ({
-  label,
-  value,
-  isAnimated,
-  isErrorAnimation,
-  ariaLabel,
-}) => (
-  <div className="relative z-10 mb-2 flex items-center justify-between">
-    <MetricLabel label={label} />
-    <MetricValue
-      value={value}
-      isAnimated={isAnimated}
-      isErrorAnimation={isErrorAnimation}
-      ariaLabel={ariaLabel || `${label}: ${value}`}
-    />
-  </div>
-);
-
-// Combo metric component that reuses the same MetricValue component
-const ComboMetric: React.FC<AnimatedMetricProps> = ({
-  label,
-  value,
-  isAnimated,
-  isErrorAnimation,
-  ariaLabel,
-}) => (
-  <div className="relative z-10 mb-2 flex items-center justify-between">
-    <MetricLabel label={label} />
-    <MetricValue
-      value={`×${value}`}
-      isAnimated={isAnimated}
-      isErrorAnimation={isErrorAnimation}
-      ariaLabel={ariaLabel || `${label}: ${value}`}
-    />
-  </div>
-);
 
 export interface ScoreDisplayProps {
   readonly score: number;
@@ -93,8 +89,7 @@ export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
     <div className="absolute left-8 top-8 z-20 space-y-4 p-4 text-left text-3xl">
       <div className="absolute inset-0 rounded-lg bg-fuchsia-200 blur-xl" />
 
-      {/* Score row */}
-      <ScoreMetric
+      <Metric
         label="Score"
         value={score}
         isAnimated={false}
@@ -102,8 +97,7 @@ export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
         ariaLabel={`Current score: ${score}`}
       />
 
-      {/* Streak row */}
-      <ScoreMetric
+      <Metric
         label="Streak"
         value={streak}
         isAnimated={shouldAnimateStreak}
@@ -111,10 +105,9 @@ export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
         ariaLabel={`Current streak: ${streak}`}
       />
 
-      {/* Combo row */}
-      <ComboMetric
+      <Metric
         label="Combo"
-        value={comboMultiplier}
+        value={`×${comboMultiplier}`}
         isAnimated={shouldAnimateCombo}
         isErrorAnimation={shouldAnimateComboReset}
         ariaLabel={`Current combo: ${comboMultiplier}`}
