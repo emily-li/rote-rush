@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getWeightedRandomCharacter } from '@/lib/characterLoading';
 import type { PracticeCharacter, TimerConfig } from '@/types';
-import { useQuizGame, UseQuizGameReturn } from './useQuizGame';
+import { SimpleQuizModeState, useQuizGame } from './useQuizGame';
 
 interface SpiralCharacter {
   char: PracticeCharacter;
@@ -13,7 +13,7 @@ interface UseSpiralQuizParams {
   timerConfig: TimerConfig;
 }
 
-interface UseSpiralQuizReturn extends UseQuizGameReturn {
+interface UseSpiralQuizReturn extends SimpleQuizModeState {
   spiralCharacters: SpiralCharacter[];
   getCharacterStyle: (spiralChar: SpiralCharacter) => React.CSSProperties;
 }

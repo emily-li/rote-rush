@@ -18,17 +18,11 @@ const SpiralQuizMode = ({
 }: SpiralQuizModeProps): JSX.Element => {
   // Use the specialized spiral quiz logic
   const {
-    currentChar,
-    userInput,
-    score,
-    streak,
-    comboMultiplier,
-    isWrongAnswer,
-    timeRemainingPct,
-    handleInputChange,
-    shouldAnimateCombo,
-    shouldAnimateStreak,
-    shouldAnimateComboReset,
+    characterState,
+    scoreState,
+    timerState,
+    animationState,
+    actions,
     spiralCharacters,
     getCharacterStyle,
   } = useSpiralQuiz({ timerConfig: SPIRAL_CONFIG });
@@ -37,17 +31,17 @@ const SpiralQuizMode = ({
     <BaseQuizMode
       currentGameMode={currentGameMode}
       onGameModeChange={onGameModeChange}
-      score={score}
-      streak={streak}
-      comboMultiplier={comboMultiplier}
-      shouldAnimateCombo={shouldAnimateCombo}
-      shouldAnimateStreak={shouldAnimateStreak}
-      shouldAnimateComboReset={shouldAnimateComboReset}
-      timeRemainingPct={timeRemainingPct}
-      userInput={userInput}
-      isWrongAnswer={isWrongAnswer}
-      handleInputChange={handleInputChange}
-      currentChar={currentChar}
+      score={scoreState.score}
+      streak={scoreState.streak}
+      comboMultiplier={scoreState.comboMultiplier}
+      shouldAnimateCombo={animationState.shouldAnimateCombo}
+      shouldAnimateStreak={animationState.shouldAnimateStreak}
+      shouldAnimateComboReset={animationState.shouldAnimateComboReset}
+      timeRemainingPct={timerState.timeRemainingPct}
+      userInput={characterState.userInput}
+      isWrongAnswer={scoreState.isWrongAnswer}
+      handleInputChange={actions.handleInputChange}
+      currentChar={characterState.currentChar}
       showTimer={false}
       className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b
         from-purple-50 to-blue-50"
@@ -58,7 +52,10 @@ const SpiralQuizMode = ({
           <div
             key={spiralChar.id}
             className={`select-none font-kana ${
-            spiralChar.position === 0 && isWrongAnswer ? 'animate-bounce' : '' }`}
+            spiralChar.position === 0 && scoreState.isWrongAnswer
+                ? 'animate-bounce'
+                : ''
+            }`}
             style={getCharacterStyle(spiralChar)}
           >
             {spiralChar.char.char}
