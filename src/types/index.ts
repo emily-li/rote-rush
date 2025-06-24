@@ -59,12 +59,6 @@ export type TimerState = {
   timeRemainingPct: number;
 };
 
-export type AnimationState = {
-  shouldAnimateCombo: boolean;
-  shouldAnimateStreak: boolean;
-  shouldAnimateComboReset: boolean;
-};
-
 export type QuizGameActions = {
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   nextCharacter: (resetToDefault?: boolean, resetTimeout?: boolean) => void;
@@ -76,7 +70,6 @@ export type SimpleQuizModeState = {
   characterState: CharacterState;
   scoreState: ScoreState;
   timerState: TimerState;
-  animationState: AnimationState;
   actions: QuizGameActions;
 };
 

@@ -60,7 +60,7 @@ const Metric: React.FC<AnimatedMetricProps> = ({
         textShadow: '0 0 16px #991b1b, 0 0 32px #991b1b',
       }
     : undefined;
-  const computedAriaLabel = ariaLabel ?? `${label}: ${value}`;
+  const computedAriaLabel = ariaLabel ?? `${label} is ${value}`;
   return (
     <div className="relative z-10 mb-2 flex items-center justify-between">
       <MetricLabel label={label} />

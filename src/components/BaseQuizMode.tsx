@@ -30,7 +30,7 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
   mainContent,
   currentGameMode,
   onGameModeChange,
-}) => {
+}: BaseQuizModeProps) => {
   return (
     <div className={className}>
       {backgroundContent && <div>{backgroundContent}</div>}
@@ -60,5 +60,3 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
     </div>
   );
 };
-
-export {};

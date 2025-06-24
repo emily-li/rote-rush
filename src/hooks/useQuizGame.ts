@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { WEIGHT_CONFIG } from '@/config/weights';
-import { useComboAnimation } from '@/hooks/useComboAnimation';
 import {
   getWeightedRandomCharacter,
   loadPracticeCharacters,
@@ -63,10 +62,6 @@ export const useQuizGame = ({
   const timeoutCountRef = useRef(0);
   const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const nextCharTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  // Animation state from custom hook
-  const { shouldAnimateCombo, shouldAnimateStreak, shouldAnimateComboReset } =
-    useComboAnimation(comboMultiplier, streak);
 
   /**
    * Update timer on combo threshold - reduces time for next character when combo increases
@@ -288,11 +283,6 @@ export const useQuizGame = ({
       currentTimeMs,
       isPaused,
       timeRemainingPct,
-    },
-    animationState: {
-      shouldAnimateCombo,
-      shouldAnimateStreak,
-      shouldAnimateComboReset,
     },
     actions: {
       handleInputChange,
