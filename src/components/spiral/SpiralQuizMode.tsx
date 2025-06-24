@@ -2,7 +2,6 @@ import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useSpiralQuiz } from '@/hooks/useSpiralQuiz';
 import type { GameMode } from '@/types';
 import { BaseQuizMode, ScoreProps } from '../BaseQuizMode';
-import { TimerBackground } from '../simple/TimerBackground';
 
 /**
  * Spiral quiz mode with characters arranged in a spiral pattern
@@ -17,11 +16,9 @@ const SpiralQuizMode = ({
   currentGameMode,
   onGameModeChange,
 }: SpiralQuizModeProps): JSX.Element => {
-  // Use the specialized spiral quiz logic
   const {
     characterState,
     scoreState,
-    timerState,
     actions,
     spiralCharacters,
     getCharacterStyle,
