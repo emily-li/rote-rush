@@ -1,6 +1,6 @@
 import { BaseQuizMode } from '@/components/BaseQuizMode';
 import { SPIRAL_CONFIG } from '@/config/spiral';
-import { useSpiralQuiz } from '@/hooks/useSpiralQuiz';
+import { useSpiralQuiz, type SpiralCharacter } from '@/hooks/useSpiralQuiz';
 import { GameMode, ScoreState } from '@/types';
 
 /**
@@ -11,6 +11,22 @@ type SpiralQuizModeProps = {
   readonly currentGameMode: GameMode;
   readonly onGameModeChange: (mode: GameMode) => void;
 };
+
+const renderSpiralCharacter = (
+  spiralChar: SpiralCharacter,
+  isWrongAnswer: boolean,
+  getCharacterStyle: (spiralChar: SpiralCharacter) => React.CSSProperties,
+) => (
+  <div
+    key={spiralChar.id}
+    className={`select-none font-kana ${
+      spiralChar.position === 0 && isWrongAnswer ? 'animate-bounce' : '' }`}
+    style={getCharacterStyle(spiralChar)}
+    aria-hidden="true"
+  >
+    {spiralChar.char.char}
+  </div>
+);
 
 const SpiralQuizMode = ({
   currentGameMode,
@@ -32,10 +48,7 @@ const SpiralQuizMode = ({
   };
 
   return (
-    <div
-      className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b
-        from-purple-50 to-blue-50"
-    >
+    <div className="relative flex min-h-screen flex-col overflow-hidden bg-fuchsia-50">
       <BaseQuizMode
         currentGameMode={currentGameMode}
         onGameModeChange={onGameModeChange}
@@ -45,19 +58,13 @@ const SpiralQuizMode = ({
         currentChar={characterState.currentChar}
         mainContent={
           <div className="relative mb-8 h-[70vh] w-full">
-            {spiralCharacters.map((spiralChar: any) => (
-              <div
-                key={spiralChar.id}
-                className={`select-none font-kana ${
-                spiralChar.position === 0 && scoreState.isWrongAnswer
-                    ? 'animate-bounce'
-                    : ''
-                }`}
-                style={getCharacterStyle(spiralChar)}
-              >
-                {spiralChar.char.char}
-              </div>
-            ))}
+            {spiralCharacters.map((spiralChar) =>
+              renderSpiralCharacter(
+                spiralChar,
+                scoreState.isWrongAnswer,
+                getCharacterStyle,
+              ),
+            )}
           </div>
         }
       />

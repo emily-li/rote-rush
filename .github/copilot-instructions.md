@@ -17,7 +17,8 @@ Incorrect: `className="text-[#c026d3]"` or `style={{ color: '#c026d3' }}`
 ### Colors
 
 - Primary: `fuchsia-800`
-- Background: `gray-50`
+- Background-primary: `fuchsia-50`
+- Background-secondary: `gray-50`
 - Errors: `red-500`, `fuchsia-50`
 - Japanese text: `gray-700`
 
@@ -27,7 +28,7 @@ Use semantic queries: `getByLabelText`, `getByRole` - avoid `data-testid`
 
 ### Comments
 
-Keep comments minimal - only explain complex logic, not obvious properties or structure
+No comments are allowed. JSDoc is allowed. If the code is complex and required explaining, this indicates types and/or functions should be extracted with appropriate naming to improve readability.
 
 ### Commands & Paths
 
@@ -41,3 +42,21 @@ Always use `pnpm` for package management - never npm or yarn
 
 When asked to build, always run `pnpm build` at the project root.  
 If there are any build errors, always fix them without asking.
+
+### Reviewing
+
+When asked to review, please review the code thoroughly. If there are no open files, review the whole project. If there are open files, please review those files in addition to files which depend on those files.
+Review to the following standards:
+
+- Typescript best practices
+- React best practices
+- DRY principles
+- Tailwind best practices
+- Code readability
+- Code maintainability
+- Code performance
+- Code security
+- Code accessibility
+- Code testability
+
+Suggest relevant improvements but do not make any changes without confirming first.
