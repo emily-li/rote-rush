@@ -1,7 +1,8 @@
 import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useSpiralQuiz } from '@/hooks/useSpiralQuiz';
 import type { GameMode } from '@/types';
-import { BaseQuizMode } from './BaseQuizMode';
+import { BaseQuizMode, ScoreProps } from './BaseQuizMode';
+import { TimerBackground } from './TimerBackground';
 
 /**
  * Spiral quiz mode with characters arranged in a spiral pattern
@@ -21,48 +22,52 @@ const SpiralQuizMode = ({
     characterState,
     scoreState,
     timerState,
-    animationState,
     actions,
     spiralCharacters,
     getCharacterStyle,
   } = useSpiralQuiz({ timerConfig: SPIRAL_CONFIG });
 
+  const scoreProps: ScoreProps = {
+    score: scoreState.score,
+    streak: scoreState.streak,
+    comboMultiplier: scoreState.comboMultiplier,
+  };
+
   return (
-    <BaseQuizMode
-      currentGameMode={currentGameMode}
-      onGameModeChange={onGameModeChange}
-      score={scoreState.score}
-      streak={scoreState.streak}
-      comboMultiplier={scoreState.comboMultiplier}
-      shouldAnimateCombo={animationState.shouldAnimateCombo}
-      shouldAnimateStreak={animationState.shouldAnimateStreak}
-      shouldAnimateComboReset={animationState.shouldAnimateComboReset}
-      timeRemainingPct={timerState.timeRemainingPct}
-      userInput={characterState.userInput}
-      isWrongAnswer={scoreState.isWrongAnswer}
-      handleInputChange={actions.handleInputChange}
-      currentChar={characterState.currentChar}
-      showTimer={false}
+    <div
       className="relative flex min-h-screen flex-col overflow-hidden bg-gradient-to-b
         from-purple-50 to-blue-50"
     >
-      {/* Spiral Display */}
-      <div className="relative mb-8 h-[70vh] w-full">
-        {spiralCharacters.map((spiralChar) => (
-          <div
-            key={spiralChar.id}
-            className={`select-none font-kana ${
-            spiralChar.position === 0 && scoreState.isWrongAnswer
-                ? 'animate-bounce'
-                : ''
-            }`}
-            style={getCharacterStyle(spiralChar)}
-          >
-            {spiralChar.char.char}
+      <BaseQuizMode
+        currentGameMode={currentGameMode}
+        onGameModeChange={onGameModeChange}
+        scoreProps={scoreProps}
+        userInput={characterState.userInput}
+        isWrongAnswer={scoreState.isWrongAnswer}
+        handleInputChange={actions.handleInputChange}
+        currentChar={characterState.currentChar}
+        backgroundContent={
+          <TimerBackground timeRemainingPct={timerState.timeRemainingPct} />
+        }
+        mainContent={
+          <div className="relative mb-8 h-[70vh] w-full">
+            {spiralCharacters.map((spiralChar) => (
+              <div
+                key={spiralChar.id}
+                className={`select-none font-kana ${
+                spiralChar.position === 0 && scoreState.isWrongAnswer
+                    ? 'animate-bounce'
+                    : ''
+                }`}
+                style={getCharacterStyle(spiralChar)}
+              >
+                {spiralChar.char.char}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-    </BaseQuizMode>
+        }
+      />
+    </div>
   );
 };
 
