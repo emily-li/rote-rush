@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import SimpleQuizMode from './components/SimpleQuizMode';
-import SpiralQuizMode from './components/SpiralQuizMode';
+import SimpleQuizMode from './components/simple/SimpleQuizMode';
+import SpiralQuizMode from './components/spiral/SpiralQuizMode';
 import { GameMode } from './types';
 
 function App() {

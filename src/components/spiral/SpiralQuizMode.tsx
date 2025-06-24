@@ -1,8 +1,8 @@
 import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useSpiralQuiz } from '@/hooks/useSpiralQuiz';
 import type { GameMode } from '@/types';
-import { BaseQuizMode, ScoreProps } from './BaseQuizMode';
-import { TimerBackground } from './TimerBackground';
+import { BaseQuizMode, ScoreProps } from '../BaseQuizMode';
+import { TimerBackground } from '../simple/TimerBackground';
 
 /**
  * Spiral quiz mode with characters arranged in a spiral pattern

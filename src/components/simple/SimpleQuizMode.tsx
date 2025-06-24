@@ -1,7 +1,7 @@
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
 import type { GameMode } from '@/types';
-import { BaseQuizMode, ScoreProps } from './BaseQuizMode';
+import { BaseQuizMode, ScoreProps } from '../BaseQuizMode';
 import { TimerBackground } from './TimerBackground';
 
 interface SimpleQuizModeProps {
