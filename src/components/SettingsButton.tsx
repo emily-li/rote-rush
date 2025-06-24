@@ -2,10 +2,10 @@ import { useEffect, useState } from 'react';
 import { Settings } from 'lucide-react';
 import { ReportView } from './ReportView';
 
-interface SettingsButtonProps {
+type SettingsButtonProps = {
   readonly currentGameMode: 'simple' | 'spiral';
   readonly onGameModeChange: (mode: 'simple' | 'spiral') => void;
-}
+};
 
 export const SettingsButton = ({
   currentGameMode,

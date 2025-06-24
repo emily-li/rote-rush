@@ -1,16 +1,16 @@
 import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useSpiralQuiz } from '@/hooks/useSpiralQuiz';
-import type { GameMode } from '@/types';
-import { BaseQuizMode, ScoreProps } from '../BaseQuizMode';
+import type { GameMode, ScoreProps } from '@/types';
+import { BaseQuizMode } from '../BaseQuizMode';
 
 /**
  * Spiral quiz mode with characters arranged in a spiral pattern
  * Features visual display of upcoming characters in a spiral formation
  */
-interface SpiralQuizModeProps {
+type SpiralQuizModeProps = {
   readonly currentGameMode: GameMode;
   readonly onGameModeChange: (mode: GameMode) => void;
-}
+};
 
 const SpiralQuizMode = ({
   currentGameMode,

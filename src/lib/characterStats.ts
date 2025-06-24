@@ -2,12 +2,12 @@ import type { CharacterStats, PracticeCharacter } from '@/types';
 
 const STATS_KEY = 'characterStats' as const;
 
-export interface CharacterStatsData {
+export type CharacterStatsData = {
   [char: string]: {
     attempts: number;
     correct: number;
   };
-}
+};
 
 /**
  * Load character statistics from localStorage
@@ -38,31 +38,37 @@ export const saveCharacterStats = (stats: CharacterStatsData): void => {
 /**
  * Record a character attempt (correct or incorrect)
  */
-export const recordCharacterAttempt = (char: string, isCorrect: boolean): void => {
+export const recordCharacterAttempt = (
+  char: string,
+  isCorrect: boolean,
+): void => {
   const stats = loadCharacterStats();
-  
+
   if (!stats[char]) {
     stats[char] = { attempts: 0, correct: 0 };
   }
-  
+
   stats[char].attempts += 1;
   if (isCorrect) {
     stats[char].correct += 1;
   }
-  
+
   saveCharacterStats(stats);
 };
 
 /**
  * Get character statistics with success rates
  */
-export const getCharacterStatsWithRates = (characters: readonly PracticeCharacter[]): CharacterStats[] => {
+export const getCharacterStatsWithRates = (
+  characters: readonly PracticeCharacter[],
+): CharacterStats[] => {
   const statsData = loadCharacterStats();
-  
-  return characters.map(character => {
+
+  return characters.map((character) => {
     const data = statsData[character.char] || { attempts: 0, correct: 0 };
-    const successRate = data.attempts > 0 ? (data.correct / data.attempts) * 100 : 0;
-    
+    const successRate =
+      data.attempts > 0 ? (data.correct / data.attempts) * 100 : 0;
+
     return {
       char: character.char,
       attempts: data.attempts,

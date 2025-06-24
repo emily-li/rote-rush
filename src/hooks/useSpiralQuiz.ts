@@ -3,20 +3,35 @@ import { getWeightedRandomCharacter } from '@/lib/characterLoading';
 import type { PracticeCharacter, TimerConfig } from '@/types';
 import { SimpleQuizModeState, useQuizGame } from './useQuizGame';
 
-interface SpiralCharacter {
+// Change interface SpiralCharacter to type
+// interface SpiralCharacter {
+//   char: PracticeCharacter;
+//   id: string;
+//   position: number; // 0 = center/head, highest = tail
+// }
+type SpiralCharacter = {
   char: PracticeCharacter;
   id: string;
   position: number; // 0 = center/head, highest = tail
-}
+};
 
-interface UseSpiralQuizParams {
+// Change interface UseSpiralQuizParams to type
+// interface UseSpiralQuizParams {
+//   timerConfig: TimerConfig;
+// }
+type UseSpiralQuizParams = {
   timerConfig: TimerConfig;
-}
+};
 
-interface UseSpiralQuizReturn extends SimpleQuizModeState {
+// Change interface UseSpiralQuizReturn to type
+// interface UseSpiralQuizReturn extends SimpleQuizModeState {
+//   spiralCharacters: SpiralCharacter[];
+//   getCharacterStyle: (spiralChar: SpiralCharacter) => React.CSSProperties;
+// }
+type UseSpiralQuizReturn = SimpleQuizModeState & {
   spiralCharacters: SpiralCharacter[];
   getCharacterStyle: (spiralChar: SpiralCharacter) => React.CSSProperties;
-}
+};
 
 // Calculate responsive character count based on viewport
 function calculateCharacterCount(): number {

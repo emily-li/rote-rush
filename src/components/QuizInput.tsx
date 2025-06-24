@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface QuizInputProps {
+type QuizInputProps = {
   /** Current user input value */
   value: string;
   /** Handler for input changes */
@@ -9,7 +9,7 @@ interface QuizInputProps {
   isWrongAnswer: boolean;
   /** Placeholder text for the input field */
   placeholder?: string;
-}
+};
 
 /**
  * Shared input component for all quiz modes

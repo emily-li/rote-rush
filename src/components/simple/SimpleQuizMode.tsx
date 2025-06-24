@@ -1,13 +1,13 @@
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
-import type { GameMode } from '@/types';
-import { BaseQuizMode, ScoreProps } from '../BaseQuizMode';
+import type { GameMode, ScoreProps } from '@/types';
+import { BaseQuizMode } from '../BaseQuizMode';
 import { TimerBackground } from './TimerBackground';
 
-interface SimpleQuizModeProps {
+type SimpleQuizModeProps = {
   readonly currentGameMode: GameMode;
   readonly onGameModeChange: (mode: GameMode) => void;
-}
+};
 
 const SimpleQuizMode = ({
   currentGameMode,

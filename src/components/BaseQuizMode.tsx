@@ -1,19 +1,26 @@
 import React from 'react';
-import { PracticeCharacter } from '@/types';
+import { PracticeCharacter, type GameMode, type ScoreProps } from '@/types';
 import { CorrectAnswerDisplay } from './CorrectAnswerDisplay';
 import { QuizInput } from './QuizInput';
 import { MetricChange, ScoreDisplay } from './ScoreDisplay';
 import { SettingsButton } from './SettingsButton';
 
-export interface ScoreProps {
-  readonly score: number;
-  readonly streak: number;
-  readonly comboMultiplier: number;
-}
-
-export interface BaseQuizModeProps {
-  readonly currentGameMode: 'simple' | 'spiral';
-  readonly onGameModeChange: (mode: 'simple' | 'spiral') => void;
+// Change interface BaseQuizModeProps to type
+// export interface BaseQuizModeProps {
+//   readonly currentGameMode: 'simple' | 'spiral';
+//   readonly onGameModeChange: (mode: 'simple' | 'spiral') => void;
+//   readonly scoreProps: ScoreProps;
+//   readonly userInput: string;
+//   readonly isWrongAnswer: boolean;
+//   readonly handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+//   readonly currentChar: PracticeCharacter;
+//   readonly className?: string;
+//   readonly backgroundContent?: React.ReactNode; // New: for backgrounds like TimerBackground
+//   readonly mainContent?: React.ReactNode; // New: for main quiz visuals
+// }
+type BaseQuizModeProps = {
+  readonly currentGameMode: GameMode;
+  readonly onGameModeChange: (mode: GameMode) => void;
   readonly scoreProps: ScoreProps;
   readonly userInput: string;
   readonly isWrongAnswer: boolean;
@@ -22,7 +29,7 @@ export interface BaseQuizModeProps {
   readonly className?: string;
   readonly backgroundContent?: React.ReactNode; // New: for backgrounds like TimerBackground
   readonly mainContent?: React.ReactNode; // New: for main quiz visuals
-}
+};
 
 /**
  * Base component for quiz modes with shared layout and functionality
@@ -68,3 +75,5 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
     </div>
   );
 };
+
+export {};

@@ -1,11 +1,11 @@
 import React from 'react';
 
-interface CorrectAnswerDisplayProps {
+type CorrectAnswerDisplayProps = {
   /** Whether to show the correct answer */
   isWrongAnswer: boolean;
   /** The correct answer to display */
   correctAnswer: string;
-}
+};
 
 /**
  * Displays the correct answer when the user gets it wrong

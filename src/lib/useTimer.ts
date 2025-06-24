@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 
-interface UseTimerOptions {
+type UseTimerOptions = {
   totalTimeMs: number;
   onTimeout: () => void;
-}
+};
 
 export function useTimer({ totalTimeMs, onTimeout }: UseTimerOptions) {
   // Handle negative totalTimeMs by defaulting to 0

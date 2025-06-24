@@ -1,11 +1,17 @@
 import React from 'react';
-import { ScoreProps } from './BaseQuizMode';
+import type { ScoreProps } from '@/types';
 
-interface AnimatedMetricProps {
+type AnimatedMetricProps = {
   label: string;
   value: number | string;
   ariaLabel?: string;
   isErrorAnimation: boolean;
+};
+
+export enum MetricChange {
+  INCREASE,
+  DECREASE,
+  NONE,
 }
 
 type ScoreAnimationProps = {
@@ -68,16 +74,10 @@ const Metric: React.FC<AnimatedMetricProps> = ({
   );
 };
 
-export enum MetricChange {
-  INCREASE,
-  DECREASE,
-  NONE,
-}
-
-export interface ScoreDisplayProps {
+type ScoreDisplayProps = {
   readonly scoreProps: ScoreProps;
   readonly scoreAnimationProps: ScoreAnimationProps;
-}
+};
 
 export const ScoreDisplay: React.FC<ScoreDisplayProps> = ({
   scoreProps,

@@ -13,20 +13,17 @@ export const MOCK_CHARACTERS: PracticeCharacter[] = [
   { char: 'ろ', validAnswers: ['ro'] },
 ];
 
-/**
- * Type for timer state assertions
- */
-export interface TimerStateExpectation {
+export type TimerStateExpectation = {
   timeLeft: number;
   total: number;
-}
+};
 
 /**
  * Helper to assert timer state matches expectations
  */
 export function expectTimerState(
   timerState: { timeLeftMs: number; totalTimeMs: number },
-  expected: TimerStateExpectation
+  expected: TimerStateExpectation,
 ) {
   expect(timerState.timeLeftMs).toBe(expected.timeLeft);
   expect(timerState.totalTimeMs).toBe(expected.total);

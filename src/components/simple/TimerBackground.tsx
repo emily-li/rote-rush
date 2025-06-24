@@ -1,10 +1,10 @@
 /**
  * Props for the TimerBackground component
  */
-interface TimerBackgroundProps {
+type TimerBackgroundProps = {
   /** Percentage of time remaining (0-100) */
   readonly timeRemainingPct: number;
-}
+};
 
 /**
  * Background timer display that shows time remaining as a visual indicator
