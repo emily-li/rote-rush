@@ -17,14 +17,10 @@ import {
   clamp,
   normalizeInput,
 } from '@/lib/validation';
-import type {
-  PracticeCharacter,
-  SimpleQuizModeState,
-  TimerConfig,
-} from '@/types';
+import type { PracticeCharacter, SimpleQuizModeState } from '@/types';
 
 export type UseQuizGameParams = {
-  timerConfig: TimerConfig;
+  timerConfig: typeof import('@/config/quiz').QUIZ_CONFIG;
   onCharacterComplete?: () => void;
 };
 const { WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = WEIGHT_CONFIG;
@@ -36,32 +32,34 @@ export const useQuizGame = ({
   timerConfig,
   onCharacterComplete,
 }: UseQuizGameParams): SimpleQuizModeState => {
-  const { DEFAULT_TIME_MS, MIN_TIME_MS, TIMER_STEP } = timerConfig;
+  const { DEFAULT_TIME_MS, MIN_TIME_MS, TIMER_STEP, WRONG_ANSWER_DISPLAY_MS } =
+    timerConfig;
 
   // Character and game state
-  const [characters, setCharacters] = useState(() => loadPracticeCharacters());
+  const [characters, setCharacters] = useState<PracticeCharacter[]>(() =>
+    loadPracticeCharacters(),
+  );
   const [currentChar, setCurrentChar] = useState<PracticeCharacter>(() =>
     getWeightedRandomCharacter(loadPracticeCharacters()),
   );
   const [userInput, setUserInput] = useState('');
 
   // Score and progress state
-  const [score, setScore] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [comboMultiplier, setComboMultiplier] = useState(1.0);
-  const [isWrongAnswer, setIsWrongAnswer] = useState(false);
+  const [score, setScore] = useState<number>(0);
+  const [streak, setStreak] = useState<number>(0);
+  const [comboMultiplier, setComboMultiplier] = useState<number>(1.0);
+  const [isWrongAnswer, setIsWrongAnswer] = useState<boolean>(false);
 
   // Timer state
-  const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME_MS);
-  const [currentTimeMs, setCurrentTimeMs] = useState(DEFAULT_TIME_MS);
-  const [nextTimeMs, setNextTimeMs] = useState(DEFAULT_TIME_MS);
-  const [isPaused, setIsPaused] = useState(true);
+  const [timeLeft, setTimeLeft] = useState<number>(DEFAULT_TIME_MS);
+  const [currentTimeMs, setCurrentTimeMs] = useState<number>(DEFAULT_TIME_MS);
+  const [nextTimeMs, setNextTimeMs] = useState<number>(DEFAULT_TIME_MS);
+  const [isPaused, setIsPaused] = useState<boolean>(true);
 
   // Refs for cleanup and state tracking
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const timeoutCountRef = useRef(0);
-  const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const nextCharTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const timeoutCountRef = useRef<number>(0);
+  const nextCharTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
    * Update timer on combo threshold - reduces time for next character when combo increases
@@ -87,10 +85,6 @@ export const useQuizGame = ({
     if (timerRef.current) {
       clearInterval(timerRef.current);
       timerRef.current = null;
-    }
-    if (validationTimeoutRef.current) {
-      clearTimeout(validationTimeoutRef.current);
-      validationTimeoutRef.current = null;
     }
     if (nextCharTimeoutRef.current) {
       clearTimeout(nextCharTimeoutRef.current);
@@ -154,7 +148,7 @@ export const useQuizGame = ({
       if (shouldPauseGame) {
         setIsPaused(true);
       }
-    }, 1500);
+    }, WRONG_ANSWER_DISPLAY_MS);
   }, [currentChar.char, nextCharacter, clearAllTimeouts]);
 
   const updateTimeLeft = useCallback(() => {
@@ -164,53 +158,47 @@ export const useQuizGame = ({
   const validateAndHandleInput = useCallback(
     (value: string) => {
       if (!value) return;
-
-      validationTimeoutRef.current = setTimeout(() => {
-        if (checkAnswerMatch(value, currentChar.validAnswers)) {
-          recordCharacterAttempt(currentChar.char, true);
-
-          timeoutCountRef.current = 0;
-
-          const newStreak = streak + 1;
-          setStreak(newStreak);
-          const newMultiplier = getComboMultiplier(newStreak);
-          setComboMultiplier(newMultiplier);
-          setScore((prev) => prev + Math.floor(10 * newMultiplier));
-          updateTimerOnComboThreshold(newMultiplier);
-          setCharacters((prevChars) =>
-            adjustWeight(
-              prevChars,
-              currentChar.char,
-              WEIGHT_DECREASE,
-              MIN_WEIGHT,
-            ),
-          );
-          nextCharacter(false);
-        } else if (!checkValidStart(value, currentChar.validAnswers)) {
-          recordCharacterAttempt(currentChar.char, false);
-
-          timeoutCountRef.current = 0;
-          setStreak(0);
-          setComboMultiplier(1.0);
-          setIsWrongAnswer(true);
-          setCharacters((prevChars) =>
-            adjustWeight(
-              prevChars,
-              currentChar.char,
-              WEIGHT_INCREASE,
-              MIN_WEIGHT,
-            ),
-          );
-          setUserInput(value);
-          nextCharTimeoutRef.current = setTimeout(
-            () => nextCharacter(true),
-            1000,
-          );
-        } else {
-          // Allow partial valid inputs
-          setUserInput(value);
-        }
-      }, 10);
+      if (checkAnswerMatch(value, currentChar.validAnswers)) {
+        recordCharacterAttempt(currentChar.char, true);
+        timeoutCountRef.current = 0;
+        const newStreak = streak + 1;
+        setStreak(newStreak);
+        const newMultiplier = getComboMultiplier(newStreak);
+        setComboMultiplier(newMultiplier);
+        setScore((prev) => prev + Math.floor(10 * newMultiplier));
+        updateTimerOnComboThreshold(newMultiplier);
+        setCharacters((prevChars) =>
+          adjustWeight(
+            prevChars,
+            currentChar.char,
+            WEIGHT_DECREASE,
+            MIN_WEIGHT,
+          ),
+        );
+        nextCharacter(false);
+      } else if (!checkValidStart(value, currentChar.validAnswers)) {
+        recordCharacterAttempt(currentChar.char, false);
+        timeoutCountRef.current = 0;
+        setStreak(0);
+        setComboMultiplier(1.0);
+        setIsWrongAnswer(true);
+        setCharacters((prevChars) =>
+          adjustWeight(
+            prevChars,
+            currentChar.char,
+            WEIGHT_INCREASE,
+            MIN_WEIGHT,
+          ),
+        );
+        setUserInput(value);
+        nextCharTimeoutRef.current = setTimeout(
+          () => nextCharacter(true),
+          WRONG_ANSWER_DISPLAY_MS,
+        );
+      } else {
+        // Allow partial valid inputs
+        setUserInput(value);
+      }
     },
     [currentChar, streak, nextCharacter, updateTimerOnComboThreshold],
   );
