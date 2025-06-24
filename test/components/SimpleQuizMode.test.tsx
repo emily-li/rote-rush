@@ -1,8 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import SimpleQuizMode from '../../src/components/SimpleQuizMode';
+import SimpleQuizMode from '../../src/components/simple/SimpleQuizMode';
 import { GameMode, type PracticeCharacter } from '../../src/types';
 
 // Testing constants - match these with the app config for consistency
