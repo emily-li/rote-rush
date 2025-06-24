@@ -3,7 +3,7 @@
  */
 
 import { expect, vi } from 'vitest';
-import type { PracticeCharacter } from '@/types';
+import type { PracticeCharacter } from '../src/types';
 
 // Common test data
 export const MOCK_CHARACTERS: PracticeCharacter[] = [
