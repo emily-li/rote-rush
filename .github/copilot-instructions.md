@@ -36,3 +36,8 @@ Always use Unix-style commands and forward slashes in paths
 ### Package Manager
 
 Always use `pnpm` for package management - never npm or yarn
+
+### Build Process
+
+When asked to build, always run `pnpm build` at the project root.  
+If there are any build errors, always fix them without asking.
