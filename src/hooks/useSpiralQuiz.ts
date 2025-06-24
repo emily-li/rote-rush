@@ -56,14 +56,14 @@ export const useSpiralQuiz = ({
 
     for (let i = 0; i < characterCount; i++) {
       initialSpiral.push({
-        char: getWeightedRandomCharacter(quizGame.characters),
+        char: getWeightedRandomCharacter(quizGame.characterState.characters),
         id: `spiral-${i}-${Date.now()}`,
         position: i, // 0 = center/head, higher = further out
       });
     }
 
     setSpiralCharacters(initialSpiral);
-  }, [quizGame.characters]);
+  }, [quizGame.characterState.characters]);
 
   // Calculate spiral path coordinates for a character
   const getSpiralCoordinates = useCallback(
@@ -115,7 +115,8 @@ export const useSpiralQuiz = ({
 
       if (isHead) {
         // Head character scaling based on timer
-        const timerProgress = 1 - quizGame.timeLeft / quizGame.currentTimeMs;
+        const timerProgress =
+          1 - quizGame.timerState.timeLeft / quizGame.timerState.currentTimeMs;
         const baseScale = 1.0;
         const maxScale = 2.0; // Responsive scaling limit
 
@@ -123,10 +124,15 @@ export const useSpiralQuiz = ({
         scale = baseScale + (maxScale - baseScale) * timerProgress;
 
         // Whoosh effect in final phase
-        if (quizGame.timeLeft <= quizGame.currentTimeMs * 0.1) {
+        if (
+          quizGame.timerState.timeLeft <=
+          quizGame.timerState.currentTimeMs * 0.1
+        ) {
           // Final 10% of timer
           const whooshProgress =
-            1 - quizGame.timeLeft / (quizGame.currentTimeMs * 0.1);
+            1 -
+            quizGame.timerState.timeLeft /
+              (quizGame.timerState.currentTimeMs * 0.1);
           scale *= 1 + whooshProgress * 0.5; // Additional dramatic scaling
         }
 
@@ -166,8 +172,8 @@ export const useSpiralQuiz = ({
     },
     [
       spiralCharacters.length,
-      quizGame.timeLeft,
-      quizGame.currentTimeMs,
+      quizGame.timerState.timeLeft,
+      quizGame.timerState.currentTimeMs,
       getSpiralCoordinates,
     ],
   );
@@ -184,7 +190,7 @@ export const useSpiralQuiz = ({
       // Add new character at outermost position
       const maxPosition = Math.max(...advanced.map((c) => c.position), 0);
       const newChar: SpiralCharacter = {
-        char: getWeightedRandomCharacter(quizGame.characters),
+        char: getWeightedRandomCharacter(quizGame.characterState.characters),
         id: `spiral-${Date.now()}`,
         position: maxPosition + 1,
       };
