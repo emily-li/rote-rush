@@ -1,6 +1,6 @@
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
-import type { GameMode } from '@/types';
+import { GameMode } from '@/types';
 import { BaseQuizMode } from '../BaseQuizMode';
 import { TimerBackground } from './TimerBackground';
 
@@ -24,7 +24,6 @@ const SimpleQuizMode = ({
         onGameModeChange={onGameModeChange}
         scoreState={scoreState}
         userInput={characterState.userInput}
-        isWrongAnswer={scoreState.isWrongAnswer}
         handleInputChange={actions.handleInputChange}
         currentChar={characterState.currentChar}
         backgroundContent={

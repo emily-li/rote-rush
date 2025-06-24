@@ -1,6 +1,6 @@
 import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useSpiralQuiz } from '@/hooks/useSpiralQuiz';
-import type { GameMode, ScoreState } from '@/types';
+import { GameMode, ScoreState } from '@/types';
 import { BaseQuizMode } from '../BaseQuizMode';
 
 /**
@@ -41,7 +41,6 @@ const SpiralQuizMode = ({
         onGameModeChange={onGameModeChange}
         scoreState={scoreState}
         userInput={characterState.userInput}
-        isWrongAnswer={scoreState.isWrongAnswer}
         handleInputChange={actions.handleInputChange}
         currentChar={characterState.currentChar}
         mainContent={

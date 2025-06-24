@@ -21,9 +21,13 @@ import {
 import type {
   PracticeCharacter,
   SimpleQuizModeState,
-  UseQuizGameParams,
+  TimerConfig,
 } from '@/types';
 
+export type UseQuizGameParams = {
+  timerConfig: TimerConfig;
+  onCharacterComplete?: () => void;
+};
 const { WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = WEIGHT_CONFIG;
 
 /**

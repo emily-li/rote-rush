@@ -3,7 +3,7 @@ import '@testing-library/jest-dom';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import SimpleQuizMode from '../../src/components/SimpleQuizMode';
-import type { PracticeCharacter } from '../../src/types';
+import { GameMode, type PracticeCharacter } from '../../src/types';
 
 // Testing constants - match these with the app config for consistency
 const WEIGHT_DECREASE = 1;
@@ -81,7 +81,10 @@ describe('SimpleQuizMode functionality', () => {
   describe('Basic gameplay', () => {
     it('maintains character display after answering or skipping', () => {
       render(
-        <SimpleQuizMode currentGameMode="simple" onGameModeChange={() => {}} />,
+        <SimpleQuizMode
+          currentGameMode={GameMode.SIMPLE}
+          onGameModeChange={() => {}}
+        />,
       );
       const input = screen.getByPlaceholderText(/romanized/i);
 
@@ -106,7 +109,10 @@ describe('SimpleQuizMode functionality', () => {
   describe('Timeout handling', () => {
     it('resets timeout count on correct answer', () => {
       render(
-        <SimpleQuizMode currentGameMode="simple" onGameModeChange={() => {}} />,
+        <SimpleQuizMode
+          currentGameMode={GameMode.SIMPLE}
+          onGameModeChange={() => {}}
+        />,
       );
       const input = screen.getByPlaceholderText(/romanized/i);
 
@@ -149,7 +155,10 @@ describe('SimpleQuizMode functionality', () => {
 
     it('pauses after two consecutive timeouts', () => {
       render(
-        <SimpleQuizMode currentGameMode="simple" onGameModeChange={() => {}} />,
+        <SimpleQuizMode
+          currentGameMode={GameMode.SIMPLE}
+          onGameModeChange={() => {}}
+        />,
       );
       const input = screen.getByPlaceholderText(/romanized/i);
 
@@ -176,7 +185,10 @@ describe('SimpleQuizMode functionality', () => {
   describe('Post-pause input handling', () => {
     it('captures first keystroke after pause correctly', () => {
       render(
-        <SimpleQuizMode currentGameMode="simple" onGameModeChange={() => {}} />,
+        <SimpleQuizMode
+          currentGameMode={GameMode.SIMPLE}
+          onGameModeChange={() => {}}
+        />,
       );
       const input = screen.getByPlaceholderText(/romanized/i);
 
@@ -208,7 +220,10 @@ describe('SimpleQuizMode functionality', () => {
 
     it('validates correct answers immediately after pause', () => {
       render(
-        <SimpleQuizMode currentGameMode="simple" onGameModeChange={() => {}} />,
+        <SimpleQuizMode
+          currentGameMode={GameMode.SIMPLE}
+          onGameModeChange={() => {}}
+        />,
       );
       const input = screen.getByPlaceholderText(/romanized/i);
 
@@ -232,7 +247,10 @@ describe('SimpleQuizMode functionality', () => {
 
     it('validates incorrect answers immediately after pause', () => {
       render(
-        <SimpleQuizMode currentGameMode="simple" onGameModeChange={() => {}} />,
+        <SimpleQuizMode
+          currentGameMode={GameMode.SIMPLE}
+          onGameModeChange={() => {}}
+        />,
       );
       const input = screen.getByPlaceholderText(/romanized/i);
 

@@ -4,18 +4,18 @@ import SpiralQuizMode from './components/spiral/SpiralQuizMode';
 import { GameMode } from './types';
 
 function App() {
-  const [gameMode, setGameMode] = useState<GameMode>('simple');
+  const [gameMode, setGameMode] = useState<GameMode>(GameMode.SIMPLE);
 
   const renderGameMode = () => {
     switch (gameMode) {
-      case 'spiral':
+      case GameMode.SPIRAL:
         return (
           <SpiralQuizMode
             currentGameMode={gameMode}
             onGameModeChange={setGameMode}
           />
         );
-      case 'simple':
+      case GameMode.SIMPLE:
       default:
         return (
           <SimpleQuizMode

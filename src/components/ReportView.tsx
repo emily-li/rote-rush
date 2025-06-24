@@ -6,7 +6,7 @@ import {
   resetCharacterStats,
 } from '@/lib/characterStats';
 import hiraganaData from '@/resources/hiragana.json';
-import type { CharacterStats, GameMode } from '@/types';
+import { GameMode, type CharacterStats } from '@/types';
 
 interface ReportViewProps {
   readonly onClose: () => void;
@@ -56,8 +56,8 @@ export const ReportView = ({
     <div className="mb-6">
       <h2 className="mb-2 text-lg font-bold text-gray-800">{title}</h2>
       <div
-        className="grid grid-cols-10 border-l border-t border-gray-300 sm:grid-cols-15
-          md:grid-cols-20 lg:grid-cols-25 xl:grid-cols-30"
+        className="sm:grid-cols-15 md:grid-cols-20 lg:grid-cols-25 xl:grid-cols-30 grid
+          grid-cols-10 border-l border-t border-gray-300"
       >
         {' '}
         {stats.map((stat) => (
@@ -107,9 +107,9 @@ export const ReportView = ({
               </h2>
               <div className="flex gap-3">
                 <button
-                  onClick={() => onGameModeChange('simple')}
+                  onClick={() => onGameModeChange(GameMode.SIMPLE)}
                   className={`border-2 px-4 py-2 transition-colors ${
-                    currentGameMode === 'simple'
+                    currentGameMode === GameMode.SIMPLE
                       ? 'border-fuchsia-400 bg-fuchsia-50 font-bold text-fuchsia-800'
                       : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                     }`}
@@ -117,9 +117,9 @@ export const ReportView = ({
                   Simple Mode
                 </button>
                 <button
-                  onClick={() => onGameModeChange('spiral')}
+                  onClick={() => onGameModeChange(GameMode.SPIRAL)}
                   className={`border-2 px-4 py-2 transition-colors ${
-                    currentGameMode === 'spiral'
+                    currentGameMode === GameMode.SPIRAL
                       ? 'border-purple-400 bg-purple-50 font-bold text-purple-800'
                       : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                     }`}
@@ -128,7 +128,7 @@ export const ReportView = ({
                 </button>
               </div>
               <p className="mt-2 text-sm text-gray-600">
-                {currentGameMode === 'simple'
+                {currentGameMode === GameMode.SIMPLE
                   ? 'Classic kana practice with timer background'
                   : 'Characters approach in a 3D spiral - answer before they reach you!'}
               </p>

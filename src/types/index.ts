@@ -38,17 +38,6 @@ export type WeightConfig = {
   readonly MIN_WEIGHT: number;
 };
 
-/**
- * Configuration for quiz timing and scoring
- * @deprecated Use TimerConfig instead
- */
-export type QuizConfig = TimerConfig & WeightConfig;
-
-export type UseQuizGameParams = {
-  timerConfig: TimerConfig;
-  onCharacterComplete?: () => void;
-};
-
 export type CharacterState = {
   characters: PracticeCharacter[];
   currentChar: PracticeCharacter;
@@ -91,4 +80,7 @@ export type SimpleQuizModeState = {
   actions: QuizGameActions;
 };
 
-export type GameMode = 'simple' | 'spiral';
+export enum GameMode {
+  SIMPLE,
+  SPIRAL,
+}

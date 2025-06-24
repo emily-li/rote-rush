@@ -1,5 +1,5 @@
 import React from 'react';
-import { PracticeCharacter, type ScoreState } from '@/types';
+import { GameMode, PracticeCharacter, type ScoreState } from '@/types';
 import { CorrectAnswerDisplay } from './CorrectAnswerDisplay';
 import { QuizInput } from './QuizInput';
 import { MetricChange, ScoreDisplay } from './ScoreDisplay';
@@ -8,14 +8,13 @@ import { SettingsButton } from './SettingsButton';
 type BaseQuizModeProps = {
   readonly scoreState: ScoreState;
   readonly userInput: string;
-  readonly isWrongAnswer: boolean;
   readonly handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   readonly currentChar: PracticeCharacter;
   readonly className?: string;
   readonly backgroundContent?: React.ReactNode;
   readonly mainContent?: React.ReactNode;
-  readonly currentGameMode: 'simple' | 'spiral';
-  readonly onGameModeChange: (mode: 'simple' | 'spiral') => void;
+  readonly currentGameMode: GameMode;
+  readonly onGameModeChange: (mode: GameMode) => void;
 };
 
 /**
@@ -24,7 +23,6 @@ type BaseQuizModeProps = {
 export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
   scoreState,
   userInput,
-  isWrongAnswer,
   handleInputChange,
   currentChar,
   className = 'relative flex min-h-screen flex-col overflow-hidden',
@@ -52,10 +50,10 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
         <QuizInput
           value={userInput}
           onChange={handleInputChange}
-          isWrongAnswer={isWrongAnswer}
+          isWrongAnswer={scoreState.isWrongAnswer}
         />
         <CorrectAnswerDisplay
-          isWrongAnswer={isWrongAnswer}
+          isWrongAnswer={scoreState.isWrongAnswer}
           correctAnswer={currentChar.validAnswers[0]}
         />
       </div>
