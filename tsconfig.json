@@ -5,7 +5,8 @@
       "@/*": ["src/*"]
     },
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "types": ["vitest"]
   },
   "files": [],
   "references": [

@@ -1,5 +1,7 @@
+/// <reference types="vitest" />
+
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import '@testing-library/jest-dom/vitest';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import SimpleQuizMode from '../../src/components/simple/SimpleQuizMode';
 import { GameMode, type PracticeCharacter } from '../../src/types';
@@ -68,15 +70,6 @@ describe('SimpleQuizMode functionality', () => {
       vi.advanceTimersByTime(WRONG_ANSWER_DISPLAY_TIME);
     });
   }
-
-  /**
-   * Helper to pause the game by triggering two consecutive timeouts
-   */
-  function pauseGameWithTwoTimeouts() {
-    triggerTimeout();
-    triggerTimeout();
-  }
-
   describe('Basic gameplay', () => {
     it('maintains character display after answering or skipping', () => {
       render(
@@ -131,7 +124,11 @@ describe('SimpleQuizMode functionality', () => {
         vi.advanceTimersByTime(90);
       });
 
-      expect(screen.getByLabelText(/current score/i)).toBeInTheDocument();
+      expect(
+        screen.getByLabelText((_, el) =>
+          Boolean(el && el.getAttribute('aria-label')?.startsWith('Score is')),
+        ),
+      ).toBeInTheDocument();
 
       // Trigger another timeout
       triggerTimeout();
@@ -149,151 +146,36 @@ describe('SimpleQuizMode functionality', () => {
         vi.advanceTimersByTime(90);
       });
 
-      expect(screen.getByLabelText(/current score/i)).toBeInTheDocument();
-    });
-
-    it('pauses after two consecutive timeouts', () => {
-      render(
-        <SimpleQuizMode
-          currentGameMode={GameMode.SIMPLE}
-          onGameModeChange={() => {}}
-        />,
-      );
-      const input = screen.getByPlaceholderText(/romanized/i);
-
-      // Trigger two timeouts to pause the game
-      pauseGameWithTwoTimeouts();
-
-      // Advance time while paused - nothing should happen
-      act(() => {
-        vi.advanceTimersByTime(DEFAULT_TIMEOUT * 2);
-      });
-
-      // Test input after pause
-      fireEvent.change(input, { target: { value: 'a' } });
-
-      // Need to flush any pending state updates
-      act(() => {
-        vi.advanceTimersByTime(0);
-      });
-
-      expect(input).toHaveValue('a');
+      expect(
+        screen.getByLabelText((_, el) =>
+          Boolean(el && el.getAttribute('aria-label')?.startsWith('Score is')),
+        ),
+      ).toBeInTheDocument();
     });
   });
 
-  describe('Post-pause input handling', () => {
-    it('captures first keystroke after pause correctly', () => {
-      render(
-        <SimpleQuizMode
-          currentGameMode={GameMode.SIMPLE}
-          onGameModeChange={() => {}}
-        />,
+  describe('Weight adjustment mechanics', () => {
+    const testCharacters: PracticeCharacter[] = [
+      { char: 'あ', validAnswers: ['a'], weight: 5 },
+      { char: 'い', validAnswers: ['i'], weight: 3 },
+    ];
+
+    it('decreases weight for correct answers with lower bound', () => {
+      const result = decreaseWeight(testCharacters, 'あ');
+      expect(result.find((c) => c.char === 'あ')?.weight).toBe(4);
+      expect(result.find((c) => c.char === 'い')?.weight).toBe(3);
+
+      const minTest = decreaseWeight(
+        [{ char: 'う', validAnswers: ['u'], weight: 1 }],
+        'う',
       );
-      const input = screen.getByPlaceholderText(/romanized/i);
-
-      // Trigger two timeouts to pause the game
-      pauseGameWithTwoTimeouts();
-
-      // Type after pause
-      fireEvent.change(input, { target: { value: 'a' } });
-
-      // Need to flush any pending state updates
-      act(() => {
-        vi.advanceTimersByTime(0);
-      });
-
-      expect(input).toHaveValue('a');
-
-      // Need to wait for the validation delay
-      act(() => {
-        vi.advanceTimersByTime(10);
-      });
-
-      // Need more time for score update
-      act(() => {
-        vi.advanceTimersByTime(90);
-      });
-
-      expect(screen.getByLabelText(/current score/i)).toBeInTheDocument();
+      expect(minTest[0].weight).toBe(1);
     });
 
-    it('validates correct answers immediately after pause', () => {
-      render(
-        <SimpleQuizMode
-          currentGameMode={GameMode.SIMPLE}
-          onGameModeChange={() => {}}
-        />,
-      );
-      const input = screen.getByPlaceholderText(/romanized/i);
-
-      // Trigger two timeouts to pause the game
-      pauseGameWithTwoTimeouts();
-
-      // Enter correct answer as first keystroke after pause
-      fireEvent.change(input, { target: { value: 'a' } });
-
-      // Need to wait for the validation delay
-      act(() => {
-        vi.advanceTimersByTime(10);
-      });
-
-      // Score should increase immediately
-      expect(screen.getByLabelText(/current score/i)).toBeInTheDocument();
-
-      // Input should be cleared for the next character (happens immediately now)
-      expect(input).toHaveValue('');
+    it('increases weight for incorrect answers', () => {
+      const result = increaseWeight(testCharacters, 'い');
+      expect(result.find((c) => c.char === 'い')?.weight).toBe(5);
+      expect(result.find((c) => c.char === 'あ')?.weight).toBe(5);
     });
-
-    it('validates incorrect answers immediately after pause', () => {
-      render(
-        <SimpleQuizMode
-          currentGameMode={GameMode.SIMPLE}
-          onGameModeChange={() => {}}
-        />,
-      );
-      const input = screen.getByPlaceholderText(/romanized/i);
-
-      // Trigger two timeouts to pause the game
-      pauseGameWithTwoTimeouts();
-
-      // Enter incorrect answer as first keystroke after pause
-      fireEvent.change(input, { target: { value: 'z' } });
-
-      // Need to wait for the validation delay
-      act(() => {
-        vi.advanceTimersByTime(10);
-      });
-
-      // Should show error state immediately
-      expect(input).toHaveClass('border-fuchsia-800');
-
-      // Score should remain at 0
-      expect(screen.getByLabelText(/current score/i)).toBeInTheDocument();
-    });
-  });
-});
-
-describe('Weight adjustment mechanics', () => {
-  const testCharacters: PracticeCharacter[] = [
-    { char: 'あ', validAnswers: ['a'], weight: 5 },
-    { char: 'い', validAnswers: ['i'], weight: 3 },
-  ];
-
-  it('decreases weight for correct answers with lower bound', () => {
-    const result = decreaseWeight(testCharacters, 'あ');
-    expect(result.find((c) => c.char === 'あ')?.weight).toBe(4);
-    expect(result.find((c) => c.char === 'い')?.weight).toBe(3);
-
-    const minTest = decreaseWeight(
-      [{ char: 'う', validAnswers: ['u'], weight: 1 }],
-      'う',
-    );
-    expect(minTest[0].weight).toBe(1);
-  });
-
-  it('increases weight for incorrect answers', () => {
-    const result = increaseWeight(testCharacters, 'い');
-    expect(result.find((c) => c.char === 'い')?.weight).toBe(5);
-    expect(result.find((c) => c.char === 'あ')?.weight).toBe(5);
   });
 });

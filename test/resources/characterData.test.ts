@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { describe, expect, it } from 'vitest';
 import hiraganaData from '../../src/resources/hiragana.json';
 import katakanaData from '../../src/resources/katakana.json';

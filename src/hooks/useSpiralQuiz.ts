@@ -45,10 +45,30 @@ export const useSpiralQuiz = ({
     [],
   );
 
+  // Sync spiralCharacters[0].char with currentChar
+  useEffect(() => {
+    if (quizGame.characterState.currentChar) {
+      setSpiralCharacters((prev) => {
+        if (prev.length === 0) return prev;
+        const updated = [
+          { ...prev[0], char: quizGame.characterState.currentChar },
+          ...prev.slice(1),
+        ];
+        return updated;
+      });
+    }
+  }, [quizGame.characterState.currentChar]);
+
   const initializeSpiral = useCallback(() => {
     const characterCount = calculateCharacterCount();
     const initialSpiral: SpiralCharacter[] = [];
-    for (let i = 0; i < characterCount; i++) {
+    // Use the currentChar as the head
+    initialSpiral.push({
+      char: quizGame.characterState.currentChar,
+      id: `spiral-0-${Date.now()}`,
+      position: 0,
+    });
+    for (let i = 1; i < characterCount; i++) {
       initialSpiral.push({
         char: getWeightedRandomCharacter(quizGame.characterState.characters),
         id: `spiral-${i}-${Date.now()}`,
@@ -56,7 +76,7 @@ export const useSpiralQuiz = ({
       });
     }
     setSpiralCharacters(initialSpiral);
-  }, [quizGame.characterState.characters]);
+  }, [quizGame.characterState.characters, quizGame.characterState.currentChar]);
 
   const getSpiralCoordinates = useCallback(
     (position: number, totalCharacters: number) => {
@@ -67,10 +87,14 @@ export const useSpiralQuiz = ({
         window.innerWidth * 0.35,
         window.innerHeight * 0.25,
       );
+      const minCharSpacing = 48; // px, estimated min character size
       const totalTurns = 3;
       const maxAngle = totalTurns * 2 * Math.PI;
-      const angleStep = maxAngle / (totalCharacters - 1);
-      const radiusStep = maxRadius / (totalCharacters - 1);
+      // Calculate the minimum number of steps needed to avoid overlap
+      const minSteps = Math.ceil(maxRadius / minCharSpacing);
+      const steps = Math.max(totalCharacters - 1, minSteps);
+      const angleStep = maxAngle / steps;
+      const radiusStep = maxRadius / steps;
       const angle = position * angleStep;
       const radius = position * radiusStep;
       const x = Math.cos(angle) * radius;

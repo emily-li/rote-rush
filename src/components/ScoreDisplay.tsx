@@ -21,6 +21,7 @@ const Metric: React.FC<MetricProps> = ({ label, value, metricChange }) => {
       <span
         key={value}
         className={`${animation} inline-block min-w-[3ch] text-right font-extrabold`}
+        aria-label={`${label} is ${value}`}
       >
         {value}
       </span>

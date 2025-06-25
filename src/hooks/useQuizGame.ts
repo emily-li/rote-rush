@@ -62,7 +62,6 @@ export const useQuizGame = ({
 
   // Refs for cleanup and state tracking
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const timeoutCountRef = useRef<number>(0);
   const nextCharTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /**
@@ -112,7 +111,7 @@ export const useQuizGame = ({
 
       // Only reset timeout count when explicitly requested
       if (resetTimeout) {
-        timeoutCountRef.current = 0;
+        // timeoutCountRef.current = 0; // Removed logic
       }
 
       setIsPaused(false);
@@ -150,14 +149,9 @@ export const useQuizGame = ({
     setStreak(0);
     setComboMultiplier(1.0);
     setIsWrongAnswer(true);
-    timeoutCountRef.current += 1;
-
+    // Remove timeoutCountRef logic and pause logic
     nextCharTimeoutRef.current = setTimeout(() => {
-      const shouldPauseGame = timeoutCountRef.current >= 2;
       nextCharacter(true, false);
-      if (shouldPauseGame) {
-        setIsPaused(true);
-      }
     }, WRONG_ANSWER_DISPLAY_MS);
   }, [currentChar.char, nextCharacter, clearAllTimeouts]);
 
@@ -170,7 +164,7 @@ export const useQuizGame = ({
       if (!value) return;
       if (checkAnswerMatch(value, currentChar.validAnswers)) {
         recordCharacterAttempt(currentChar.char, true);
-        timeoutCountRef.current = 0;
+        // timeoutCountRef.current = 0; // Removed logic
         const newStreak = streak + 1;
         setStreak(newStreak);
         const newMultiplier = getComboMultiplier(newStreak);
@@ -188,7 +182,7 @@ export const useQuizGame = ({
         nextCharacter(false);
       } else if (!checkValidStart(value, currentChar.validAnswers)) {
         recordCharacterAttempt(currentChar.char, false);
-        timeoutCountRef.current = 0;
+        // timeoutCountRef.current = 0; // Removed logic
         setStreak(0);
         setComboMultiplier(1.0);
         setIsWrongAnswer(true);
@@ -244,9 +238,7 @@ export const useQuizGame = ({
       // Handle input when game is paused after timeout
       if (isPaused) {
         setIsPaused(false);
-        timeoutCountRef.current = 0;
-        setCurrentTimeMs(DEFAULT_TIME_MS);
-        setTimeLeft(DEFAULT_TIME_MS);
+        // Removed logic related to timeoutCountRef and setting timeLeft
         setUserInput(value);
         validateAndHandleInput(value);
         return;
@@ -258,7 +250,7 @@ export const useQuizGame = ({
         validateAndHandleInput(value);
       }
     },
-    [isWrongAnswer, isPaused, validateAndHandleInput, DEFAULT_TIME_MS],
+    [isWrongAnswer, isPaused, validateAndHandleInput],
   );
 
   const timeRemainingPct = (timeLeft / currentTimeMs) * 100;

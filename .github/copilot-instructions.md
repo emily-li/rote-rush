@@ -24,7 +24,9 @@ Incorrect: `className="text-[#c026d3]"` or `style={{ color: '#c026d3' }}`
 
 ### Testing
 
-Use semantic queries: `getByLabelText`, `getByRole` - avoid `data-testid`
+- Use `vitest` for testing
+- After writing or fixing tests, always run `pnpm test` to ensure all tests pass. Always fix test failures without asking.
+- Use semantic queries: `getByLabelText`, `getByRole` - avoid `data-testid`
 
 ### Comments
 
@@ -37,6 +39,8 @@ Always use Unix-style commands and forward slashes in paths
 ### Package Manager
 
 Always use `pnpm` for package management - never npm or yarn
+
+## Workflows
 
 ### Build Process
 
