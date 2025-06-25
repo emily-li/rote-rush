@@ -38,19 +38,12 @@ function App() {
     setGameModeQuery(gameMode);
   }, [gameMode]);
 
-  const renderGameMode = () => {
-    const modeDef =
-      GAME_MODES.find((m) => m.mode === gameMode) ?? GAME_MODES[0];
-    const ModeComponent = modeDef.component;
-    return (
-      <ModeComponent
-        currentGameMode={gameMode}
-        onGameModeChange={setGameMode}
-      />
-    );
-  };
+  const modeDef = GAME_MODES.find((m) => m.mode === gameMode) ?? GAME_MODES[0];
+  const ModeComponent = modeDef.component;
 
-  return renderGameMode();
+  return (
+    <ModeComponent currentGameMode={gameMode} onGameModeChange={setGameMode} />
+  );
 }
 
 export default App;
