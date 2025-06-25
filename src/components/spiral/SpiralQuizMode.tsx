@@ -16,17 +16,24 @@ const renderSpiralCharacter = (
   spiralChar: SpiralCharacter,
   isWrongAnswer: boolean,
   getCharacterStyle: (spiralChar: SpiralCharacter) => React.CSSProperties,
-) => (
-  <div
-    key={spiralChar.id}
-    className={`select-none font-kana ${
-      spiralChar.position === 0 && isWrongAnswer ? 'animate-bounce' : '' }`}
-    style={getCharacterStyle(spiralChar)}
-    aria-hidden="true"
-  >
-    {spiralChar.char.char}
-  </div>
-);
+) => {
+  const isHead = spiralChar.position === 0;
+  return (
+    <div
+      key={spiralChar.id}
+      className={`absolute select-none font-kana
+        ${isHead ? 'font-bold text-fuchsia-800 drop-shadow-lg' : 'font-normal text-gray-700'}
+        ${isHead && isWrongAnswer ? 'animate-bounce' : ''} pointer-events-none
+        transition-transform duration-100`}
+      style={getCharacterStyle(spiralChar)}
+      aria-hidden={isHead ? undefined : 'true'}
+      role={isHead ? 'img' : undefined}
+      aria-label={isHead ? spiralChar.char.char : undefined}
+    >
+      {spiralChar.char.char}
+    </div>
+  );
+};
 
 const SpiralQuizMode = ({
   currentGameMode,
