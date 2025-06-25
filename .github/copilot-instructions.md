@@ -30,7 +30,7 @@ Incorrect: `className="text-[#c026d3]"` or `style={{ color: '#c026d3' }}`
 
 ### Comments
 
-No comments are allowed. JSDoc is allowed. If the code is complex and required explaining, this indicates types and/or functions should be extracted with appropriate naming to improve readability.
+Never write comments. JSDoc is allowed. If the code is complex and required explaining, this indicates types and/or functions should be extracted with appropriate naming to improve readability.
 
 ### Commands & Paths
 

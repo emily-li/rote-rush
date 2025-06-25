@@ -1,29 +1,53 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SimpleQuizMode from '@/components/simple/SimpleQuizMode';
 import SpiralQuizMode from '@/components/spiral/SpiralQuizMode';
 import { GameMode } from '@/types';
 
+const GAME_MODES = [
+  { query: 'simple', mode: GameMode.SIMPLE, component: SimpleQuizMode },
+  { query: 'spiral', mode: GameMode.SPIRAL, component: SpiralQuizMode },
+];
+
+const GAME_MODE_QUERY_MAP = Object.fromEntries(
+  GAME_MODES.map(({ query, mode }) => [query, mode]),
+) as Record<string, GameMode>;
+
+const GAME_MODE_TO_QUERY = Object.fromEntries(
+  GAME_MODES.map(({ query, mode }) => [mode, query]),
+) as Record<GameMode, string>;
+
+function getGameModeFromQuery(): GameMode {
+  const params = new URLSearchParams(window.location.search);
+  const mode = params.get('mode');
+  return mode && mode in GAME_MODE_QUERY_MAP
+    ? GAME_MODE_QUERY_MAP[mode]
+    : GameMode.SIMPLE;
+}
+
+function setGameModeQuery(mode: GameMode) {
+  const params = new URLSearchParams(window.location.search);
+  params.set('mode', GAME_MODE_TO_QUERY[mode]);
+  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  window.history.replaceState({}, '', newUrl);
+}
+
 function App() {
-  const [gameMode, setGameMode] = useState<GameMode>(GameMode.SIMPLE);
+  const [gameMode, setGameMode] = useState<GameMode>(getGameModeFromQuery());
+
+  useEffect(() => {
+    setGameModeQuery(gameMode);
+  }, [gameMode]);
 
   const renderGameMode = () => {
-    switch (gameMode) {
-      case GameMode.SPIRAL:
-        return (
-          <SpiralQuizMode
-            currentGameMode={gameMode}
-            onGameModeChange={setGameMode}
-          />
-        );
-      case GameMode.SIMPLE:
-      default:
-        return (
-          <SimpleQuizMode
-            currentGameMode={gameMode}
-            onGameModeChange={setGameMode}
-          />
-        );
-    }
+    const modeDef =
+      GAME_MODES.find((m) => m.mode === gameMode) ?? GAME_MODES[0];
+    const ModeComponent = modeDef.component;
+    return (
+      <ModeComponent
+        currentGameMode={gameMode}
+        onGameModeChange={setGameMode}
+      />
+    );
   };
 
   return renderGameMode();
