@@ -2,6 +2,27 @@ function safeDivide(n: number, d: number, f = 0) {
   return d === 0 ? f : n / d;
 }
 
+/**
+ * Calculate the number of visible characters for the spiral based on viewport area.
+ * @param width Window width
+ * @param height Window height
+ * @returns Number of characters to display in the spiral
+ */
+export function getVisibleCharacterCount(
+  width: number,
+  height: number,
+): number {
+  const MIN_CHARACTERS = 15;
+  const MAX_CHARACTERS = 30;
+  const BASE_AREA = 1920 * 1080; // Reference area for scaling
+  const viewportArea = width * height;
+  const areaRatio = Math.min(1, viewportArea / BASE_AREA);
+  return Math.max(
+    MIN_CHARACTERS,
+    Math.floor(MIN_CHARACTERS + (MAX_CHARACTERS - MIN_CHARACTERS) * areaRatio),
+  );
+}
+
 function getFontSize(isHead: boolean, pos: number, total: number) {
   if (isHead) return 'clamp(3rem, 8vw, 6rem)';
   const norm = safeDivide(pos, total - 1, 0);
@@ -33,7 +54,7 @@ function getSpiralCoordinates(
     3.0,
     Math.max(0.8, BASE_TURNS + dominantDimension * TURN_SCALE_FACTOR),
   );
-  const MINIMUM_DISTANCE_FACTOR = 0.15; // Factor for consistent neighbor spacing
+  const MINIMUM_DISTANCE_FACTOR = 0.1; // Factor for consistent neighbor spacing
   if (pos === 0) return { x: 0, y: 0 };
   const maxRadius = Math.min(
     w * MAX_RADIUS_WIDTH_RATIO,

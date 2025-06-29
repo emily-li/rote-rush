@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useQuizGame } from '@/hooks/useQuizGame';
 import { getWeightedRandomCharacter } from '@/lib/characterLoading';
+import { getVisibleCharacterCount } from '@/lib/spiralMath';
 import type { PracticeCharacter, QuizModeState } from '@/types';
 import { useWindowSize } from './useWindowSize';
 
@@ -13,17 +14,7 @@ export type SpiralCharacter = {
 type UseSpiralQuizReturn = {
   gameState: QuizModeState;
   spiralCharacters: SpiralCharacter[];
-  getCharacterStyle: (spiralChar: SpiralCharacter) => React.CSSProperties;
 };
-
-// --- Constants for magic numbers ---
-const MAX_RADIUS_WIDTH_RATIO = 0.35;
-const MAX_RADIUS_HEIGHT_RATIO = 0.25;
-const MIN_CHAR_SPACING = 48;
-const TOTAL_TURNS = 3;
-const MAX_CHARACTERS = 30;
-const MIN_CHARACTERS = 15;
-const BASE_AREA = 1920 * 1080;
 
 // --- Unique ID generator ---
 let spiralIdCounter = 0;
@@ -32,42 +23,11 @@ function getUniqueSpiralId(prefix = 'spiral') {
   return `${prefix}-${spiralIdCounter}`;
 }
 
-function calculateCharacterCount(width: number, height: number): number {
-  const viewportArea = width * height;
-  const areaRatio = Math.min(1, viewportArea / BASE_AREA);
-  return Math.max(
-    MIN_CHARACTERS,
-    Math.floor(MIN_CHARACTERS + (MAX_CHARACTERS - MIN_CHARACTERS) * areaRatio),
-  );
-}
-
 export const useSpiralQuiz = (): UseSpiralQuizReturn => {
   const { width, height } = useWindowSize();
   const [spiralCharacters, setSpiralCharacters] = useState<SpiralCharacter[]>(
     [],
   );
-
-  // --- Helper for division by zero ---
-  function safeDivide(numerator: number, denominator: number, fallback = 0) {
-    return denominator === 0 ? fallback : numerator / denominator;
-  }
-
-  // --- Helper for font size and opacity ---
-  function getFontSize(
-    isHead: boolean,
-    position: number,
-    totalCharacters: number,
-  ): string {
-    if (isHead) return 'clamp(3rem, 8vw, 6rem)';
-    const normalizedPosition = safeDivide(position, totalCharacters - 1, 0);
-    const sizeMultiplier = 1 - normalizedPosition * 0.6;
-    return `clamp(1.5rem, ${6 * sizeMultiplier}vw, ${4 * sizeMultiplier}rem)`;
-  }
-  function getOpacity(isHead: boolean, position: number): number {
-    if (isHead) return 1.0;
-    if (position === 1) return 0.3;
-    return Math.max(0.2, 0.3 - (position - 1) * 0.05);
-  }
 
   // --- Stable advanceCharacters ---
   const advanceCharacters = useCallback(() => {
@@ -105,7 +65,7 @@ export const useSpiralQuiz = (): UseSpiralQuizReturn => {
   }, [quizGame.characterState.currentChar, quizGame.scoreState.isWrongAnswer]);
 
   const initializeSpiral = useCallback(() => {
-    const characterCount = calculateCharacterCount(width, height);
+    const characterCount = getVisibleCharacterCount(width, height);
     const initialSpiral: SpiralCharacter[] = [];
     initialSpiral.push({
       char: quizGame.characterState.currentChar,
@@ -125,72 +85,6 @@ export const useSpiralQuiz = (): UseSpiralQuizReturn => {
     height,
   ]);
 
-  const getSpiralCoordinates = useCallback(
-    (position: number, totalCharacters: number) => {
-      if (position === 0) {
-        return { x: 0, y: 0 };
-      }
-      const maxRadius = Math.min(
-        width * MAX_RADIUS_WIDTH_RATIO,
-        height * MAX_RADIUS_HEIGHT_RATIO,
-      );
-      const minSteps = Math.ceil(maxRadius / MIN_CHAR_SPACING);
-      const steps = Math.max(totalCharacters - 1, minSteps);
-      const angleStep = (TOTAL_TURNS * 2 * Math.PI) / steps;
-      const radiusStep = maxRadius / steps;
-      const angle = position * angleStep;
-      const radius = position * radiusStep;
-      const x = Math.cos(angle) * radius;
-      const y = Math.sin(angle) * radius;
-      return { x, y };
-    },
-    [width, height],
-  );
-
-  const getCharacterStyle = useCallback(
-    (spiralChar: SpiralCharacter, position?: number) => {
-      // position is now always passed in from the array index
-      const totalCharacters = spiralCharacters.length;
-      const pos =
-        position ?? spiralCharacters.findIndex((c) => c.id === spiralChar.id);
-      const { x, y } = getSpiralCoordinates(pos, totalCharacters);
-      const isHead = pos === 0;
-      let scale = 1;
-      if (isHead) {
-        const timerProgress =
-          1 - quizGame.timerState.timeLeft / quizGame.timerState.currentTimeMs;
-        const baseScale = 1.0;
-        const maxScale = 2.0;
-        scale = baseScale + (maxScale - baseScale) * timerProgress;
-        if (
-          quizGame.timerState.timeLeft <=
-          quizGame.timerState.currentTimeMs * 0.1
-        ) {
-          const whooshProgress =
-            1 -
-            quizGame.timerState.timeLeft /
-              (quizGame.timerState.currentTimeMs * 0.1);
-          scale *= 1 + whooshProgress * 0.5;
-        }
-      }
-      return {
-        position: 'absolute' as const,
-        left: `calc(50% + ${x}px)`,
-        top: `calc(50% + ${y}px)`,
-        transform: `translate(-50%, -50%) scale(${scale})`,
-        fontSize: getFontSize(isHead, pos, totalCharacters),
-        opacity: getOpacity(isHead, pos),
-        zIndex: isHead ? 1000 : 1,
-      };
-    },
-    [
-      spiralCharacters.length,
-      quizGame.timerState.timeLeft,
-      quizGame.timerState.currentTimeMs,
-      getSpiralCoordinates,
-    ],
-  );
-
   useEffect(() => {
     initializeSpiral();
   }, [initializeSpiral]);
@@ -198,6 +92,5 @@ export const useSpiralQuiz = (): UseSpiralQuizReturn => {
   return {
     gameState: quizGame,
     spiralCharacters,
-    getCharacterStyle,
   };
 };
