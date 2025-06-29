@@ -35,7 +35,7 @@ const renderSpiralCharacter = (
   );
 };
 
-const SpiralQuizMode = ({
+export const SpiralQuizMode = ({
   currentGameMode,
   onGameModeChange,
 }: SpiralQuizModeProps): JSX.Element => {
