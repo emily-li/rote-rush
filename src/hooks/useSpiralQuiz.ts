@@ -12,10 +12,6 @@ export type SpiralCharacter = {
   readonly id: string;
 };
 
-type UseSpiralQuizParams = {
-  timerConfig: TimerConfig;
-};
-
 type UseSpiralQuizReturn = SimpleQuizModeState & {
   spiralCharacters: SpiralCharacter[];
   getCharacterStyle: (spiralChar: SpiralCharacter) => React.CSSProperties;
@@ -63,9 +59,9 @@ function calculateCharacterCount(width: number, height: number): number {
   );
 }
 
-export const useSpiralQuiz = ({
-  timerConfig,
-}: UseSpiralQuizParams): UseSpiralQuizReturn => {
+export const useSpiralQuiz = (
+  timerConfig: TimerConfig,
+): UseSpiralQuizReturn => {
   const { width, height } = useWindowSize();
   const [spiralCharacters, setSpiralCharacters] = useState<SpiralCharacter[]>(
     [],

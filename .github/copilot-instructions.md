@@ -2,6 +2,12 @@
 
 ## Essential Rules
 
+### Changes
+
+- Always run `pnpm build` to ensure changes work after making changes.
+- Never write comments. JSDoc is allowed. If the code is complex and required explaining, this indicates types and/or functions should be extracted with appropriate naming to improve readability.
+- Always use `pnpm` for package management - never npm or yarn
+
 ### Tailwind CSS
 
 Use standard Tailwind color classes - avoid custom hex values or CSS colors
@@ -28,17 +34,9 @@ Incorrect: `className="text-[#c026d3]"` or `style={{ color: '#c026d3' }}`
 - After writing or fixing tests, always run `pnpm test` to ensure all tests pass. Always fix test failures without asking.
 - Use semantic queries: `getByLabelText`, `getByRole` - avoid `data-testid`
 
-### Comments
-
-Never write comments. JSDoc is allowed. If the code is complex and required explaining, this indicates types and/or functions should be extracted with appropriate naming to improve readability.
-
 ### Commands & Paths
 
 Always use Unix-style commands and forward slashes in paths
-
-### Package Manager
-
-Always use `pnpm` for package management - never npm or yarn
 
 ## Workflows
 

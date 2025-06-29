@@ -15,9 +15,13 @@ type SpiralQuizModeProps = {
 const renderSpiralCharacter = (
   spiralChar: SpiralCharacter,
   isWrongAnswer: boolean,
-  getCharacterStyle: (spiralChar: SpiralCharacter) => React.CSSProperties,
+  getCharacterStyle: (
+    spiralChar: SpiralCharacter,
+    position?: number,
+  ) => React.CSSProperties,
+  position: number,
 ) => {
-  const isHead = spiralChar.position === 0;
+  const isHead = position === 0;
   return (
     <div
       key={spiralChar.id}
@@ -25,7 +29,7 @@ const renderSpiralCharacter = (
         ${isHead ? 'font-bold text-fuchsia-800 drop-shadow-lg' : 'font-normal text-gray-700'}
         ${isHead && isWrongAnswer ? 'animate-bounce' : ''} pointer-events-none
         transition-transform duration-100`}
-      style={getCharacterStyle(spiralChar)}
+      style={getCharacterStyle(spiralChar, position)}
       aria-hidden={isHead ? undefined : 'true'}
       role={isHead ? 'img' : undefined}
       aria-label={isHead ? spiralChar.char.char : undefined}
@@ -45,7 +49,7 @@ export const SpiralQuizMode = ({
     actions,
     spiralCharacters,
     getCharacterStyle,
-  } = useSpiralQuiz({ timerConfig: SPIRAL_CONFIG });
+  } = useSpiralQuiz(SPIRAL_CONFIG);
 
   const scoreState: ScoreState = {
     score,
@@ -65,11 +69,12 @@ export const SpiralQuizMode = ({
         currentChar={characterState.currentChar}
         mainContent={
           <div className="relative mb-8 h-[70vh] w-full">
-            {spiralCharacters.map((spiralChar) =>
+            {spiralCharacters.map((spiralChar, idx) =>
               renderSpiralCharacter(
                 spiralChar,
                 scoreState.isWrongAnswer,
                 getCharacterStyle,
+                idx,
               ),
             )}
           </div>
