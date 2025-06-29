@@ -3,12 +3,7 @@ import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useSpiralQuiz, type SpiralCharacter } from '@/hooks/useSpiralQuiz';
 import { GameMode, ScoreState } from '@/types';
 
-/**
- * Spiral quiz mode with characters arranged in a spiral pattern
- * Features visual display of upcoming characters in a spiral formation
- */
 type SpiralQuizModeProps = {
-  readonly currentGameMode: GameMode;
   readonly onGameModeChange: (mode: GameMode) => void;
 };
 
@@ -40,7 +35,6 @@ const renderSpiralCharacter = (
 };
 
 export const SpiralQuizMode = ({
-  currentGameMode,
   onGameModeChange,
 }: SpiralQuizModeProps): JSX.Element => {
   const {
@@ -61,7 +55,7 @@ export const SpiralQuizMode = ({
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-fuchsia-50">
       <BaseQuizMode
-        currentGameMode={currentGameMode}
+        currentGameMode={GameMode.SPIRAL}
         onGameModeChange={onGameModeChange}
         scoreState={scoreState}
         userInput={characterState.userInput}
