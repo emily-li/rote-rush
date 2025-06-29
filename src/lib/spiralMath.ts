@@ -24,8 +24,16 @@ function getSpiralCoordinates(
   // Archimedean spiral with consistent spacing (linear theta) and minimum distance
   const MAX_RADIUS_WIDTH_RATIO = 0.35;
   const MAX_RADIUS_HEIGHT_RATIO = 0.25;
-  const TOTAL_TURNS = 2.5; // Increased turns for tighter coils
-  const MINIMUM_DISTANCE_FACTOR = 0.1; // Factor for consistent neighbor spacing
+  // Dynamically calculate total turns based on window size for adaptive spiral shape
+  const BASE_TURNS = 1.0; // Reduced base turns as requested
+  const TURN_SCALE_FACTOR = 0.5 / 1000; // Scale turns based on window dimensions
+  // Use the larger dimension to ensure turns adapt to viewport's dominant size
+  const dominantDimension = Math.max(w, h);
+  const TOTAL_TURNS = Math.min(
+    3.0,
+    Math.max(0.8, BASE_TURNS + dominantDimension * TURN_SCALE_FACTOR),
+  );
+  const MINIMUM_DISTANCE_FACTOR = 0.15; // Factor for consistent neighbor spacing
   if (pos === 0) return { x: 0, y: 0 };
   const maxRadius = Math.min(
     w * MAX_RADIUS_WIDTH_RATIO,
@@ -62,10 +70,13 @@ export function getCharacterStyle(
       scale *= 1 + whoosh * 0.5;
     }
   }
+  // Convert coordinates to percentage of window size for relative positioning
+  const leftPercent = (x / w) * 100;
+  const topPercent = (y / h) * 100;
   return {
     position: 'absolute' as const,
-    left: `calc(50% + ${x}px)`,
-    top: `calc(50% + ${y}px)`,
+    left: `calc(50% + ${leftPercent}%)`,
+    top: `calc(50% + ${topPercent}%)`,
     transform: `translate(-50%, -50%) scale(${scale})`,
     fontSize: getFontSize(isHead, pos, total),
     opacity: getOpacity(isHead, pos),
