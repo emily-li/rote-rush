@@ -1,3 +1,5 @@
+import { SPIRAL_MATH_CONFIG } from '@/config/spiral';
+
 function safeDivide(n: number, d: number, f = 0) {
   return d === 0 ? f : n / d;
 }
@@ -12,9 +14,9 @@ export function getVisibleCharacterCount(
   width: number,
   height: number,
 ): number {
-  const MIN_CHARACTERS = 15;
-  const MAX_CHARACTERS = 30;
-  const BASE_AREA = 1920 * 1080; // Reference area for scaling
+  const MIN_CHARACTERS = SPIRAL_MATH_CONFIG.VISIBLE_CHARACTERS.MIN;
+  const MAX_CHARACTERS = SPIRAL_MATH_CONFIG.VISIBLE_CHARACTERS.MAX;
+  const BASE_AREA = SPIRAL_MATH_CONFIG.VISIBLE_CHARACTERS.BASE_AREA;
   const viewportArea = width * height;
   const areaRatio = Math.min(1, viewportArea / BASE_AREA);
   return Math.max(
@@ -24,16 +26,20 @@ export function getVisibleCharacterCount(
 }
 
 function getFontSize(isHead: boolean, pos: number, total: number) {
-  if (isHead) return 'clamp(3rem, 8vw, 6rem)';
+  if (isHead) return SPIRAL_MATH_CONFIG.FONT_SIZE.HEAD;
   const norm = safeDivide(pos, total - 1, 0);
-  const mul = 1 - norm * 0.6;
-  return `clamp(1.5rem, ${6 * mul}vw, ${4 * mul}rem)`;
+  const mul = 1 - norm * SPIRAL_MATH_CONFIG.FONT_SIZE.POSITION_REDUCTION_FACTOR;
+  return `clamp(${SPIRAL_MATH_CONFIG.FONT_SIZE.MIN_BASE}rem, ${SPIRAL_MATH_CONFIG.FONT_SIZE.MAX_BASE_MULTIPLIER * mul}vw, ${SPIRAL_MATH_CONFIG.FONT_SIZE.MAX_FINAL_MULTIPLIER * mul}rem)`;
 }
 
 function getOpacity(isHead: boolean, pos: number) {
-  if (isHead) return 1.0;
-  if (pos === 1) return 0.3;
-  return Math.max(0.2, 0.3 - (pos - 1) * 0.05);
+  if (isHead) return SPIRAL_MATH_CONFIG.OPACITY.HEAD;
+  if (pos === 1) return SPIRAL_MATH_CONFIG.OPACITY.FIRST;
+  return Math.max(
+    SPIRAL_MATH_CONFIG.OPACITY.MIN,
+    SPIRAL_MATH_CONFIG.OPACITY.FIRST -
+      (pos - 1) * SPIRAL_MATH_CONFIG.OPACITY.REDUCTION_STEP,
+  );
 }
 
 function getSpiralCoordinates(
@@ -43,18 +49,21 @@ function getSpiralCoordinates(
   h: number,
 ) {
   // Archimedean spiral with consistent spacing (linear theta) and minimum distance
-  const MAX_RADIUS_WIDTH_RATIO = 0.35;
-  const MAX_RADIUS_HEIGHT_RATIO = 0.25;
+  const MAX_RADIUS_WIDTH_RATIO = SPIRAL_MATH_CONFIG.MAX_RADIUS_WIDTH_RATIO;
+  const MAX_RADIUS_HEIGHT_RATIO = SPIRAL_MATH_CONFIG.MAX_RADIUS_HEIGHT_RATIO;
   // Dynamically calculate total turns based on window size for adaptive spiral shape
-  const BASE_TURNS = 1.0; // Reduced base turns as requested
-  const TURN_SCALE_FACTOR = 0.5 / 1000; // Scale turns based on window dimensions
+  const BASE_TURNS = SPIRAL_MATH_CONFIG.BASE_TURNS;
+  const TURN_SCALE_FACTOR = SPIRAL_MATH_CONFIG.TURN_SCALE_FACTOR;
   // Use the larger dimension to ensure turns adapt to viewport's dominant size
   const dominantDimension = Math.max(w, h);
   const TOTAL_TURNS = Math.min(
-    3.0,
-    Math.max(0.8, BASE_TURNS + dominantDimension * TURN_SCALE_FACTOR),
+    SPIRAL_MATH_CONFIG.MAX_TOTAL_TURNS,
+    Math.max(
+      SPIRAL_MATH_CONFIG.MIN_TOTAL_TURNS,
+      BASE_TURNS + dominantDimension * TURN_SCALE_FACTOR,
+    ),
   );
-  const MINIMUM_DISTANCE_FACTOR = 0.15; // Factor for consistent neighbor spacing
+  const MINIMUM_DISTANCE_FACTOR = SPIRAL_MATH_CONFIG.MINIMUM_DISTANCE_FACTOR;
   if (pos === 0) return { x: 0, y: 0 };
   const maxRadius = Math.min(
     w * MAX_RADIUS_WIDTH_RATIO,
@@ -68,7 +77,11 @@ function getSpiralCoordinates(
   const baseRadius = b * theta;
   // Use a smaller distance factor between index 0 and 1, standard for the rest
   const minRadiusIncrement =
-    w * (pos === 1 ? MINIMUM_DISTANCE_FACTOR * 0.5 : MINIMUM_DISTANCE_FACTOR);
+    w *
+    (pos === 1
+      ? MINIMUM_DISTANCE_FACTOR *
+        SPIRAL_MATH_CONFIG.FIRST_POSITION_DISTANCE_FACTOR_MULTIPLIER
+      : MINIMUM_DISTANCE_FACTOR);
   const r = baseRadius + minRadiusIncrement;
   const x = Math.cos(theta) * r;
   const y = Math.sin(theta) * r;
@@ -84,13 +97,22 @@ export function getCharacterStyle(
 ) {
   const { x, y } = getSpiralCoordinates(pos, total, w, h);
   const isHead = pos === 0;
-  let scale = 1;
+  let scale = SPIRAL_MATH_CONFIG.SCALE.BASE;
   if (isHead) {
     const timerProgress = 1 - timer.timeLeft / timer.currentTimeMs;
-    scale = 1 + (2 - 1) * timerProgress;
-    if (timer.timeLeft <= timer.currentTimeMs * 0.1) {
-      const whoosh = 1 - timer.timeLeft / (timer.currentTimeMs * 0.1);
-      scale *= 1 + whoosh * 0.5;
+    scale =
+      SPIRAL_MATH_CONFIG.SCALE.BASE +
+      (SPIRAL_MATH_CONFIG.SCALE.MAX - SPIRAL_MATH_CONFIG.SCALE.BASE) *
+        timerProgress;
+    if (
+      timer.timeLeft <=
+      timer.currentTimeMs * SPIRAL_MATH_CONFIG.SCALE.WHOOSH_THRESHOLD
+    ) {
+      const whoosh =
+        1 -
+        timer.timeLeft /
+          (timer.currentTimeMs * SPIRAL_MATH_CONFIG.SCALE.WHOOSH_THRESHOLD);
+      scale *= 1 + whoosh * SPIRAL_MATH_CONFIG.SCALE.WHOOSH_MULTIPLIER;
     }
   }
   // Convert coordinates to percentage of window size for relative positioning

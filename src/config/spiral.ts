@@ -1,8 +1,49 @@
 import type { TimerConfig } from '@/types';
 
 export const SPIRAL_CONFIG: TimerConfig = {
-  DEFAULT_TIME_MS: 6000, // Longer default time for spiral mode
-  MIN_TIME_MS: 2000, // Higher minimum time
-  TIMER_STEP_MS: 800, // Smaller steps for more gradual acceleration
-  WRONG_ANSWER_DISPLAY_MS: 1000, // Match QUIZ_CONFIG for consistency
+  DEFAULT_TIME_MS: 6000,
+  MIN_TIME_MS: 2000,
+  TIMER_STEP_MS: 800,
+  WRONG_ANSWER_DISPLAY_MS: 1000,
+} as const;
+
+export const SPIRAL_MATH_CONFIG = {
+  MAX_RADIUS_WIDTH_RATIO: 0.35,
+  MAX_RADIUS_HEIGHT_RATIO: 0.25,
+
+  BASE_TURNS: 1.0,
+  TURN_SCALE_FACTOR: 0.0005,
+  MIN_TOTAL_TURNS: 0.8,
+  MAX_TOTAL_TURNS: 3.0,
+
+  MINIMUM_DISTANCE_FACTOR: 0.15,
+  FIRST_POSITION_DISTANCE_FACTOR_MULTIPLIER: 0.5,
+
+  VISIBLE_CHARACTERS: {
+    MIN: 15,
+    MAX: 30,
+    BASE_AREA: 2073600,
+  },
+
+  FONT_SIZE: {
+    HEAD: 'clamp(3rem, 8vw, 6rem)',
+    MIN_BASE: 1.5,
+    MAX_BASE_MULTIPLIER: 6,
+    MAX_FINAL_MULTIPLIER: 4,
+    POSITION_REDUCTION_FACTOR: 0.6,
+  },
+
+  OPACITY: {
+    HEAD: 1.0,
+    FIRST: 0.3,
+    MIN: 0.2,
+    REDUCTION_STEP: 0.05,
+  },
+
+  SCALE: {
+    BASE: 1.0,
+    MAX: 2.0,
+    WHOOSH_THRESHOLD: 0.1,
+    WHOOSH_MULTIPLIER: 0.5,
+  },
 } as const;
