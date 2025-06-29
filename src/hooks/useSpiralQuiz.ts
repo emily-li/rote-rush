@@ -3,6 +3,7 @@ import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useQuizGame } from '@/hooks/useQuizGame';
 import { getWeightedRandomCharacter } from '@/lib/characterLoading';
 import type { PracticeCharacter, SimpleQuizModeState } from '@/types';
+import { useWindowSize } from './useWindowSize';
 
 export type SpiralCharacter = {
   readonly char: PracticeCharacter;
@@ -23,23 +24,6 @@ const TOTAL_TURNS = 3;
 const MAX_CHARACTERS = 30;
 const MIN_CHARACTERS = 15;
 const BASE_AREA = 1920 * 1080;
-
-// --- SSR-safe window size hook ---
-function useWindowSize() {
-  const [size, setSize] = useState({
-    width: typeof window !== 'undefined' ? window.innerWidth : BASE_AREA ** 0.5,
-    height:
-      typeof window !== 'undefined' ? window.innerHeight : BASE_AREA ** 0.5,
-  });
-  useEffect(() => {
-    function handleResize() {
-      setSize({ width: window.innerWidth, height: window.innerHeight });
-    }
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-  return size;
-}
 
 // --- Unique ID generator ---
 let spiralIdCounter = 0;
@@ -87,7 +71,7 @@ export const useSpiralQuiz = (): UseSpiralQuizReturn => {
 
   // --- Stable advanceCharacters ---
   const advanceCharacters = useCallback(() => {
-    setSpiralCharacters((prev) => {
+    setSpiralCharacters((prev: SpiralCharacter[]) => {
       // Remove the first character (head), shift all others forward, add a new one at the end
       const newChars = prev.slice(1);
       const newChar: SpiralCharacter = {
@@ -109,7 +93,7 @@ export const useSpiralQuiz = (): UseSpiralQuizReturn => {
       quizGame.characterState.currentChar &&
       !quizGame.scoreState.isWrongAnswer
     ) {
-      setSpiralCharacters((prev) => {
+      setSpiralCharacters((prev: SpiralCharacter[]) => {
         if (prev.length === 0) return prev;
         const updated = [
           { ...prev[0], char: quizGame.characterState.currentChar },
