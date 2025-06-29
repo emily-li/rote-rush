@@ -23,7 +23,10 @@ const spiralMath = {
   },
   getSpiralCoordinates(pos: number, total: number, w: number, h: number) {
     if (pos === 0) return { x: 0, y: 0 };
-    const maxR = Math.min(w * spiralMath.MAX_RADIUS_WIDTH_RATIO, h * spiralMath.MAX_RADIUS_HEIGHT_RATIO);
+    const maxR = Math.min(
+      w * spiralMath.MAX_RADIUS_WIDTH_RATIO,
+      h * spiralMath.MAX_RADIUS_HEIGHT_RATIO,
+    );
     const minSteps = Math.ceil(maxR / spiralMath.MIN_CHAR_SPACING);
     const steps = Math.max(total - 1, minSteps);
     const angleStep = (spiralMath.TOTAL_TURNS * 2 * Math.PI) / steps;
@@ -32,7 +35,13 @@ const spiralMath = {
     const radius = pos * radiusStep;
     return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
   },
-  getCharacterStyle(pos: number, total: number, w: number, h: number, timer: { timeLeft: number; currentTimeMs: number }) {
+  getCharacterStyle(
+    pos: number,
+    total: number,
+    w: number,
+    h: number,
+    timer: { timeLeft: number; currentTimeMs: number },
+  ) {
     const { x, y } = spiralMath.getSpiralCoordinates(pos, total, w, h);
     const isHead = pos === 0;
     let scale = 1;
