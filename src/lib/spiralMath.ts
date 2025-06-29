@@ -25,7 +25,7 @@ function getSpiralCoordinates(
   const MAX_RADIUS_WIDTH_RATIO = 0.35;
   const MAX_RADIUS_HEIGHT_RATIO = 0.25;
   const TOTAL_TURNS = 2.5; // Increased turns for tighter coils
-  const MINIMUM_DISTANCE_FACTOR = 0.015; // Reduced factor for less aggressive spacing
+  const MINIMUM_DISTANCE_FACTOR = 0.1; // Factor for consistent neighbor spacing
   if (pos === 0) return { x: 0, y: 0 };
   const maxRadius = Math.min(
     w * MAX_RADIUS_WIDTH_RATIO,
@@ -37,8 +37,7 @@ function getSpiralCoordinates(
   const b = maxRadius / thetaMax;
   // Adjust radius to ensure minimum spacing between consecutive positions
   const baseRadius = b * theta;
-  // Apply minimum distance with a moderated increment to avoid excessive coil spacing
-  const minRadiusIncrement = w * MINIMUM_DISTANCE_FACTOR * Math.sqrt(pos);
+  const minRadiusIncrement = w * MINIMUM_DISTANCE_FACTOR;
   const r = baseRadius + minRadiusIncrement;
   const x = Math.cos(theta) * r;
   const y = Math.sin(theta) * r;
