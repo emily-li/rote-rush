@@ -1,7 +1,7 @@
 import { BaseQuizMode } from '@/components/BaseQuizMode';
 import { useSpiralQuiz } from '@/hooks/useSpiralQuiz';
 import { useWindowSize } from '@/hooks/useWindowSize';
-import { spiralMath } from '@/lib/spiralMath';
+import { getCharacterStyle } from '@/lib/spiralMath';
 
 export const SpiralQuizMode = (): JSX.Element => {
   const { gameState, spiralCharacters } = useSpiralQuiz();
@@ -23,7 +23,7 @@ export const SpiralQuizMode = (): JSX.Element => {
                 <div
                   key={spiralChar.id}
                   className={`absolute font-kana ${isHead ? 'text-shadow-lg font-bold' : 'text-gray-700'} `}
-                  style={spiralMath.getCharacterStyle(
+                  style={getCharacterStyle(
                     i,
                     spiralCharacters.length,
                     width,
