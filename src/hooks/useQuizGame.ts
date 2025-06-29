@@ -17,7 +17,7 @@ import {
   clamp,
   normalizeInput,
 } from '@/lib/validation';
-import type { PracticeCharacter, SimpleQuizModeState } from '@/types';
+import type { PracticeCharacter, QuizModeState } from '@/types';
 
 export type UseQuizGameParams = {
   timerConfig: typeof import('@/config/quiz').QUIZ_CONFIG;
@@ -31,7 +31,7 @@ const { WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = WEIGHT_CONFIG;
 export const useQuizGame = ({
   timerConfig,
   onCharacterComplete,
-}: UseQuizGameParams): SimpleQuizModeState => {
+}: UseQuizGameParams): QuizModeState => {
   const {
     DEFAULT_TIME_MS,
     MIN_TIME_MS,

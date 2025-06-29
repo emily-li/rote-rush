@@ -78,18 +78,15 @@ export const SpiralQuizMode = (): JSX.Element => {
         handleInputChange={actions.handleInputChange}
         currentChar={characterState.currentChar}
         mainContent={
-          <div className="relative mb-8 h-[70vh] w-full">
-            {spiralCharacters.map((spiralChar, idx) => {
-              const isHead = idx === 0;
+          <div className="relative mb-8 h-[80vh] w-full">
+            {spiralCharacters.map((spiralChar, i) => {
+              const isHead = i === 0;
               return (
                 <div
                   key={spiralChar.id}
-                  className={`absolute select-none font-kana
-                  ${isHead ? 'font-bold text-fuchsia-800 drop-shadow-lg' : 'font-normal text-gray-700'}
-                  ${isHead && scoreState.isWrongAnswer ? 'animate-bounce' : ''}
-                  pointer-events-none transition-transform duration-100`}
+                  className={`absolute font-kana ${isHead ? 'text-shadow-lg font-bold' : 'text-gray-700'} `}
                   style={spiralMath.getCharacterStyle(
-                    idx,
+                    i,
                     spiralCharacters.length,
                     width,
                     height,

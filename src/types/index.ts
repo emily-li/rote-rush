@@ -67,7 +67,7 @@ export type QuizGameActions = {
   handleTimeout: () => void;
 };
 
-export type SimpleQuizModeState = {
+export type QuizModeState = {
   characterState: CharacterState;
   scoreState: ScoreState;
   timerState: TimerState;

@@ -14,6 +14,7 @@ export default {
       },
       textShadow: {
         DEFAULT: '0 0 3px rgba(192, 38, 211)',
+        lg: '0 0 10px rgba(192, 38, 211)',
       },
     },
   },

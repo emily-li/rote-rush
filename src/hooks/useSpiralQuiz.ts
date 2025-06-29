@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useQuizGame } from '@/hooks/useQuizGame';
 import { getWeightedRandomCharacter } from '@/lib/characterLoading';
-import type { PracticeCharacter, SimpleQuizModeState } from '@/types';
+import type { PracticeCharacter, QuizModeState } from '@/types';
 import { useWindowSize } from './useWindowSize';
 
 export type SpiralCharacter = {
@@ -11,7 +11,7 @@ export type SpiralCharacter = {
 };
 
 type UseSpiralQuizReturn = {
-  gameState: SimpleQuizModeState;
+  gameState: QuizModeState;
   spiralCharacters: SpiralCharacter[];
   getCharacterStyle: (spiralChar: SpiralCharacter) => React.CSSProperties;
 };
