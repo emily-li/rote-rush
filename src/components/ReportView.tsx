@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { X } from 'lucide-react';
+import { useGameMode } from '@/components/GameModeContext';
 import { loadPracticeCharacters } from '@/lib/characterLoading';
 import {
   getCharacterStatsWithRates,
@@ -10,15 +11,10 @@ import { GameMode, type CharacterStats } from '@/types';
 
 interface ReportViewProps {
   readonly onClose: () => void;
-  readonly currentGameMode: GameMode;
-  readonly onGameModeChange: (mode: GameMode) => void;
 }
 
-export const ReportView = ({
-  onClose,
-  currentGameMode,
-  onGameModeChange,
-}: ReportViewProps) => {
+export const ReportView = ({ onClose }: ReportViewProps) => {
+  const { gameMode, setGameMode } = useGameMode();
   const { hiraganaStats, katakanaStats } = useMemo(() => {
     const characters = loadPracticeCharacters();
     const allStats = getCharacterStatsWithRates(characters);
@@ -107,9 +103,9 @@ export const ReportView = ({
               </h2>
               <div className="flex gap-3">
                 <button
-                  onClick={() => onGameModeChange(GameMode.SIMPLE)}
+                  onClick={() => setGameMode(GameMode.SIMPLE)}
                   className={`border-2 px-4 py-2 transition-colors ${
-                    currentGameMode === GameMode.SIMPLE
+                    gameMode === GameMode.SIMPLE
                       ? 'border-fuchsia-400 bg-fuchsia-50 font-bold text-fuchsia-800'
                       : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                     }`}
@@ -117,9 +113,9 @@ export const ReportView = ({
                   Simple Mode
                 </button>
                 <button
-                  onClick={() => onGameModeChange(GameMode.SPIRAL)}
+                  onClick={() => setGameMode(GameMode.SPIRAL)}
                   className={`border-2 px-4 py-2 transition-colors ${
-                    currentGameMode === GameMode.SPIRAL
+                    gameMode === GameMode.SPIRAL
                       ? 'border-purple-400 bg-purple-50 font-bold text-purple-800'
                       : 'border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
                     }`}
@@ -128,7 +124,7 @@ export const ReportView = ({
                 </button>
               </div>
               <p className="mt-2 text-sm text-gray-600">
-                {currentGameMode === GameMode.SIMPLE
+                {gameMode === GameMode.SIMPLE
                   ? 'Classic kana practice with timer background'
                   : 'Characters approach in a 3D spiral - answer before they reach you!'}
               </p>

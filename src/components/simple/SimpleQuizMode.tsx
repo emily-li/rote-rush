@@ -2,17 +2,8 @@ import { BaseQuizMode } from '@/components/BaseQuizMode';
 import { TimerBackground } from '@/components/simple/TimerBackground';
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
-import { GameMode } from '@/types';
 
-type SimpleQuizModeProps = {
-  readonly currentGameMode: GameMode;
-  readonly onGameModeChange: (mode: GameMode) => void;
-};
-
-const SimpleQuizMode = ({
-  currentGameMode,
-  onGameModeChange,
-}: SimpleQuizModeProps): JSX.Element => {
+const SimpleQuizMode = (): JSX.Element => {
   const { characterState, scoreState, timerState, actions } = useQuizGame({
     timerConfig: QUIZ_CONFIG,
   });
@@ -20,8 +11,6 @@ const SimpleQuizMode = ({
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden">
       <BaseQuizMode
-        currentGameMode={currentGameMode}
-        onGameModeChange={onGameModeChange}
         scoreState={scoreState}
         userInput={characterState.userInput}
         handleInputChange={actions.handleInputChange}

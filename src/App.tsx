@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { GameModeProvider, useGameMode } from '@/components/GameModeContext';
 import SimpleQuizMode from '@/components/simple/SimpleQuizMode';
 import SpiralQuizMode from '@/components/spiral/SpiralQuizMode';
 import { GameMode } from '@/types';
@@ -32,18 +33,23 @@ function setGameModeQuery(mode: GameMode) {
 }
 
 function App() {
-  const [gameMode, setGameMode] = useState<GameMode>(getGameModeFromQuery());
+  return (
+    <GameModeProvider>
+      <GameModeView />
+    </GameModeProvider>
+  );
+}
 
-  useEffect(() => {
-    setGameModeQuery(gameMode);
-  }, [gameMode]);
-
+function GameModeView() {
+  const { gameMode } = useGameMode();
   const modeDef = GAME_MODES.find((m) => m.mode === gameMode) ?? GAME_MODES[0];
   const ModeComponent = modeDef.component;
 
-  return (
-    <ModeComponent currentGameMode={gameMode} onGameModeChange={setGameMode} />
-  );
+  useEffect(() => {
+    setGameModeQuery(getGameModeFromQuery());
+  }, []);
+
+  return <ModeComponent key={gameMode} />;
 }
 
 export default App;

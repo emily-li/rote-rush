@@ -1,17 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Settings } from 'lucide-react';
 import { ReportView } from '@/components/ReportView';
-import { GameMode } from '@/types';
 
-type SettingsButtonProps = {
-  readonly currentGameMode: GameMode;
-  readonly onGameModeChange: (mode: GameMode) => void;
-};
-
-export const SettingsButton = ({
-  currentGameMode,
-  onGameModeChange,
-}: SettingsButtonProps) => {
+export const SettingsButton = () => {
   const [showReport, setShowReport] = useState(false);
 
   useEffect(() => {
@@ -42,13 +33,7 @@ export const SettingsButton = ({
         </button>
       </div>
 
-      {showReport && (
-        <ReportView
-          onClose={() => setShowReport(false)}
-          currentGameMode={currentGameMode}
-          onGameModeChange={onGameModeChange}
-        />
-      )}
+      {showReport && <ReportView onClose={() => setShowReport(false)} />}
     </>
   );
 };

@@ -1,11 +1,7 @@
 import { BaseQuizMode } from '@/components/BaseQuizMode';
 import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useSpiralQuiz, type SpiralCharacter } from '@/hooks/useSpiralQuiz';
-import { GameMode, ScoreState } from '@/types';
-
-type SpiralQuizModeProps = {
-  readonly onGameModeChange: (mode: GameMode) => void;
-};
+import { ScoreState } from '@/types';
 
 const renderSpiralCharacter = (
   spiralChar: SpiralCharacter,
@@ -34,9 +30,7 @@ const renderSpiralCharacter = (
   );
 };
 
-export const SpiralQuizMode = ({
-  onGameModeChange,
-}: SpiralQuizModeProps): JSX.Element => {
+export const SpiralQuizMode = (): JSX.Element => {
   const {
     characterState,
     scoreState: { score, streak, comboMultiplier, isWrongAnswer },
@@ -44,19 +38,15 @@ export const SpiralQuizMode = ({
     spiralCharacters,
     getCharacterStyle,
   } = useSpiralQuiz(SPIRAL_CONFIG);
-
   const scoreState: ScoreState = {
     score,
     streak,
     comboMultiplier,
     isWrongAnswer,
   };
-
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden bg-fuchsia-50">
       <BaseQuizMode
-        currentGameMode={GameMode.SPIRAL}
-        onGameModeChange={onGameModeChange}
         scoreState={scoreState}
         userInput={characterState.userInput}
         handleInputChange={actions.handleInputChange}

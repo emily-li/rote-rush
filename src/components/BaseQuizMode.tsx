@@ -3,7 +3,7 @@ import { CorrectAnswerDisplay } from '@/components/CorrectAnswerDisplay';
 import { QuizInput } from '@/components/QuizInput';
 import { ScoreDisplay } from '@/components/ScoreDisplay';
 import { SettingsButton } from '@/components/SettingsButton';
-import { GameMode, PracticeCharacter, ScoreState } from '@/types';
+import { PracticeCharacter, ScoreState } from '@/types';
 
 type BaseQuizModeProps = {
   readonly scoreState: ScoreState;
@@ -12,8 +12,6 @@ type BaseQuizModeProps = {
   readonly currentChar: PracticeCharacter;
   readonly backgroundContent?: React.ReactNode;
   readonly mainContent: React.ReactNode;
-  readonly currentGameMode: GameMode;
-  readonly onGameModeChange: (mode: GameMode) => void;
 };
 
 /**
@@ -26,17 +24,12 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
   currentChar,
   backgroundContent,
   mainContent,
-  currentGameMode,
-  onGameModeChange,
 }: BaseQuizModeProps) => {
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden">
       {backgroundContent && <div>{backgroundContent}</div>}
       <ScoreDisplay {...scoreState} />
-      <SettingsButton
-        currentGameMode={currentGameMode}
-        onGameModeChange={onGameModeChange}
-      />
+      <SettingsButton />
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
         {mainContent}
