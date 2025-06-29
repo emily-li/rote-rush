@@ -1,18 +1,16 @@
 import { useCallback, useEffect, useState } from 'react';
+import { SPIRAL_CONFIG } from '@/config/spiral';
 import { useQuizGame } from '@/hooks/useQuizGame';
 import { getWeightedRandomCharacter } from '@/lib/characterLoading';
-import type {
-  PracticeCharacter,
-  SimpleQuizModeState,
-  TimerConfig,
-} from '@/types';
+import type { PracticeCharacter, SimpleQuizModeState } from '@/types';
 
 export type SpiralCharacter = {
   readonly char: PracticeCharacter;
   readonly id: string;
 };
 
-type UseSpiralQuizReturn = SimpleQuizModeState & {
+type UseSpiralQuizReturn = {
+  gameState: SimpleQuizModeState;
   spiralCharacters: SpiralCharacter[];
   getCharacterStyle: (spiralChar: SpiralCharacter) => React.CSSProperties;
 };
@@ -59,9 +57,7 @@ function calculateCharacterCount(width: number, height: number): number {
   );
 }
 
-export const useSpiralQuiz = (
-  timerConfig: TimerConfig,
-): UseSpiralQuizReturn => {
+export const useSpiralQuiz = (): UseSpiralQuizReturn => {
   const { width, height } = useWindowSize();
   const [spiralCharacters, setSpiralCharacters] = useState<SpiralCharacter[]>(
     [],
@@ -103,7 +99,7 @@ export const useSpiralQuiz = (
   }, []);
 
   const quizGame = useQuizGame({
-    timerConfig,
+    timerConfig: SPIRAL_CONFIG,
     onCharacterComplete: advanceCharacters,
   });
 
@@ -216,7 +212,7 @@ export const useSpiralQuiz = (
   }, [initializeSpiral]);
 
   return {
-    ...quizGame,
+    gameState: quizGame,
     spiralCharacters,
     getCharacterStyle,
   };
