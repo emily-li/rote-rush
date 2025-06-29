@@ -21,22 +21,28 @@ function getSpiralCoordinates(
   w: number,
   h: number,
 ) {
+  // Archimedean spiral with consistent spacing (linear theta) and minimum distance
   const MAX_RADIUS_WIDTH_RATIO = 0.35;
   const MAX_RADIUS_HEIGHT_RATIO = 0.25;
-  const MIN_CHAR_SPACING = 48;
-  const TOTAL_TURNS = 3;
+  const TOTAL_TURNS = 2.5; // Increased turns for tighter coils
+  const MINIMUM_DISTANCE_FACTOR = 0.015; // Reduced factor for less aggressive spacing
   if (pos === 0) return { x: 0, y: 0 };
-  const maxR = Math.min(
+  const maxRadius = Math.min(
     w * MAX_RADIUS_WIDTH_RATIO,
     h * MAX_RADIUS_HEIGHT_RATIO,
   );
-  const minSteps = Math.ceil(maxR / MIN_CHAR_SPACING);
-  const steps = Math.max(total - 1, minSteps);
-  const angleStep = (TOTAL_TURNS * 2 * Math.PI) / steps;
-  const radiusStep = maxR / steps;
-  const angle = pos * angleStep;
-  const radius = pos * radiusStep;
-  return { x: Math.cos(angle) * radius, y: Math.sin(angle) * radius };
+  const thetaMax = TOTAL_TURNS * 2 * Math.PI;
+  const t = pos / (total - 1);
+  const theta = thetaMax * t;
+  const b = maxRadius / thetaMax;
+  // Adjust radius to ensure minimum spacing between consecutive positions
+  const baseRadius = b * theta;
+  // Apply minimum distance with a moderated increment to avoid excessive coil spacing
+  const minRadiusIncrement = w * MINIMUM_DISTANCE_FACTOR * Math.sqrt(pos);
+  const r = baseRadius + minRadiusIncrement;
+  const x = Math.cos(theta) * r;
+  const y = Math.sin(theta) * r;
+  return { x, y };
 }
 
 export function getCharacterStyle(
