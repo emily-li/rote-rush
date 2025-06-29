@@ -54,7 +54,7 @@ function getSpiralCoordinates(
     3.0,
     Math.max(0.8, BASE_TURNS + dominantDimension * TURN_SCALE_FACTOR),
   );
-  const MINIMUM_DISTANCE_FACTOR = 0.1; // Factor for consistent neighbor spacing
+  const MINIMUM_DISTANCE_FACTOR = 0.15; // Factor for consistent neighbor spacing
   if (pos === 0) return { x: 0, y: 0 };
   const maxRadius = Math.min(
     w * MAX_RADIUS_WIDTH_RATIO,
@@ -66,7 +66,9 @@ function getSpiralCoordinates(
   const b = maxRadius / thetaMax;
   // Adjust radius to ensure minimum spacing between consecutive positions
   const baseRadius = b * theta;
-  const minRadiusIncrement = w * MINIMUM_DISTANCE_FACTOR;
+  // Use a smaller distance factor between index 0 and 1, standard for the rest
+  const minRadiusIncrement =
+    w * (pos === 1 ? MINIMUM_DISTANCE_FACTOR * 0.5 : MINIMUM_DISTANCE_FACTOR);
   const r = baseRadius + minRadiusIncrement;
   const x = Math.cos(theta) * r;
   const y = Math.sin(theta) * r;
