@@ -19,17 +19,19 @@ export const SpiralQuizMode = (): JSX.Element => {
           <div className="relative mb-8 h-[80vh] w-full">
             {spiralCharacters.map((spiralChar, i) => {
               const isHead = i === 0;
+              const styleObj = getCharacterStyle(
+                i,
+                spiralCharacters.length,
+                width,
+                height,
+                timerState,
+              );
+              const { tailwindClass, ...style } = styleObj;
               return (
                 <div
                   key={spiralChar.id}
-                  className={`absolute font-kana ${isHead ? 'text-shadow-lg font-bold' : 'text-gray-700'} `}
-                  style={getCharacterStyle(
-                    i,
-                    spiralCharacters.length,
-                    width,
-                    height,
-                    timerState,
-                  )}
+                  className={`absolute font-kana ${tailwindClass} ${isHead ? 'text-black' : 'text-gray-700'}`}
+                  style={style}
                   aria-hidden={isHead ? undefined : 'true'}
                   aria-label={isHead ? spiralChar.char.char : undefined}
                 >

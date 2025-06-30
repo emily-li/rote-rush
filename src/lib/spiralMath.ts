@@ -107,6 +107,13 @@ export function getCharacterStyle(
   const scale = isHead ? getHeadScale(timer) : cfg.SCALE.BASE;
   const leftPercent = (x / w) * 100;
   const topPercent = (y / h) * 100;
+  const style = isHead
+    ? 'font-bold text-shadow-lg'
+    : pos === 1
+      ? 'font-bold text-shadow-lg'
+      : pos === 2
+        ? 'text-shadow-lg'
+        : '';
   return {
     position: 'absolute' as const,
     left: `calc(50% + ${leftPercent}%)`,
@@ -115,5 +122,6 @@ export function getCharacterStyle(
     fontSize: getFontSize(isHead, pos, total),
     opacity: getOpacity(isHead, pos),
     zIndex: isHead ? 1000 : 1,
+    tailwindClass: style,
   };
 }
