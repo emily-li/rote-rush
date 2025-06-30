@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
-import { SPIRAL_CONFIG } from '@/config/spiral';
+import { SPIRAL_TIMER_CONFIG } from '@/config/spiral';
 import { useQuizGame } from '@/hooks/useQuizGame';
 import { getWeightedRandomCharacter } from '@/lib/characterLoading';
 import { getVisibleCharacterCount } from '@/lib/spiralMath';
@@ -43,7 +43,7 @@ export const useSpiralQuiz = (): UseSpiralQuizReturn => {
   }, []);
 
   const quizGame = useQuizGame({
-    timerConfig: SPIRAL_CONFIG,
+    timerConfig: SPIRAL_TIMER_CONFIG,
     onCharacterComplete: advanceCharacters,
   });
 
