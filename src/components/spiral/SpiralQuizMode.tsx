@@ -26,11 +26,11 @@ export const SpiralQuizMode = (): JSX.Element => {
                 height,
                 timerState,
               );
-              const { tailwindClass, ...style } = styleObj;
+              const { charClass, ...style } = styleObj;
               return (
                 <div
                   key={spiralChar.id}
-                  className={`absolute font-kana ${tailwindClass} ${isHead ? 'text-black' : 'text-gray-700'}`}
+                  className={`absolute font-kana ${charClass}`}
                   style={style}
                   aria-hidden={isHead ? undefined : 'true'}
                   aria-label={isHead ? spiralChar.char.char : undefined}
