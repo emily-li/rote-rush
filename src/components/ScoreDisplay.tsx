@@ -16,11 +16,11 @@ const Metric: React.FC<MetricProps> = ({ label, value, metricChange }) => {
         : '';
   return (
     <div className="relative z-10 mb-2 flex items-center justify-between">
-      <span className="font-extrabold">{label}</span>
+      <span className="font-semibold">{label}</span>
 
       <span
         key={value}
-        className={`${animation} inline-block min-w-[3ch] text-right font-extrabold`}
+        className={`${animation} inline-block min-w-[3ch] text-right font-semibold`}
         aria-label={`${label} is ${value}`}
       >
         {value}
@@ -49,7 +49,7 @@ function useMetricChange(value: number): MetricChange {
 
 export const ScoreDisplay: React.FC<ScoreState> = (scoreState) => {
   return (
-    <div className="absolute left-8 top-8 z-20 space-y-4 p-4 text-left text-3xl">
+    <div className="absolute left-8 top-8 z-20 space-y-4 p-4 text-left font-sans text-3xl">
       <div className="absolute inset-0 rounded-3xl bg-fuchsia-200 blur-lg" />
       <Metric
         label="Score"

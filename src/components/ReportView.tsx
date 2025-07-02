@@ -48,7 +48,7 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
   }, []);
 
   const getSuccessRateColor = (rate: number, attempts: number) => {
-    if (attempts === 0) return 'bg-gray-100';
+    if (attempts === 0) return 'bg-gray-50 text-gray-500';
     if (rate >= 90) return 'bg-green-100';
     if (rate >= 70) return 'bg-yellow-100';
     if (rate >= 50) return 'bg-orange-100';
@@ -70,10 +70,10 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
         {stats.map((stat) => (
           <div
             key={stat.char}
-            className={`flex flex-col items-center justify-center border border-fuchsia-50 p-2 font-kana
+            className={`flex flex-col items-center justify-center border border-fuchsia-50 p-2
             ${getSuccessRateColor(stat.successRate, stat.attempts)}`}
           >
-            <div>{stat.char}</div>
+            <div className="font-kana">{stat.char}</div>
             <div className="text-xs font-bold">
               {stat.attempts > 0 ? `${Math.round(stat.successRate)}%` : '—'}
             </div>
@@ -84,7 +84,7 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-20">
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-25 font-sans">
       <div className="mx-auto min-h-screen max-w-7xl">
         <div className="bg-fuchsia-50 p-4">
           <div className="flex items-center justify-between text-white">
@@ -110,7 +110,7 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
           {/* Game Mode Selection */}
           <div className="bg-fuchsia-100 p-4">
             <h2 className="mb-3 text-lg font-bold">Game Mode</h2>
-            <div className="flex gap-2 text-fuchsia-900">
+            <div className="flex gap-2">
               {(
                 [
                   { mode: GameMode.SIMPLE, label: 'Simple Mode' },
@@ -121,7 +121,7 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
                 const baseClass = 'border-2 px-4 py-2 transition-colors';
                 const activeClass = isActive
                   ? 'border-fuchsia-400 font-bold'
-                  : 'border-fuchsia-200 hover:bg-fuchsia-50';
+                  : 'border-fuchsia-200 hover:bg-fuchsia-200';
                 return (
                   <button
                     key={mode}
