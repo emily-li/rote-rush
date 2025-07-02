@@ -23,12 +23,26 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
       hiraganaData.values.map((item: any) => item.character),
     );
 
-    const hiraganaStats = allStats.filter((stat) =>
-      hiraganaChars.has(stat.char),
-    );
-    const katakanaStats = allStats.filter(
-      (stat) => !hiraganaChars.has(stat.char),
-    );
+    const seenChars = new Set<string>();
+    const hiraganaStats = allStats
+      .filter((stat) => hiraganaChars.has(stat.char))
+      .filter((stat) => {
+        if (!seenChars.has(stat.char)) {
+          seenChars.add(stat.char);
+          return true;
+        }
+        return false;
+      });
+    seenChars.clear();
+    const katakanaStats = allStats
+      .filter((stat) => !hiraganaChars.has(stat.char))
+      .filter((stat) => {
+        if (!seenChars.has(stat.char)) {
+          seenChars.add(stat.char);
+          return true;
+        }
+        return false;
+      });
 
     return { hiraganaStats, katakanaStats };
   }, []);

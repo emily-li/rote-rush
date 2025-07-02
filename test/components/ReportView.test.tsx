@@ -1,8 +1,8 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
-import { GameModeProvider } from '@/components/GameModeContext';
-import { ReportView } from '@/components/ReportView';
+import { GameModeProvider } from '../../src/components/GameModeContext';
+import { ReportView } from '../../src/components/ReportView';
 
 function setupReportView() {
   const onClose = vi.fn();
@@ -20,15 +20,30 @@ describe('ReportView', () => {
     const simpleBtn = screen.getByRole('button', { name: /simple mode/i });
     const spiralBtn = screen.getByRole('button', { name: /spiral mode/i });
     // Spiral mode should not be selected initially
-    expect(spiralBtn).not.toHaveClass('font-bold');
+    expect(spiralBtn.className).not.toMatch(/font-bold/);
     // Click spiral mode
     await userEvent.click(spiralBtn);
     // Spiral mode should now be selected
-    expect(spiralBtn).toHaveClass('font-bold');
-    expect(simpleBtn).not.toHaveClass('font-bold');
+    expect(spiralBtn.className).toMatch(/font-bold/);
+    expect(simpleBtn.className).not.toMatch(/font-bold/);
     // Click simple mode
     await userEvent.click(simpleBtn);
-    expect(simpleBtn).toHaveClass('font-bold');
-    expect(spiralBtn).not.toHaveClass('font-bold');
+    expect(simpleBtn.className).toMatch(/font-bold/);
+    expect(spiralBtn.className).not.toMatch(/font-bold/);
+  });
+
+  it('renders character stats without duplicates', () => {
+    vi.mock('../../src/lib/characterStats', () => ({
+      getCharacterStatsWithRates: () => [
+        { char: 'あ', attempts: 5, correct: 4, successRate: 80 },
+        { char: 'い', attempts: 3, correct: 2, successRate: 66.7 },
+        { char: 'あ', attempts: 2, correct: 1, successRate: 50 },
+      ],
+    }));
+
+    setupReportView();
+
+    const characterElements = screen.getAllByText('あ');
+    expect(characterElements.length).toBe(1);
   });
 });
