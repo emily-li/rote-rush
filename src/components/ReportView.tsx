@@ -104,33 +104,34 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
               >
                 <X size={16} />
               </button>
-            </div>{' '}
+            </div>
           </div>
 
           {/* Game Mode Selection */}
           <div className="bg-fuchsia-100 p-4">
             <h2 className="mb-3 text-lg font-bold">Game Mode</h2>
             <div className="flex gap-2 text-fuchsia-800">
-              <button
-                onClick={() => setGameMode(GameMode.SIMPLE)}
-                className={`border-2 px-4 py-2 transition-colors ${
-                  gameMode === GameMode.SIMPLE
-                    ? 'border-fuchsia-400 font-bold'
-                    : 'border-fuchsia-200 hover:bg-fuchsia-50'
-                  }`}
-              >
-                Simple Mode
-              </button>
-              <button
-                onClick={() => setGameMode(GameMode.SPIRAL)}
-                className={`border-2 px-4 py-2 transition-colors ${
-                  gameMode === GameMode.SPIRAL
-                    ? 'border-fuchsia-400 font-bold'
-                    : 'border-fuchsia-200 hover:bg-fuchsia-50'
-                  }`}
-              >
-                Spiral Mode
-              </button>
+              {(
+                [
+                  { mode: GameMode.SIMPLE, label: 'Simple Mode' },
+                  { mode: GameMode.SPIRAL, label: 'Spiral Mode' },
+                ] as const
+              ).map(({ mode, label }) => {
+                const isActive = gameMode === mode;
+                const baseClass = 'border-2 px-4 py-2 transition-colors';
+                const activeClass = isActive
+                  ? 'border-fuchsia-400 font-bold'
+                  : 'border-fuchsia-200 hover:bg-fuchsia-50';
+                return (
+                  <button
+                    key={mode}
+                    onClick={() => setGameMode(mode)}
+                    className={`${baseClass} ${activeClass}`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
