@@ -18,7 +18,11 @@ const SimpleQuizMode = (): JSX.Element => {
         currentChar={characterState.currentChar}
         timerControl={timerControl}
         backgroundContent={
-          <TimerBackground timeRemainingPct={timerState.timeRemainingPct} />
+          <TimerBackground
+            currentTimeMs={timerState.currentTimeMs}
+            isPaused={timerState.isPaused}
+            resetKey={characterState.currentChar.char}
+          />
         }
         mainContent={
           <div className="relative mb-8 flex h-[70vh] w-full items-center justify-center">

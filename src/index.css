@@ -1,27 +1,26 @@
-@import url(https://fonts.bunny.net/css?family=Montserrat:600);
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@keyframes score-pop {
-  0% {
-    transform: scale(1);
-  }
-  20% {
-    transform: scale(2.5);
-  }
-  60% {
-    transform: scale(1.7);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-.animate-score-increase {
-  animation: score-pop 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.animate-score-decrease {
-  animation: score-pop 0.9s cubic-bezier(0.2, 0.8, 0.2, 1);
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+@keyframes shrinkWidth {
+  0% {
+    width: 100%;
+  }
+  100% {
+    width: 0%;
+  }
 }
