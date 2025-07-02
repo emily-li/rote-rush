@@ -2,20 +2,22 @@
  * Shared utility functions for quiz components
  */
 
+/**
+ * Determines score multiplier from streak of correct answers using configuration.
+ */
+import { COMBO_MULTIPLIER_CONFIG } from '@/config/quiz';
 import type { PracticeCharacter } from '@/types';
 
-/**
- * Calculate score multiplier based on the current streak.
- * Rewards consistent correct answers with increasing multipliers:
- * - 1.0x : Default multiplier
- * - 1.5x : After 10 consecutive correct answers
- * - 2.0x : After 50 consecutive correct answers
- * - 3.0x : After 100 consecutive correct answers
- */
 export function getComboMultiplier(streak: number): number {
-  if (streak >= 100) return 3.0;
-  if (streak >= 50) return 2.0;
-  if (streak >= 10) return 1.5;
+  const levels = Object.values(COMBO_MULTIPLIER_CONFIG).sort(
+    (a, b) => b.STREAK - a.STREAK,
+  );
+
+  for (const level of levels) {
+    if (streak >= level.STREAK) {
+      return level.MULTIPLIER;
+    }
+  }
   return 1.0;
 }
 
