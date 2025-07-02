@@ -30,7 +30,7 @@ export const QuizInput: React.FC<QuizInputProps> = ({
         className={`w-full border-4 py-6 text-center text-2xl font-bold transition-colors
           focus:outline-none focus:ring-0 ${
           isWrongAnswer
-              ? 'border-fuchsia-800 bg-fuchsia-50 text-fuchsia-800'
+              ? 'border-fuchsia-900 bg-fuchsia-50 text-fuchsia-900'
               : 'border-gray-300 focus:border-blue-500'
           }`}
         autoFocus

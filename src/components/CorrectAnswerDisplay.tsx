@@ -16,7 +16,7 @@ export const CorrectAnswerDisplay: React.FC<CorrectAnswerDisplayProps> = ({
 }) => {
   return (
     <div className="mt-6 flex h-12 items-center justify-center">
-      <div id="error-display" className="text-3xl font-bold text-fuchsia-800">
+      <div id="error-display" className="text-3xl font-bold text-fuchsia-900">
         {isWrongAnswer ? correctAnswer : ''}
       </div>
     </div>

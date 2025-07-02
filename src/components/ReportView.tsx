@@ -48,11 +48,11 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
   }, []);
 
   const getSuccessRateColor = (rate: number, attempts: number) => {
-    if (attempts === 0) return 'bg-gray-100 text-gray-400';
-    if (rate >= 90) return 'bg-green-100 text-green-800';
-    if (rate >= 70) return 'bg-yellow-100 text-yellow-800';
-    if (rate >= 50) return 'bg-orange-100 text-orange-800';
-    return 'bg-red-100 text-red-800';
+    if (attempts === 0) return 'bg-gray-100';
+    if (rate >= 90) return 'bg-green-100';
+    if (rate >= 70) return 'bg-yellow-100';
+    if (rate >= 50) return 'bg-orange-100';
+    return 'bg-red-100';
   };
 
   const handleReset = () => {
@@ -110,7 +110,7 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
           {/* Game Mode Selection */}
           <div className="bg-fuchsia-100 p-4">
             <h2 className="mb-3 text-lg font-bold">Game Mode</h2>
-            <div className="flex gap-2 text-fuchsia-800">
+            <div className="flex gap-2 text-fuchsia-900">
               {(
                 [
                   { mode: GameMode.SIMPLE, label: 'Simple Mode' },

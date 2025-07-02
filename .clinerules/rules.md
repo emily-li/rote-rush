@@ -7,6 +7,7 @@
 - Always run `pnpm build` to ensure changes work after making changes.
 - Never write comments. JSDoc is allowed. If the code is complex and required explaining, this indicates types and/or functions should be extracted with appropriate naming to improve readability.
 - Always use `pnpm` for package management - never npm or yarn
+- Never run `pnpm build` if only style changes were made
 
 ### Tailwind CSS
 
