@@ -60,6 +60,14 @@ export const useQuizGame = ({
   const [nextTimeMs, setNextTimeMs] = useState<number>(DEFAULT_TIME_MS);
   const [isPaused, setIsPaused] = useState<boolean>(true);
 
+  const pauseTimer = useCallback(() => {
+    setIsPaused(true);
+  }, []);
+
+  const resumeTimer = useCallback(() => {
+    setIsPaused(false);
+  }, []);
+
   // Refs for cleanup and state tracking
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const nextCharTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -273,6 +281,10 @@ export const useQuizGame = ({
       currentTimeMs,
       isPaused,
       timeRemainingPct,
+    },
+    timerControl: {
+      pauseTimer,
+      resumeTimer,
     },
     actions: {
       handleInputChange,

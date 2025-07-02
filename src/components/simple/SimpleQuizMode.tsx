@@ -4,9 +4,10 @@ import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
 
 const SimpleQuizMode = (): JSX.Element => {
-  const { characterState, scoreState, timerState, actions } = useQuizGame({
-    timerConfig: QUIZ_CONFIG,
-  });
+  const { characterState, scoreState, timerState, timerControl, actions } =
+    useQuizGame({
+      timerConfig: QUIZ_CONFIG,
+    });
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden">
@@ -15,6 +16,7 @@ const SimpleQuizMode = (): JSX.Element => {
         userInput={characterState.userInput}
         handleInputChange={actions.handleInputChange}
         currentChar={characterState.currentChar}
+        timerControl={timerControl}
         backgroundContent={
           <TimerBackground timeRemainingPct={timerState.timeRemainingPct} />
         }

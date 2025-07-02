@@ -67,10 +67,16 @@ export type QuizGameActions = {
   handleTimeout: () => void;
 };
 
+export type TimerControl = {
+  pauseTimer: () => void;
+  resumeTimer: () => void;
+};
+
 export type QuizModeState = {
   characterState: CharacterState;
   scoreState: ScoreState;
   timerState: TimerState;
+  timerControl: TimerControl;
   actions: QuizGameActions;
 };
 

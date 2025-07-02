@@ -1,9 +1,24 @@
 import { useEffect, useState } from 'react';
 import { Settings } from 'lucide-react';
 import { ReportView } from '@/components/ReportView';
+import { TimerControl } from '@/types';
 
-export const SettingsButton = () => {
+export const SettingsButton = ({
+  timerControl,
+}: {
+  timerControl?: TimerControl;
+}) => {
   const [showReport, setShowReport] = useState(false);
+
+  useEffect(() => {
+    if (timerControl) {
+      if (showReport) {
+        timerControl.pauseTimer();
+      } else {
+        timerControl.resumeTimer();
+      }
+    }
+  }, [showReport, timerControl]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {

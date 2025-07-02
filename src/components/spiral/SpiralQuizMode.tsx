@@ -5,7 +5,8 @@ import { getCharacterStyle } from '@/lib/spiralMath';
 
 export const SpiralQuizMode = (): JSX.Element => {
   const { gameState, spiralCharacters } = useSpiralQuiz();
-  const { characterState, scoreState, actions, timerState } = gameState;
+  const { characterState, scoreState, actions, timerState, timerControl } =
+    gameState;
   const { width, height } = useWindowSize();
 
   return (
@@ -15,6 +16,7 @@ export const SpiralQuizMode = (): JSX.Element => {
         userInput={characterState.userInput}
         handleInputChange={actions.handleInputChange}
         currentChar={characterState.currentChar}
+        timerControl={timerControl}
         mainContent={
           <div className="relative mb-8 h-[80vh] w-full">
             {spiralCharacters.map((spiralChar, i) => {
