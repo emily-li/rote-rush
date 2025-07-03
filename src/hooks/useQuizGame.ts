@@ -22,6 +22,7 @@ import type { PracticeCharacter, QuizModeState } from '@/types';
 export type UseQuizGameParams = {
   timerConfig: typeof import('@/config/quiz').QUIZ_CONFIG;
   onCharacterComplete?: () => void;
+  getNextCharacter?: () => PracticeCharacter | undefined;
 };
 const { WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = WEIGHT_CONFIG;
 
@@ -31,6 +32,7 @@ const { WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = WEIGHT_CONFIG;
 export const useQuizGame = ({
   timerConfig,
   onCharacterComplete,
+  getNextCharacter,
 }: UseQuizGameParams): QuizModeState => {
   const {
     DEFAULT_TIME_MS,
@@ -122,8 +124,15 @@ export const useQuizGame = ({
         // timeoutCountRef.current = 0; // Removed logic
       }
 
-      setIsPaused(false);
-      setCurrentChar(getWeightedRandomCharacter(characters));
+      const nextChar = getNextCharacter ? getNextCharacter() : getWeightedRandomCharacter(characters);
+      if (nextChar) {
+        setCurrentChar(nextChar);
+      } else {
+        // Handle case where getNextCharacter returns undefined, maybe end the game or show a message
+        console.warn("No more characters available.");
+        setIsPaused(true); // or some other state to indicate completion
+        return; // Early exit
+      }
       resetForNextCharacter(setUserInput, setIsWrongAnswer);
 
       if (resetToDefault) {
@@ -146,6 +155,7 @@ export const useQuizGame = ({
       clearAllTimeouts,
       DEFAULT_TIME_MS,
       onCharacterComplete,
+      getNextCharacter,
     ],
   );
 
@@ -161,7 +171,7 @@ export const useQuizGame = ({
     nextCharTimeoutRef.current = setTimeout(() => {
       nextCharacter(true, false);
     }, WRONG_ANSWER_DISPLAY_MS);
-  }, [currentChar.char, nextCharacter, clearAllTimeouts]);
+  }, [currentChar.char, nextCharacter, clearAllTimeouts, getNextCharacter]);
 
   const updateTimeLeft = useCallback(() => {
     setTimeLeft((prev) => Math.max(0, prev - 50));

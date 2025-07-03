@@ -45,6 +45,12 @@ export const useSpiralQuiz = (): UseSpiralQuizReturn => {
   const quizGame = useQuizGame({
     timerConfig: SPIRAL_TIMER_CONFIG,
     onCharacterComplete: advanceCharacters,
+    getNextCharacter: () => {
+      if (spiralCharacters.length > 1) {
+        return spiralCharacters[1].char;
+      }
+      return undefined; // No more characters in spiral
+    },
   });
 
   // Sync spiralCharacters[0].char with currentChar, but only on correct answer
