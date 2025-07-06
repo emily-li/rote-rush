@@ -23,9 +23,9 @@ export const SpiralQuizMode = (): JSX.Element => {
         timerControl={timerControl}
         mainContent={
           <div
-            className="relative mb-8 w-full"
+            className="relative w-full"
             style={{
-              height: '80vh',
+              height: '70vh',
             }}
           >
             {spiralCharacters.map((spiralChar, i) => {
