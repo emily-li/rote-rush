@@ -4,6 +4,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { GameModeProvider } from '../../src/components/GameModeContext';
 import { ReportView } from '../../src/components/ReportView';
 
+// Mock focus-trap-react to bypass focus trap issues in test environment
+vi.mock('focus-trap-react', () => ({
+  FocusTrap: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+}));
+
 function setupReportView() {
   const onClose = vi.fn();
   render(
@@ -45,5 +52,20 @@ describe('ReportView', () => {
 
     const characterElements = screen.getAllByText('あ');
     expect(characterElements.length).toBe(1);
+  });
+
+  it('traps focus within the component when active', async () => {
+    setupReportView();
+    const firstFocusable = screen.getByRole('button', { name: /simple mode/i });
+    const lastFocusable = screen.getByRole('button', { name: /close/i });
+
+    firstFocusable.focus();
+    expect(document.activeElement).toBe(firstFocusable);
+
+    await userEvent.tab({ shift: true });
+    expect(document.activeElement).toBe(lastFocusable);
+
+    await userEvent.tab();
+    expect(document.activeElement).toBe(firstFocusable);
   });
 });

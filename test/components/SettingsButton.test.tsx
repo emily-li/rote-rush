@@ -1,9 +1,16 @@
+// Mock focus-trap-react to bypass focus trap issues in test environment
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom';
 import { GameModeProvider } from '../../src/components/GameModeContext';
 import { SettingsButton } from '../../src/components/SettingsButton';
+
+vi.mock('focus-trap-react', () => ({
+  FocusTrap: ({ children }: { children: React.ReactNode }) => (
+    <div>{children}</div>
+  ),
+}));
 
 describe('SettingsButton', () => {
   it('pauses timer when report view is opened and resumes when closed', async () => {
@@ -42,7 +49,6 @@ describe('SettingsButton', () => {
   it('does not call timer control methods if timerControl is not provided', async () => {
     const pauseTimer = vi.fn();
     const resumeTimer = vi.fn();
-    const timerControl = { pauseTimer, resumeTimer };
 
     render(
       <GameModeProvider>
