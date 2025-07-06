@@ -12,7 +12,7 @@ export const SpiralQuizMode = (): JSX.Element => {
   return (
     <div
       className="relative flex min-h-screen flex-col overflow-hidden bg-fuchsia-50"
-      aria-label="Interactive Spiral Quiz Game Interface"
+      aria-label="Interactive Spiral Quiz Game"
       role="main"
     >
       <BaseQuizMode

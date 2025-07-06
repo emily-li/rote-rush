@@ -10,45 +10,46 @@ vi.mock('../../src/hooks/useSpiralQuiz', () => {
   };
 });
 
+const mockSpiralQuiz = {
+  gameState: {
+    characterState: {
+      userInput: '',
+      currentChar: { char: 'あ', validAnswers: ['a'] },
+    },
+    scoreState: {
+      score: 0,
+      streak: 0,
+      comboMultiplier: 1,
+      isWrongAnswer: false,
+    },
+    timerState: {
+      timeLeft: 1000,
+      currentTimeMs: 1000,
+      isPaused: false,
+      timeRemainingPct: 100,
+    },
+    actions: {
+      handleInputChange: vi.fn(),
+      nextCharacter: vi.fn(),
+      validateAndHandleInput: vi.fn(),
+      handleTimeout: vi.fn(),
+    },
+  },
+  spiralCharacters: [
+    { char: { char: 'あ', validAnswers: ['a'] }, id: 'spiral-0', position: 0 },
+    {
+      char: { char: 'い', validAnswers: ['i'] },
+      id: 'spiral-1',
+      position: 1,
+    },
+  ],
+  getCharacterStyle: () => ({}),
+};
+
 describe('SpiralQuizMode', () => {
   it('renders the head spiral character matching the currentChar', () => {
-    const mockChar = { char: 'あ', validAnswers: ['a'] };
     (useSpiralQuiz as unknown as { mockReturnValue: Function }).mockReturnValue(
-      {
-        gameState: {
-          characterState: {
-            userInput: '',
-            currentChar: mockChar,
-          },
-          scoreState: {
-            score: 0,
-            streak: 0,
-            comboMultiplier: 1,
-            isWrongAnswer: false,
-          },
-          timerState: {
-            timeLeft: 1000,
-            currentTimeMs: 1000,
-            isPaused: false,
-            timeRemainingPct: 100,
-          },
-          actions: {
-            handleInputChange: vi.fn(),
-            nextCharacter: vi.fn(),
-            validateAndHandleInput: vi.fn(),
-            handleTimeout: vi.fn(),
-          },
-        },
-        spiralCharacters: [
-          { char: mockChar, id: 'spiral-0', position: 0 },
-          {
-            char: { char: 'い', validAnswers: ['i'] },
-            id: 'spiral-1',
-            position: 1,
-          },
-        ],
-        getCharacterStyle: () => ({}),
-      },
+      mockSpiralQuiz,
     );
 
     render(<SpiralQuizMode />);
@@ -56,5 +57,16 @@ describe('SpiralQuizMode', () => {
     const headChar = screen.getAllByText('あ')[0];
     expect(headChar).toBeInTheDocument();
     expect(screen.getByText('い')).toBeInTheDocument();
+  });
+
+  it('takes the full screen height to prevent layout bugs', () => {
+    (useSpiralQuiz as unknown as { mockReturnValue: Function }).mockReturnValue(
+      mockSpiralQuiz,
+    );
+
+    render(<SpiralQuizMode />);
+
+    const mainElement = screen.getByRole('main');
+    expect(mainElement).toHaveStyle({ 'min-height': '100vh' });
   });
 });
