@@ -1,4 +1,3 @@
-/// <reference types="vitest" />
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useTimer } from '../../src/lib/useTimer';
@@ -66,6 +65,29 @@ describe('useTimer hook', () => {
         vi.advanceTimersByTime(300);
       });
       expect(result.current.timeLeftMs).toBe(500);
+
+      expect(onTimeout).not.toHaveBeenCalled();
+    });
+
+    it('should countdown at 10ms intervals', () => {
+      const onTimeout = vi.fn();
+      const { result } = renderHook(() =>
+        useTimer({ totalTimeMs: 1000, onTimeout }),
+      );
+
+      expect(result.current.timeLeftMs).toBe(1000);
+
+      // Advance by 10ms and check
+      act(() => {
+        vi.advanceTimersByTime(10);
+      });
+      expect(result.current.timeLeftMs).toBe(990);
+
+      // Advance by another 10ms and check
+      act(() => {
+        vi.advanceTimersByTime(10);
+      });
+      expect(result.current.timeLeftMs).toBe(980);
 
       expect(onTimeout).not.toHaveBeenCalled();
     });
