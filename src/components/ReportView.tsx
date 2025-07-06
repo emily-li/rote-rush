@@ -9,7 +9,7 @@ import {
 import hiraganaData from '@/resources/hiragana.json';
 import { GameMode, type CharacterStats } from '@/types';
 
-interface ReportViewProps {
+type ReportViewProps = {
   readonly onClose: () => void;
 }
 

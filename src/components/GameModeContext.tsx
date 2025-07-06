@@ -11,7 +11,7 @@ export const GameModeContext = createContext<GameModeContextValue | undefined>(
   undefined,
 );
 
-interface GameModeContextValue {
+type GameModeContextValue = {
   gameMode: GameMode;
   setGameMode: (mode: GameMode) => void;
 }

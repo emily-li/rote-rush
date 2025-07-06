@@ -101,8 +101,9 @@ export function getCharacterStyle(
   w: number,
   h: number,
   timer: { timeLeft: number; currentTimeMs: number },
+  isKeyboardOpen: boolean,
 ) {
-  const { x, y } = getSpiralCoordinates(pos, total, w, h);
+  const { x, y } = getSpiralCoordinates(pos, total, w, isKeyboardOpen ? h * 0.5 : h);
   const isHead = pos === 0;
   const scale = isHead ? getHeadScale(timer) : cfg.SCALE.BASE;
   const leftPercent = (x / w) * 100;

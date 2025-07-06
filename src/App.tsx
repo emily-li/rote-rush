@@ -40,8 +40,11 @@ function App() {
   );
 }
 
+import { useWindowSize } from '@/hooks/useWindowSize';
+
 function GameModeView() {
   const { gameMode } = useGameMode();
+  const { visibleHeight, isKeyboardOpen } = useWindowSize();
   const modeDef = GAME_MODES.find((m) => m.mode === gameMode) ?? GAME_MODES[0];
   const ModeComponent = modeDef.component;
 
@@ -49,7 +52,13 @@ function GameModeView() {
     setGameModeQuery(getGameModeFromQuery());
   }, []);
 
-  return <ModeComponent key={gameMode} />;
+  return (
+    <ModeComponent
+      key={gameMode}
+      visibleHeight={visibleHeight}
+      isKeyboardOpen={isKeyboardOpen}
+    />
+  );
 }
 
 export default App;

@@ -1,13 +1,11 @@
 import type { CharacterStats, PracticeCharacter } from '@/types';
 
-const STATS_KEY = 'characterStats' as const;
+const STATS_KEY = 'characterStats';
 
-export type CharacterStatsData = {
-  [char: string]: {
+export type CharacterStatsData = Record<string, {
     attempts: number;
     correct: number;
-  };
-};
+  }>;
 
 /**
  * Load character statistics from localStorage

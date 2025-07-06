@@ -126,7 +126,7 @@ describe('SimpleQuizMode functionality', () => {
 
       expect(
         screen.getByLabelText((_, el) =>
-          Boolean(el && el.getAttribute('aria-label')?.startsWith('Score is')),
+          Boolean(el?.getAttribute('aria-label')?.startsWith('Score is')),
         ),
       ).toBeInTheDocument();
 
@@ -148,7 +148,7 @@ describe('SimpleQuizMode functionality', () => {
 
       expect(
         screen.getByLabelText((_, el) =>
-          Boolean(el && el.getAttribute('aria-label')?.startsWith('Score is')),
+          Boolean(el?.getAttribute('aria-label')?.startsWith('Score is')),
         ),
       ).toBeInTheDocument();
     });

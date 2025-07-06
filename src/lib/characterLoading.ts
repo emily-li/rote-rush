@@ -7,16 +7,16 @@ import type { PracticeCharacter } from '@/types';
  */
 
 /** Local storage key for persisting character weights */
-const WEIGHTS_KEY = 'practiceCharacterWeights' as const;
+const WEIGHTS_KEY = 'practiceCharacterWeights';
 
 /** Default weight for new characters */
-const INITIAL_WEIGHT = 5 as const;
+const INITIAL_WEIGHT = 5;
 
 /** Minimum allowed weight (ensures all characters stay in rotation) */
-const MIN_WEIGHT = 1 as const;
+const MIN_WEIGHT = 1;
 
 /** Maximum allowed weight (prevents one character from dominating) */
-const MAX_WEIGHT = 20 as const;
+const MAX_WEIGHT = 20;
 
 /**
  * Character weight data structure for localStorage
