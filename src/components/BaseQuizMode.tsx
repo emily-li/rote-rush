@@ -28,10 +28,7 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
   mainContent,
 }: BaseQuizModeProps) => {
   return (
-    <div
-      className="relative flex h-full flex-col overflow-hidden"
-      style={{ minHeight: '100%' }}
-    >
+    <div className="relative flex h-full flex-col overflow-hidden">
       {backgroundContent && <div>{backgroundContent}</div>}
       <ScoreDisplay {...scoreState} />
       <SettingsButton timerControl={timerControl} />
