@@ -7,16 +7,16 @@ import type { PracticeCharacter } from '@/types';
  */
 
 /** Local storage key for persisting character weights */
-const WEIGHTS_KEY = 'practiceCharacterWeights' as const;
+const WEIGHTS_KEY = 'practiceCharacterWeights';
 
 /** Default weight for new characters */
-const INITIAL_WEIGHT = 5 as const;
+const INITIAL_WEIGHT = 5;
 
 /** Minimum allowed weight (ensures all characters stay in rotation) */
-const MIN_WEIGHT = 1 as const;
+const MIN_WEIGHT = 1;
 
 /** Maximum allowed weight (prevents one character from dominating) */
-const MAX_WEIGHT = 20 as const;
+const MAX_WEIGHT = 20;
 
 /**
  * Character weight data structure for localStorage
@@ -48,8 +48,11 @@ export const loadSavedWeights = (): CharacterWeights => {
   try {
     const raw = localStorage.getItem(WEIGHTS_KEY);
     if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return typeof parsed === 'object' && parsed !== null ? parsed : {};
+    const parsed: unknown = JSON.parse(raw);
+    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+      return parsed as CharacterWeights;
+    }
+    return {};
   } catch (error) {
     console.warn('Failed to load character weights:', error);
     return {};

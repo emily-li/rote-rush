@@ -11,6 +11,7 @@ import {
   getComboMultiplier,
   resetForNextCharacter,
 } from '@/lib/quizUtils';
+import { useTimer } from '@/lib/useTimer';
 import {
   checkAnswerMatch,
   checkValidStart,
@@ -21,7 +22,7 @@ import type { PracticeCharacter, QuizModeState } from '@/types';
 
 export type UseQuizGameParams = {
   timerConfig: typeof import('@/config/quiz').QUIZ_CONFIG;
-  onCharacterComplete?: () => void;
+  onCharacterComplete?: (characters: PracticeCharacter[]) => void;
   getNextCharacter?: () => PracticeCharacter | undefined;
 };
 const { WEIGHT_DECREASE, WEIGHT_INCREASE, MIN_WEIGHT } = WEIGHT_CONFIG;
@@ -56,23 +57,23 @@ export const useQuizGame = ({
   const [comboMultiplier, setComboMultiplier] = useState<number>(1.0);
   const [isWrongAnswer, setIsWrongAnswer] = useState<boolean>(false);
 
-  // Timer state
-  const [timeLeft, setTimeLeft] = useState<number>(DEFAULT_TIME_MS);
-  const [currentTimeMs, setCurrentTimeMs] = useState<number>(DEFAULT_TIME_MS);
-  const [nextTimeMs, setNextTimeMs] = useState<number>(DEFAULT_TIME_MS);
-  const [isPaused, setIsPaused] = useState<boolean>(true);
-
-  const pauseTimer = useCallback(() => {
-    setIsPaused(true);
-  }, []);
-
-  const resumeTimer = useCallback(() => {
-    setIsPaused(false);
-  }, []);
-
   // Refs for cleanup and state tracking
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const nextCharTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const {
+    timeLeftMs,
+    totalTimeMs,
+    isPaused,
+    resetTimer,
+    pauseTimer,
+    resumeTimer,
+  } = useTimer({
+    totalTimeMs: DEFAULT_TIME_MS,
+    onTimeout: useCallback(() => {
+      handleTimeout();
+    }, []),
+    autoStart: false, // Start paused, will be resumed by handleInputChange or nextCharacter
+  });
 
   /**
    * Update timer on combo threshold - reduces time for next character when combo increases
@@ -81,17 +82,21 @@ export const useQuizGame = ({
   const updateTimerOnComboThreshold = useCallback(
     (newMultiplier: number): void => {
       if (newMultiplier > comboMultiplier) {
-        setNextTimeMs(
-          clamp(currentTimeMs - TIMER_STEP_MS, MIN_TIME_MS, DEFAULT_TIME_MS),
+        const newTime = clamp(
+          totalTimeMs - TIMER_STEP_MS,
+          MIN_TIME_MS,
+          DEFAULT_TIME_MS,
         );
+        resetTimer(newTime);
       }
     },
     [
       comboMultiplier,
-      currentTimeMs,
+      totalTimeMs,
       MIN_TIME_MS,
       DEFAULT_TIME_MS,
       TIMER_STEP_MS,
+      resetTimer,
     ],
   );
 
@@ -100,11 +105,7 @@ export const useQuizGame = ({
    * Called before any major game state change (new character, timeout, etc.)
    * to prevent race conditions between different game mechanics.
    */
-  const clearAllTimeouts = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
+  const clearNextCharTimeout = useCallback(() => {
     if (nextCharTimeoutRef.current) {
       clearTimeout(nextCharTimeoutRef.current);
       nextCharTimeoutRef.current = null;
@@ -116,73 +117,74 @@ export const useQuizGame = ({
   }, [characters]);
 
   const nextCharacter = useCallback(
-    (resetToDefault = false, resetTimeout = true) => {
-      clearAllTimeouts();
+    (resetToDefault = false) => {
+      clearNextCharTimeout();
+      pauseTimer(); // Pause timer before getting next character
 
-      // Only reset timeout count when explicitly requested
-      if (resetTimeout) {
-        // timeoutCountRef.current = 0; // Removed logic
-      }
-
-      const nextChar = getNextCharacter ? getNextCharacter() : getWeightedRandomCharacter(characters);
+      const nextChar = getNextCharacter
+        ? getNextCharacter()
+        : getWeightedRandomCharacter(characters);
       if (nextChar) {
         setCurrentChar(nextChar);
       } else {
-        // Handle case where getNextCharacter returns undefined, maybe end the game or show a message
-        console.warn("No more characters available.");
-        setIsPaused(true); // or some other state to indicate completion
-        return; // Early exit
+        // This case should ideally not be reached if characters are always available
+        console.warn('No more characters available.');
+        // Optionally, handle game completion here if needed
+        return;
       }
       resetForNextCharacter(setUserInput, setIsWrongAnswer);
 
       if (resetToDefault) {
-        setCurrentTimeMs(DEFAULT_TIME_MS);
-        setTimeLeft(DEFAULT_TIME_MS);
-        setNextTimeMs(DEFAULT_TIME_MS);
+        resetTimer(DEFAULT_TIME_MS);
       } else {
-        setCurrentTimeMs(nextTimeMs);
-        setTimeLeft(nextTimeMs > 0 ? nextTimeMs : DEFAULT_TIME_MS);
+        resetTimer(totalTimeMs);
       }
+      resumeTimer(); // Resume timer after setting up next character
 
       // Call the onCharacterComplete callback if provided
       if (onCharacterComplete) {
-        onCharacterComplete();
+        onCharacterComplete(characters);
       }
     },
     [
       characters,
-      nextTimeMs,
-      clearAllTimeouts,
+      clearNextCharTimeout,
       DEFAULT_TIME_MS,
       onCharacterComplete,
       getNextCharacter,
+      resetTimer,
+      pauseTimer,
+      resumeTimer,
+      totalTimeMs,
     ],
   );
 
   const handleTimeout = useCallback(() => {
     recordCharacterAttempt(currentChar.char, false);
 
-    clearAllTimeouts();
+    clearNextCharTimeout();
+    pauseTimer(); // Pause timer on timeout
 
     setStreak(0);
     setComboMultiplier(1.0);
     setIsWrongAnswer(true);
-    // Remove timeoutCountRef logic and pause logic
-    nextCharTimeoutRef.current = setTimeout(() => {
-      nextCharacter(true, false);
-    }, WRONG_ANSWER_DISPLAY_MS);
-  }, [currentChar.char, nextCharacter, clearAllTimeouts, getNextCharacter]);
 
-  const updateTimeLeft = useCallback(() => {
-    setTimeLeft((prev) => Math.max(0, prev - 50));
-  }, []);
+    nextCharTimeoutRef.current = setTimeout(() => {
+      nextCharacter(true);
+    }, WRONG_ANSWER_DISPLAY_MS);
+  }, [
+    currentChar.char,
+    nextCharacter,
+    clearNextCharTimeout,
+    WRONG_ANSWER_DISPLAY_MS,
+    pauseTimer,
+  ]);
 
   const validateAndHandleInput = useCallback(
     (value: string) => {
       if (!value) return;
       if (checkAnswerMatch(value, currentChar.validAnswers)) {
         recordCharacterAttempt(currentChar.char, true);
-        // timeoutCountRef.current = 0; // Removed logic
         const newStreak = streak + 1;
         setStreak(newStreak);
         const newMultiplier = getComboMultiplier(newStreak);
@@ -200,7 +202,6 @@ export const useQuizGame = ({
         nextCharacter(false);
       } else if (!checkValidStart(value, currentChar.validAnswers)) {
         recordCharacterAttempt(currentChar.char, false);
-        // timeoutCountRef.current = 0; // Removed logic
         setStreak(0);
         setComboMultiplier(1.0);
         setIsWrongAnswer(true);
@@ -213,6 +214,7 @@ export const useQuizGame = ({
           ),
         );
         setUserInput(value);
+        pauseTimer(); // Pause timer on wrong answer
         nextCharTimeoutRef.current = setTimeout(
           () => nextCharacter(true),
           WRONG_ANSWER_DISPLAY_MS,
@@ -222,25 +224,15 @@ export const useQuizGame = ({
         setUserInput(value);
       }
     },
-    [currentChar, streak, nextCharacter, updateTimerOnComboThreshold],
+    [
+      currentChar,
+      streak,
+      nextCharacter,
+      updateTimerOnComboThreshold,
+      WRONG_ANSWER_DISPLAY_MS,
+      pauseTimer,
+    ],
   );
-
-  useEffect(() => {
-    if (isPaused || timeLeft <= 0) {
-      if (timeLeft <= 0) {
-        handleTimeout();
-      }
-      return;
-    }
-
-    const timerId = setInterval(updateTimeLeft, 50);
-    timerRef.current = timerId;
-
-    return () => {
-      clearInterval(timerId);
-      timerRef.current = null;
-    };
-  }, [timeLeft, isPaused, handleTimeout, updateTimeLeft]);
 
   /**
    * Handle user input changes with validation and game state management
@@ -253,10 +245,9 @@ export const useQuizGame = ({
 
       const value = normalizeInput(e.target.value);
 
-      // Handle input when game is paused after timeout
+      // Handle input when game is paused (e.g., initial state or after timeout)
       if (isPaused) {
-        setIsPaused(false);
-        // Removed logic related to timeoutCountRef and setting timeLeft
+        resumeTimer(); // Resume timer on first input
         setUserInput(value);
         validateAndHandleInput(value);
         return;
@@ -268,10 +259,10 @@ export const useQuizGame = ({
         validateAndHandleInput(value);
       }
     },
-    [isWrongAnswer, isPaused, validateAndHandleInput],
+    [isWrongAnswer, isPaused, validateAndHandleInput, resumeTimer],
   );
 
-  const timeRemainingPct = (timeLeft / currentTimeMs) * 100;
+  const timeRemainingPct = (timeLeftMs / totalTimeMs) * 100;
 
   return {
     characterState: {
@@ -287,8 +278,8 @@ export const useQuizGame = ({
       isWrongAnswer,
     },
     timerState: {
-      timeLeft,
-      currentTimeMs,
+      timeLeft: timeLeftMs,
+      currentTimeMs: totalTimeMs,
       isPaused,
       timeRemainingPct,
     },

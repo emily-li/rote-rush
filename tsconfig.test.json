@@ -22,5 +22,5 @@
     },
     "types": ["vitest"]
   },
-  "include": ["test"]
+  "include": ["test", "vitest.config.ts"]
 }

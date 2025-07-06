@@ -1,4 +1,4 @@
-/// <reference types="vitest" />
+
 
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom/vitest';
@@ -43,7 +43,7 @@ vi.mock('../../src/lib/characterLoading', () => {
       { char: 'あ', validAnswers: ['a'], weight: 5 },
       { char: 'い', validAnswers: ['i'], weight: 3 },
     ],
-    getWeightedRandomCharacter: (chars: any[]) => chars[0],
+    getWeightedRandomCharacter: (chars: PracticeCharacter[]) => chars[0],
     saveCharacterWeights: vi.fn(),
   };
 });
@@ -75,7 +75,7 @@ describe('SimpleQuizMode functionality', () => {
       render(
         <SimpleQuizMode
           currentGameMode={GameMode.SIMPLE}
-          onGameModeChange={() => {}}
+          onGameModeChange={() => { /* do nothing */ }}
         />,
       );
       const input = screen.getByPlaceholderText(/romanized/i);
@@ -103,7 +103,7 @@ describe('SimpleQuizMode functionality', () => {
       render(
         <SimpleQuizMode
           currentGameMode={GameMode.SIMPLE}
-          onGameModeChange={() => {}}
+          onGameModeChange={() => { /* do nothing */ }}
         />,
       );
       const input = screen.getByPlaceholderText(/romanized/i);
@@ -125,9 +125,7 @@ describe('SimpleQuizMode functionality', () => {
       });
 
       expect(
-        screen.getByLabelText((_, el) =>
-          Boolean(el && el.getAttribute('aria-label')?.startsWith('Score is')),
-        ),
+        screen.getByLabelText((_, el) => el?.getAttribute('aria-label')?.startsWith('Score is')),
       ).toBeInTheDocument();
 
       // Trigger another timeout
@@ -147,9 +145,7 @@ describe('SimpleQuizMode functionality', () => {
       });
 
       expect(
-        screen.getByLabelText((_, el) =>
-          Boolean(el && el.getAttribute('aria-label')?.startsWith('Score is')),
-        ),
+        screen.getByLabelText((_, el) => el?.getAttribute('aria-label')?.startsWith('Score is')),
       ).toBeInTheDocument();
     });
   });

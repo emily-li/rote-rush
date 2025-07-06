@@ -12,6 +12,7 @@ export default tseslint.config(
       js.configs.recommended,
       ...tseslint.configs.recommendedTypeChecked,
       ...tseslint.configs.stylisticTypeChecked,
+      "prettier"
     ],
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -33,6 +34,7 @@ export default tseslint.config(
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       react: react,
+      import: require('eslint-plugin-import'),
     },
     rules: {
       ...react.configs.recommended.rules,
@@ -53,6 +55,20 @@ export default tseslint.config(
         },
       ],
       '@typescript-eslint/prefer-nullish-coalescing': 'off',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+        },
+      ],
+      'import/no-unused-modules': [
+        'error',
+        {
+          unusedExports: true,
+        },
+      ],
     },
   },
 );

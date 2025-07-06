@@ -1,13 +1,14 @@
 import type { CharacterStats, PracticeCharacter } from '@/types';
 
-const STATS_KEY = 'characterStats' as const;
+const STATS_KEY = 'characterStats';
 
-export type CharacterStatsData = {
-  [char: string]: {
+export type CharacterStatsData = Record<
+  string,
+  {
     attempts: number;
     correct: number;
-  };
-};
+  }
+>;
 
 /**
  * Load character statistics from localStorage
@@ -16,8 +17,21 @@ export const loadCharacterStats = (): CharacterStatsData => {
   try {
     const raw = localStorage.getItem(STATS_KEY);
     if (!raw) return {};
-    const parsed = JSON.parse(raw);
-    return typeof parsed === 'object' && parsed !== null ? parsed : {};
+    const parsed: CharacterStatsData = JSON.parse(raw);
+    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+      // Further validate the structure of the parsed object
+      for (const key in parsed) {
+        if (Object.prototype.hasOwnProperty.call(parsed, key)) {
+          const entry = parsed[key];
+          if (typeof entry !== 'object' || entry === null || typeof entry.attempts !== 'number' || typeof entry.correct !== 'number') {
+            console.warn('Invalid entry in character stats:', entry);
+            return {};
+          }
+        }
+      }
+      return parsed;
+    }
+    return {};
   } catch (error) {
     console.warn('Failed to load character stats:', error);
     return {};
@@ -62,10 +76,10 @@ export const recordCharacterAttempt = (
 export const getCharacterStatsWithRates = (
   characters: readonly PracticeCharacter[],
 ): CharacterStats[] => {
-  const statsData = loadCharacterStats();
+  const statsData: CharacterStatsData = loadCharacterStats();
 
   return characters.map((character) => {
-    const data = statsData[character.char] || { attempts: 0, correct: 0 };
+    const data: { attempts: number; correct: number } = statsData[character.char] || { attempts: 0, correct: 0 };
     const successRate =
       data.attempts > 0 ? (data.correct / data.attempts) * 100 : 0;
 

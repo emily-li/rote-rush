@@ -7,15 +7,6 @@ import {
 } from 'react';
 import { GameMode } from '@/types';
 
-export const GameModeContext = createContext<GameModeContextValue | undefined>(
-  undefined,
-);
-
-interface GameModeContextValue {
-  gameMode: GameMode;
-  setGameMode: (mode: GameMode) => void;
-}
-
 function getGameModeFromQuery(): GameMode {
   const params = new URLSearchParams(window.location.search);
   const mode = params.get('mode');
@@ -30,18 +21,28 @@ function setGameModeQuery(mode: GameMode) {
   window.history.replaceState({}, '', newUrl);
 }
 
+export const GameModeContext = createContext<GameModeContextValue | undefined>(
+  undefined,
+);
+
+export type GameModeContextValue = {
+  gameMode: GameMode;
+  setGameMode: (mode: GameMode) => void;
+};
+
 export const useGameMode = () => {
   const context = useContext(GameModeContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useGameMode must be used within a GameModeProvider');
   }
   return context;
 };
 
 export const GameModeProvider = ({ children }: { children: ReactNode }) => {
-  const [gameMode, setGameModeState] = useState<GameMode>(
-    getGameModeFromQuery(),
-  );
+  const [gameMode, updateGameModeState] = useState<GameMode>(() => {
+    const mode = getGameModeFromQuery();
+    return mode;
+  });
 
   useEffect(() => {
     setGameModeQuery(gameMode);
@@ -49,14 +50,15 @@ export const GameModeProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const onPopState = () => {
-      setGameModeState(getGameModeFromQuery());
+      const mode = getGameModeFromQuery();
+      updateGameModeState(mode);
     };
     window.addEventListener('popstate', onPopState);
     return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
   const setGameMode = (mode: GameMode) => {
-    setGameModeState(mode);
+    updateGameModeState(mode);
   };
 
   return (

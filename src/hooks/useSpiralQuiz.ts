@@ -29,18 +29,20 @@ export const useSpiralQuiz = (): UseSpiralQuizReturn => {
     [],
   );
 
-  // --- Stable advanceCharacters ---
-  const advanceCharacters = useCallback(() => {
-    setSpiralCharacters((prev: SpiralCharacter[]) => {
-      // Remove the first character (head), shift all others forward, add a new one at the end
-      const newChars = prev.slice(1);
-      const newChar: SpiralCharacter = {
-        char: getWeightedRandomCharacter(quizGame.characterState.characters),
-        id: getUniqueSpiralId(),
-      };
-      return [...newChars, newChar];
-    });
-  }, []);
+  const advanceCharacters = useCallback(
+    (characters: PracticeCharacter[]) => {
+      setSpiralCharacters((prev: SpiralCharacter[]) => {
+        // Remove the first character (head), shift all others forward, add a new one at the end
+        const newChars = prev.slice(1);
+        const newChar: SpiralCharacter = {
+          char: getWeightedRandomCharacter(characters),
+          id: getUniqueSpiralId(),
+        };
+        return [...newChars, newChar];
+      });
+    },
+    [],
+  );
 
   const quizGame = useQuizGame({
     timerConfig: SPIRAL_TIMER_CONFIG,
