@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { X } from 'lucide-react';
 import { useGameMode } from '@/components/GameModeContext';
 import { loadPracticeCharacters } from '@/lib/characterLoading';
@@ -6,58 +7,60 @@ import {
   resetCharacterStats,
 } from '@/lib/characterStats';
 import hiraganaData from '@/resources/hiragana.json';
-import katakanaData from '@/resources/katakana.json';
-import { CharacterStats, GameMode } from '@/types';
+import { GameMode, type CharacterStats } from '@/types';
 
-type ReportViewProps = {
+interface ReportViewProps {
   readonly onClose: () => void;
-};
-
-const hiraganaChars = new Set(
-  (hiraganaData.values as { character: string; answers: string[] }[]).map(
-    (item) => item.character,
-  ),
-);
-const katakanaChars = new Set(
-  (katakanaData.values as { character: string; answers: string[] }[]).map(
-    (item) => item.character,
-  ),
-);
-
-const filterUniqueStats = (stats: CharacterStats[], charSet: Set<string>) => {
-  return Array.from(
-    stats
-      .filter((stat) => charSet.has(stat.char))
-      .reduce(
-        (map, stat) => map.set(stat.char, stat),
-        new Map<string, CharacterStats>(),
-      )
-      .values(),
-  );
-};
-
-const getSuccessRateColor = (rate: number, attempts: number) => {
-  if (attempts === 0) return 'bg-gray-50 text-gray-500';
-  if (rate >= 90) return 'bg-green-100';
-  if (rate >= 70) return 'bg-yellow-100';
-  if (rate >= 50) return 'bg-orange-100';
-  return 'bg-red-100';
-};
-
-const handleReset = () => {
-  if (confirm('Reset all character statistics?')) {
-    resetCharacterStats();
-    window.location.reload();
-  }
-};
+}
 
 export const ReportView = ({ onClose }: ReportViewProps) => {
   const { gameMode, setGameMode } = useGameMode();
-  const characters = loadPracticeCharacters();
-  const allStats = getCharacterStatsWithRates(characters);
+  const { hiraganaStats, katakanaStats } = useMemo(() => {
+    const characters = loadPracticeCharacters();
+    const allStats = getCharacterStatsWithRates(characters);
 
-  const hiraganaStats = filterUniqueStats(allStats, hiraganaChars);
-  const katakanaStats = filterUniqueStats(allStats, katakanaChars);
+    const hiraganaChars = new Set(
+      hiraganaData.values.map((item: any) => item.character),
+    );
+
+    const seenChars = new Set<string>();
+    const hiraganaStats = allStats
+      .filter((stat) => hiraganaChars.has(stat.char))
+      .filter((stat) => {
+        if (!seenChars.has(stat.char)) {
+          seenChars.add(stat.char);
+          return true;
+        }
+        return false;
+      });
+    seenChars.clear();
+    const katakanaStats = allStats
+      .filter((stat) => !hiraganaChars.has(stat.char))
+      .filter((stat) => {
+        if (!seenChars.has(stat.char)) {
+          seenChars.add(stat.char);
+          return true;
+        }
+        return false;
+      });
+
+    return { hiraganaStats, katakanaStats };
+  }, []);
+
+  const getSuccessRateColor = (rate: number, attempts: number) => {
+    if (attempts === 0) return 'bg-gray-50 text-gray-500';
+    if (rate >= 90) return 'bg-green-100';
+    if (rate >= 70) return 'bg-yellow-100';
+    if (rate >= 50) return 'bg-orange-100';
+    return 'bg-red-100';
+  };
+
+  const handleReset = () => {
+    if (confirm('Reset all character statistics?')) {
+      resetCharacterStats();
+      window.location.reload();
+    }
+  };
 
   const renderCharacterGrid = (stats: CharacterStats[], title: string) => (
     <div>
@@ -113,7 +116,7 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
                   { mode: GameMode.SIMPLE, label: 'Simple Mode' },
                   { mode: GameMode.SPIRAL, label: 'Spiral Mode' },
                 ] as const
-              ).map(({ mode, label }: { mode: GameMode; label: string }) => {
+              ).map(({ mode, label }) => {
                 const isActive = gameMode === mode;
                 const baseClass = 'border-2 px-4 py-2 transition-colors';
                 const activeClass = isActive
@@ -132,10 +135,8 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
             </div>
           </div>
 
-          {[
-            { stats: hiraganaStats, title: 'Hiragana' },
-            { stats: katakanaStats, title: 'Katakana' },
-          ].map(({ stats, title }) => renderCharacterGrid(stats, title))}
+          {renderCharacterGrid(hiraganaStats, 'Hiragana')}
+          {renderCharacterGrid(katakanaStats, 'Katakana')}
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import { Mock, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import '@testing-library/jest-dom/vitest';
 import { render, screen } from '@testing-library/react';
 import SpiralQuizMode from '../../src/components/spiral/SpiralQuizMode';
@@ -48,7 +48,7 @@ const mockSpiralQuiz = {
 
 describe('SpiralQuizMode', () => {
   it('renders the head spiral character matching the currentChar', () => {
-    (useSpiralQuiz as Mock).mockReturnValue(
+    (useSpiralQuiz as unknown as { mockReturnValue: Function }).mockReturnValue(
       mockSpiralQuiz,
     );
 
@@ -60,7 +60,7 @@ describe('SpiralQuizMode', () => {
   });
 
   it('takes the full screen height to prevent layout bugs', () => {
-    (useSpiralQuiz as Mock).mockReturnValue(
+    (useSpiralQuiz as unknown as { mockReturnValue: Function }).mockReturnValue(
       mockSpiralQuiz,
     );
 

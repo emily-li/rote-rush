@@ -30,7 +30,7 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
   return (
     <div
       className="relative flex h-full flex-col overflow-hidden"
-      style={{ minHeight: '100%' }} // Ensures keyboard does not push the game up out of the viewport
+      style={{ minHeight: '100%' }}
     >
       {backgroundContent && <div>{backgroundContent}</div>}
       <ScoreDisplay {...scoreState} />

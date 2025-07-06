@@ -1,4 +1,4 @@
-
+/// <reference types="vitest" />
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useTimer } from '../../src/lib/useTimer';
@@ -55,19 +55,17 @@ describe('useTimer hook', () => {
 
       expect(result.current.timeLeftMs).toBe(1000);
 
-      // Attempt to simulate timer ticks for 200ms
+      // Advance by 200ms and check
       act(() => {
         vi.advanceTimersByTime(200);
       });
-      // Due to test environment limitations, timer may not decrement as expected
-      // Adjust expectation to check if it has started decreasing or note limitation
-      expect(result.current.timeLeftMs).toBeLessThanOrEqual(1000);
+      expect(result.current.timeLeftMs).toBe(800);
 
-      // Simulate timer ticks for another 300ms
+      // Advance by another 300ms and check
       act(() => {
         vi.advanceTimersByTime(300);
       });
-      expect(result.current.timeLeftMs).toBeLessThanOrEqual(1000);
+      expect(result.current.timeLeftMs).toBe(500);
 
       expect(onTimeout).not.toHaveBeenCalled();
     });
@@ -78,26 +76,21 @@ describe('useTimer hook', () => {
         useTimer({ totalTimeMs: 100, onTimeout }),
       );
 
-      // Attempt to simulate timer ticks past the total time
+      // Advance past the total time
       act(() => {
         vi.advanceTimersByTime(150);
       });
 
-      // Due to test environment limitations, check if onTimeout was called or state changed
-      expect(result.current.timeLeftMs).toBeLessThanOrEqual(100);
-      if (result.current.timeLeftMs === 0) {
-        expect(onTimeout).toHaveBeenCalledTimes(1);
-      }
+      expect(result.current.timeLeftMs).toBe(0);
+      expect(onTimeout).toHaveBeenCalledTimes(1);
 
       // Ensure timer doesn't go below zero
       act(() => {
         vi.advanceTimersByTime(100);
       });
 
-      expect(result.current.timeLeftMs).toBeLessThanOrEqual(100);
-      if (result.current.timeLeftMs === 0) {
-        expect(onTimeout).toHaveBeenCalledTimes(1); // Still only called once
-      }
+      expect(result.current.timeLeftMs).toBe(0);
+      expect(onTimeout).toHaveBeenCalledTimes(1); // Still only called once
     });
   });
 
@@ -108,12 +101,11 @@ describe('useTimer hook', () => {
         useTimer({ totalTimeMs: 1000, onTimeout }),
       );
 
-      // Attempt to simulate timer ticks for 500ms
+      // Advance halfway through
       act(() => {
         vi.advanceTimersByTime(500);
       });
-      // Due to test environment limitations, just check if it's less than or equal to initial
-      expect(result.current.timeLeftMs).toBeLessThanOrEqual(1000);
+      expect(result.current.timeLeftMs).toBe(500);
 
       // Reset timer
       act(() => {

@@ -2,7 +2,7 @@
  * Test helpers and utilities for the test suite
  */
 
-import { expect } from 'vitest';
+import { expect, vi } from 'vitest';
 import type { PracticeCharacter } from '../src/types';
 
 // Common test data

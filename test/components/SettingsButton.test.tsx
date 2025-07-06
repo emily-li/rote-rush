@@ -42,6 +42,7 @@ describe('SettingsButton', () => {
   it('does not call timer control methods if timerControl is not provided', async () => {
     const pauseTimer = vi.fn();
     const resumeTimer = vi.fn();
+    const timerControl = { pauseTimer, resumeTimer };
 
     render(
       <GameModeProvider>

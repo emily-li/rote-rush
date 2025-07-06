@@ -1,37 +1,24 @@
-
+/// <reference types="vitest" />
 import { describe, expect, it } from 'vitest';
 import hiraganaData from '../../src/resources/hiragana.json';
 import katakanaData from '../../src/resources/katakana.json';
 
-const hiraganaTyped = hiraganaData as CharacterData;
-const katakanaTyped = katakanaData as CharacterData;
-type CharacterEntry = {
-  character: string;
-  answers: string[];
-};
-
-type CharacterData = {
-  locale: string;
-  set_name: string;
-  values: CharacterEntry[];
-};
-
 describe('Character Data Files', () => {
   describe('hiragana.json', () => {
     it('should have correct structure', () => {
-      expect(hiraganaTyped).toHaveProperty('locale');
-      expect(hiraganaTyped).toHaveProperty('set_name');
-      expect(hiraganaTyped).toHaveProperty('values');
+      expect(hiraganaData).toHaveProperty('locale');
+      expect(hiraganaData).toHaveProperty('set_name');
+      expect(hiraganaData).toHaveProperty('values');
 
-      expect(hiraganaTyped.locale).toBe('ja-JP');
-      expect(hiraganaTyped.set_name).toBe('hiragana');
-      expect(Array.isArray(hiraganaTyped.values)).toBe(true);
+      expect(hiraganaData.locale).toBe('ja-JP');
+      expect(hiraganaData.set_name).toBe('hiragana');
+      expect(Array.isArray(hiraganaData.values)).toBe(true);
     });
 
     it('should have valid character entries', () => {
-      expect(hiraganaTyped.values.length).toBeGreaterThan(0);
+      expect(hiraganaData.values.length).toBeGreaterThan(0);
 
-      hiraganaTyped.values.forEach((entry) => {
+      hiraganaData.values.forEach((entry: any) => {
         expect(entry).toHaveProperty('character');
         expect(entry).toHaveProperty('answers');
 
@@ -41,7 +28,7 @@ describe('Character Data Files', () => {
         expect(Array.isArray(entry.answers)).toBe(true);
         expect(entry.answers.length).toBeGreaterThan(0);
 
-        entry.answers.forEach((answer) => {
+        entry.answers.forEach((answer: any) => {
           expect(typeof answer).toBe('string');
           expect(answer.length).toBeGreaterThan(0);
           // Romanji should only contain lowercase letters
@@ -51,8 +38,8 @@ describe('Character Data Files', () => {
     });
 
     it('should contain basic hiragana characters', () => {
-      const characters = hiraganaTyped.values.map(
-        (entry) => entry.character,
+      const characters = hiraganaData.values.map(
+        (entry: any) => entry.character,
       );
 
       // Check for some basic hiragana
@@ -64,35 +51,35 @@ describe('Character Data Files', () => {
     });
 
     it('should have valid romanji mappings', () => {
-      const vowels = hiraganaTyped.values.filter((entry) =>
+      const vowels = hiraganaData.values.filter((entry: any) =>
         ['あ', 'い', 'う', 'え', 'お'].includes(entry.character),
       );
 
       expect(vowels.length).toBe(5);
 
-      const aChar = vowels.find((entry) => entry.character === 'あ');
+      const aChar = vowels.find((entry: any) => entry.character === 'あ');
       expect(aChar?.answers).toContain('a');
 
-      const iChar = vowels.find((entry) => entry.character === 'い');
+      const iChar = vowels.find((entry: any) => entry.character === 'い');
       expect(iChar?.answers).toContain('i');
     });
   });
 
   describe('katakana.json', () => {
     it('should have correct structure', () => {
-      expect(katakanaTyped).toHaveProperty('locale');
-      expect(katakanaTyped).toHaveProperty('set_name');
-      expect(katakanaTyped).toHaveProperty('values');
+      expect(katakanaData).toHaveProperty('locale');
+      expect(katakanaData).toHaveProperty('set_name');
+      expect(katakanaData).toHaveProperty('values');
 
-      expect(katakanaTyped.locale).toBe('ja-JP');
-      expect(katakanaTyped.set_name).toBe('katakana');
-      expect(Array.isArray(katakanaTyped.values)).toBe(true);
+      expect(katakanaData.locale).toBe('ja-JP');
+      expect(katakanaData.set_name).toBe('katakana');
+      expect(Array.isArray(katakanaData.values)).toBe(true);
     });
 
     it('should have valid character entries', () => {
-      expect(katakanaTyped.values.length).toBeGreaterThan(0);
+      expect(katakanaData.values.length).toBeGreaterThan(0);
 
-      katakanaTyped.values.forEach((entry) => {
+      katakanaData.values.forEach((entry: any) => {
         expect(entry).toHaveProperty('character');
         expect(entry).toHaveProperty('answers');
 
@@ -102,7 +89,7 @@ describe('Character Data Files', () => {
         expect(Array.isArray(entry.answers)).toBe(true);
         expect(entry.answers.length).toBeGreaterThan(0);
 
-        entry.answers.forEach((answer) => {
+        entry.answers.forEach((answer: any) => {
           expect(typeof answer).toBe('string');
           expect(answer.length).toBeGreaterThan(0);
           // Romanji should only contain lowercase letters
@@ -112,8 +99,8 @@ describe('Character Data Files', () => {
     });
 
     it('should contain basic katakana characters', () => {
-      const characters = katakanaTyped.values.map(
-        (entry) => entry.character,
+      const characters = katakanaData.values.map(
+        (entry: any) => entry.character,
       );
 
       // Check for some basic katakana
@@ -125,27 +112,27 @@ describe('Character Data Files', () => {
     });
 
     it('should have valid romanji mappings', () => {
-      const vowels = katakanaTyped.values.filter((entry) =>
+      const vowels = katakanaData.values.filter((entry: any) =>
         ['ア', 'イ', 'ウ', 'エ', 'オ'].includes(entry.character),
       );
 
       expect(vowels.length).toBe(5);
 
-      const aChar = vowels.find((entry) => entry.character === 'ア');
+      const aChar = vowels.find((entry: any) => entry.character === 'ア');
       expect(aChar?.answers).toContain('a');
 
-      const iChar = vowels.find((entry) => entry.character === 'イ');
+      const iChar = vowels.find((entry: any) => entry.character === 'イ');
       expect(iChar?.answers).toContain('i');
     });
   });
 
   describe('Data consistency', () => {
     it('should have unique characters within each set', () => {
-      const hiraganaChars = hiraganaTyped.values.map(
-        (entry) => entry.character,
+      const hiraganaChars = hiraganaData.values.map(
+        (entry: any) => entry.character,
       );
-      const katakanaChars = katakanaTyped.values.map(
-        (entry) => entry.character,
+      const katakanaChars = katakanaData.values.map(
+        (entry: any) => entry.character,
       );
 
       // Check for duplicates within hiragana
@@ -158,13 +145,13 @@ describe('Character Data Files', () => {
     });
 
     it('should have both single and multiple answer options', () => {
-      const allEntries = [...hiraganaTyped.values, ...katakanaTyped.values];
+      const allEntries = [...hiraganaData.values, ...katakanaData.values];
 
       const singleAnswers = allEntries.filter(
-        (entry) => entry.answers.length === 1,
+        (entry: any) => entry.answers.length === 1,
       );
       const multipleAnswers = allEntries.filter(
-        (entry) => entry.answers.length > 1,
+        (entry: any) => entry.answers.length > 1,
       );
 
       expect(singleAnswers.length).toBeGreaterThan(0);
@@ -173,25 +160,25 @@ describe('Character Data Files', () => {
 
     it('should have reasonable data sizes', () => {
       // Should have a reasonable number of characters for a complete set
-      expect(hiraganaTyped.values.length).toBeGreaterThan(40);
-      expect(hiraganaTyped.values.length).toBeLessThan(200);
+      expect(hiraganaData.values.length).toBeGreaterThan(40);
+      expect(hiraganaData.values.length).toBeLessThan(200);
 
-      expect(katakanaTyped.values.length).toBeGreaterThan(40);
-      expect(katakanaTyped.values.length).toBeLessThan(200);
+      expect(katakanaData.values.length).toBeGreaterThan(40);
+      expect(katakanaData.values.length).toBeLessThan(200);
     });
 
     it('should not have empty answers arrays', () => {
-      const allEntries = [...hiraganaTyped.values, ...katakanaTyped.values];
+      const allEntries = [...hiraganaData.values, ...katakanaData.values];
 
-      allEntries.forEach((entry) => {
+      allEntries.forEach((entry: any) => {
         expect(entry.answers.length).toBeGreaterThan(0);
       });
     });
 
     it('should not have duplicate answers within single character', () => {
-      const allEntries = [...hiraganaTyped.values, ...katakanaTyped.values];
+      const allEntries = [...hiraganaData.values, ...katakanaData.values];
 
-      allEntries.forEach((entry) => {
+      allEntries.forEach((entry: any) => {
         const uniqueAnswers = new Set(entry.answers);
         expect(uniqueAnswers.size).toBe(entry.answers.length);
       });

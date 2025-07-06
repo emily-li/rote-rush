@@ -1,19 +1,19 @@
 import { act, renderHook } from '@testing-library/react';
-import { Mock, vi } from 'vitest';
+import { vi } from 'vitest';
 import { useQuizGame } from '@/hooks/useQuizGame';
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { getWeightedRandomCharacter } from '@/lib/characterLoading';
 
 // Mock the character loading utility
 vi.mock('@/lib/characterLoading', () => ({
-  loadPracticeCharacters: vi.fn(() => [{ char: 'あ', validAnswers: ['a'] }]) as Mock,
-  getWeightedRandomCharacter: vi.fn(() => ({ char: 'あ', validAnswers: ['a'] })) as Mock,
-  saveCharacterWeights: vi.fn() as Mock,
+  loadPracticeCharacters: vi.fn(() => [{ char: 'あ', validAnswers: ['a'] }]),
+  getWeightedRandomCharacter: vi.fn(() => ({ char: 'あ', validAnswers: ['a'] })),
+  saveCharacterWeights: vi.fn(),
 }));
 
 // Mock the character stats utility
 vi.mock('@/lib/characterStats', () => ({
-  recordCharacterAttempt: vi.fn() as Mock,
+  recordCharacterAttempt: vi.fn(),
 }));
 
 describe('useQuizGame', () => {
@@ -27,7 +27,7 @@ describe('useQuizGame', () => {
     vi.useRealTimers();
   });
 
-  it('should use getNextCharacter when provided for next character', () => {
+  it('should use getNextCharacter when provided for next character', async () => {
     const mockCharacters = [
       { char: 'あ', validAnswers: ['a'] },
       { char: 'い', validAnswers: ['i'] },
@@ -35,9 +35,9 @@ describe('useQuizGame', () => {
     ];
 
     // Mock getWeightedRandomCharacter to return the first character initially
-    getWeightedRandomCharacter.mockReturnValue(mockCharacters[0]);
+    (getWeightedRandomCharacter as vi.Mock).mockReturnValue(mockCharacters[0]);
 
-    const mockGetNextCharacter = vi.fn() as Mock;
+    const mockGetNextCharacter = vi.fn();
     mockGetNextCharacter
       .mockReturnValueOnce(mockCharacters[1]) // Next char after 'あ'
       .mockReturnValueOnce(mockCharacters[2]) // Next char after 'い'
@@ -54,8 +54,8 @@ describe('useQuizGame', () => {
     expect(result.current.characterState.currentChar).toEqual(mockCharacters[0]);
 
     // Simulate correct answer for 'あ'
-    act(() => {
-      result.current.actions.handleInputChange({ target: { value: 'a' } });
+    await act(async () => {
+      result.current.actions.handleInputChange({ target: { value: 'a' } } as React.ChangeEvent<HTMLInputElement>);
     });
 
     // Should call getNextCharacter to get the next character
@@ -64,8 +64,8 @@ describe('useQuizGame', () => {
     expect(result.current.characterState.currentChar).toEqual(mockCharacters[1]);
 
     // Simulate correct answer for 'い'
-    act(() => {
-      result.current.actions.handleInputChange({ target: { value: 'i' } });
+    await act(async () => {
+      result.current.actions.handleInputChange({ target: { value: 'i' } } as React.ChangeEvent<HTMLInputElement>);
     });
 
     // Should call getNextCharacter again
@@ -74,8 +74,8 @@ describe('useQuizGame', () => {
     expect(result.current.characterState.currentChar).toEqual(mockCharacters[2]);
 
     // Simulate correct answer for 'u'
-    act(() => {
-      result.current.actions.handleInputChange({ target: { value: 'u' } });
+    await act(async () => {
+      result.current.actions.handleInputChange({ target: { value: 'u' } } as React.ChangeEvent<HTMLInputElement>);
     });
 
     // Should call getNextCharacter again, which returns undefined
@@ -84,15 +84,15 @@ describe('useQuizGame', () => {
     expect(result.current.timerState.isPaused).toBe(true);
   });
 
-  it('should use getNextCharacter when provided after a timeout', () => {
+  it('should use getNextCharacter when provided after a timeout', async () => {
     const mockCharacters = [
       { char: 'あ', validAnswers: ['a'] },
       { char: 'い', validAnswers: ['i'] },
     ];
 
-    getWeightedRandomCharacter.mockReturnValue(mockCharacters[0]);
+    (getWeightedRandomCharacter as vi.Mock).mockReturnValue(mockCharacters[0]);
 
-    const mockGetNextCharacter = vi.fn() as Mock;
+    const mockGetNextCharacter = vi.fn();
     mockGetNextCharacter.mockReturnValueOnce(mockCharacters[1]);
 
     const { result } = renderHook(() =>
@@ -105,12 +105,12 @@ describe('useQuizGame', () => {
     expect(result.current.characterState.currentChar).toEqual(mockCharacters[0]);
 
     // Directly call handleTimeout
-    act(() => {
+    await act(async () => {
       result.current.actions.handleTimeout();
     });
 
     // Advance timers past the wrong answer display time to trigger nextCharacter
-    act(() => {
+    await act(async () => {
       vi.advanceTimersByTime(QUIZ_CONFIG.WRONG_ANSWER_DISPLAY_MS);
     });
 

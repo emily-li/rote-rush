@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { GameModeProvider, useGameMode } from '@/components/GameModeContext';
 import SimpleQuizMode from '@/components/simple/SimpleQuizMode';
 import SpiralQuizMode from '@/components/spiral/SpiralQuizMode';
-import { useVirtualKeyboardResize } from '@/hooks/useVirtualKeyboardResize';
 import { GameMode } from '@/types';
 
 const GAME_MODES = [
@@ -34,14 +33,10 @@ function setGameModeQuery(mode: GameMode) {
 }
 
 function App() {
-  useVirtualKeyboardResize();
-
   return (
-    <div className="relative h-screen overflow-hidden">
-      <GameModeProvider>
-        <GameModeView />
-      </GameModeProvider>
-    </div>
+    <GameModeProvider>
+      <GameModeView />
+    </GameModeProvider>
   );
 }
 

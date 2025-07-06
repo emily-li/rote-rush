@@ -35,7 +35,7 @@ export function adjustWeight(
   characters: PracticeCharacter[],
   char: string,
   delta: number,
-  minWeight = 1,
+  minWeight: number = 1,
 ): PracticeCharacter[] {
   return characters.map((c) =>
     c.char === char

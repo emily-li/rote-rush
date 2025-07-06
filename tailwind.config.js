@@ -16,15 +16,6 @@ export default {
         DEFAULT: '0 0 3px rgba(192, 38, 211)',
         lg: '0 0 10px rgba(192, 38, 211)',
       },
-      animation: {
-        'shrink-width': 'shrinkWidth 1s forwards',
-      },
-      keyframes: {
-        shrinkWidth: {
-          '0%': { width: '100%' },
-          '100%': { width: '0%' },
-        },
-      },
     },
   },
   plugins: [

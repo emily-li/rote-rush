@@ -1,4 +1,6 @@
+/// <reference types="vitest" />
 import { describe, expect, it } from 'vitest';
+import { loadPracticeCharacters } from '../../src/lib/characterLoading';
 import {
   checkAnswerMatch,
   checkValidStart,
