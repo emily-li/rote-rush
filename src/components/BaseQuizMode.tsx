@@ -13,6 +13,8 @@ type BaseQuizModeProps = {
   readonly timerControl?: TimerControl;
   readonly backgroundContent?: React.ReactNode;
   readonly mainContent: React.ReactNode;
+  readonly visibleHeight?: number;
+  readonly isKeyboardOpen?: boolean;
 };
 
 /**
@@ -26,6 +28,8 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
   timerControl,
   backgroundContent,
   mainContent,
+  visibleHeight,
+  isKeyboardOpen,
 }: BaseQuizModeProps) => {
   return (
     <div
@@ -36,7 +40,15 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
       <ScoreDisplay {...scoreState} />
       <SettingsButton timerControl={timerControl} />
 
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
+      <div
+        className="relative z-10 flex flex-1 flex-col items-center justify-center px-8"
+        style={{
+          height:
+            isKeyboardOpen && visibleHeight
+              ? visibleHeight * 0.4 + 'px'
+              : 'auto',
+        }}
+      >
         {mainContent}
 
         <QuizInput

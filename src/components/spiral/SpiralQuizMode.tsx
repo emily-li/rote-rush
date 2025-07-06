@@ -27,11 +27,13 @@ export const SpiralQuizMode = ({
         handleInputChange={actions.handleInputChange}
         currentChar={characterState.currentChar}
         timerControl={timerControl}
+        visibleHeight={visibleHeight}
+        isKeyboardOpen={isKeyboardOpen}
         mainContent={
           <div
             className="relative mb-8 w-full"
             style={{
-              height: isKeyboardOpen ? visibleHeight * 0.5 + 'px' : '80vh',
+              height: '80vh',
             }}
           >
             {spiralCharacters.map((spiralChar, i) => {

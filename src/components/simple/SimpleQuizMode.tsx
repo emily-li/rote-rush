@@ -3,7 +3,10 @@ import { TimerBackground } from '@/components/simple/TimerBackground';
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
 
-const SimpleQuizMode = ({ visibleHeight, isKeyboardOpen }: {
+const SimpleQuizMode = ({
+  visibleHeight,
+  isKeyboardOpen,
+}: {
   visibleHeight: number;
   isKeyboardOpen: boolean;
 }): JSX.Element => {
@@ -20,6 +23,8 @@ const SimpleQuizMode = ({ visibleHeight, isKeyboardOpen }: {
         handleInputChange={actions.handleInputChange}
         currentChar={characterState.currentChar}
         timerControl={timerControl}
+        visibleHeight={visibleHeight}
+        isKeyboardOpen={isKeyboardOpen}
         backgroundContent={
           <TimerBackground
             currentTimeMs={timerState.currentTimeMs}
@@ -31,7 +36,7 @@ const SimpleQuizMode = ({ visibleHeight, isKeyboardOpen }: {
           <div
             className="relative mb-8 flex w-full items-center justify-center"
             style={{
-              height: isKeyboardOpen ? visibleHeight * 0.5 + 'px' : '70vh',
+              height: '70vh',
             }}
           >
             <div
