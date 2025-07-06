@@ -2,7 +2,10 @@
 
 Rote memory game to memorise script, e.g. learn Japanese kana
 
-GitHub page: https://emily-li.github.io/rote-rush
+Play here: https://emily-li.github.io/rote-rush
+
+<img src="docs/simple_screenshot.png" alt="Simple game mode" width="600">
+<img src="docs/spiral_screenshot.png" alt="Spiral game mode" width="600">
 
 ## Dependencies
 
