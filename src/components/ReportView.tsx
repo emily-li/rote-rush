@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { FocusTrap } from 'focus-trap-react';
 import { X } from 'lucide-react';
 import { useGameMode } from '@/components/GameModeContext';
 import { loadPracticeCharacters } from '@/lib/characterLoading';
@@ -11,16 +12,17 @@ import { GameMode, type CharacterStats } from '@/types';
 
 type ReportViewProps = {
   readonly onClose: () => void;
-}
+};
 
 export const ReportView = ({ onClose }: ReportViewProps) => {
   const { gameMode, setGameMode } = useGameMode();
+
   const { hiraganaStats, katakanaStats } = useMemo(() => {
     const characters = loadPracticeCharacters();
     const allStats = getCharacterStatsWithRates(characters);
 
     const hiraganaChars = new Set(
-      hiraganaData.values.map((item: any) => item.character),
+      hiraganaData.values.map((item: { character: string }) => item.character),
     );
 
     const seenChars = new Set<string>();
@@ -84,61 +86,63 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
   );
 
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-25 font-sans">
-      <div className="mx-auto min-h-screen max-w-7xl">
-        <div className="bg-fuchsia-50 p-4">
-          <div className="flex items-center justify-between text-white">
-            <h1 aria-label="Character statistics"></h1>
-            {/* Buttons */}
-            <div className="flex gap-2 p-3">
-              <button
-                onClick={handleReset}
-                className="bg-fuchsia-800 px-3 py-1"
-              >
-                Reset
-              </button>
-              <button
-                onClick={onClose}
-                className="bg-fuchsia-800 p-1"
-                aria-label="Close report"
-              >
-                <X size={16} />
-              </button>
+    <FocusTrap>
+      <div className="fixed inset-0 z-50 bg-black bg-opacity-25 font-sans">
+        <div className="mx-auto min-h-screen max-w-7xl">
+          <div className="bg-fuchsia-50 p-4">
+            <div className="flex items-center justify-between text-white">
+              <h1 aria-label="Character statistics"></h1>
+              {/* Buttons */}
+              <div className="flex gap-2 p-3">
+                <button
+                  onClick={handleReset}
+                  className="bg-fuchsia-800 px-3 py-1"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={onClose}
+                  className="bg-fuchsia-800 p-1"
+                  aria-label="Close report"
+                >
+                  <X size={16} />
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* Game Mode Selection */}
-          <div className="bg-fuchsia-100 p-4">
-            <h2 className="mb-3 text-lg font-bold">Game Mode</h2>
-            <div className="flex gap-2">
-              {(
-                [
-                  { mode: GameMode.SIMPLE, label: 'Simple Mode' },
-                  { mode: GameMode.SPIRAL, label: 'Spiral Mode' },
-                ] as const
-              ).map(({ mode, label }) => {
-                const isActive = gameMode === mode;
-                const baseClass = 'border-2 px-4 py-2 transition-colors';
-                const activeClass = isActive
-                  ? 'border-fuchsia-400 font-bold'
-                  : 'border-fuchsia-200 hover:bg-fuchsia-200';
-                return (
-                  <button
-                    key={mode}
-                    onClick={() => setGameMode(mode)}
-                    className={`${baseClass} ${activeClass}`}
-                  >
-                    {label}
-                  </button>
-                );
-              })}
+            {/* Game Mode Selection */}
+            <div className="bg-fuchsia-100 p-4">
+              <h2 className="mb-3 text-lg font-bold">Game Mode</h2>
+              <div className="flex gap-2">
+                {(
+                  [
+                    { mode: GameMode.SIMPLE, label: 'Simple Mode' },
+                    { mode: GameMode.SPIRAL, label: 'Spiral Mode' },
+                  ] as const
+                ).map(({ mode, label }) => {
+                  const isActive = gameMode === mode;
+                  const baseClass = 'border-2 px-4 py-2 transition-colors';
+                  const activeClass = isActive
+                    ? 'border-fuchsia-400 font-bold'
+                    : 'border-fuchsia-200 hover:bg-fuchsia-200';
+                  return (
+                    <button
+                      key={mode}
+                      onClick={() => setGameMode(mode)}
+                      className={`${baseClass} ${activeClass}`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          {renderCharacterGrid(hiraganaStats, 'Hiragana')}
-          {renderCharacterGrid(katakanaStats, 'Katakana')}
+            {renderCharacterGrid(hiraganaStats, 'Hiragana')}
+            {renderCharacterGrid(katakanaStats, 'Katakana')}
+          </div>
         </div>
       </div>
-    </div>
+    </FocusTrap>
   );
 };
