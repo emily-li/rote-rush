@@ -26,20 +26,13 @@ const SimpleQuizMode = (): JSX.Element => {
         }
         mainContent={
           <div
-            className="relative mb-8 flex w-full items-center justify-center"
+            className="relative flex w-full items-center justify-center font-kana font-bold text-shadow"
             style={{
+              fontSize: '20vw',
               height: '70vh',
             }}
           >
-            <div
-              className="relative z-10 font-kana text-shadow"
-              style={{
-                fontSize: '20vw',
-                fontWeight: 'bold',
-              }}
-            >
-              {characterState.currentChar.char}
-            </div>
+            {characterState.currentChar.char}
           </div>
         }
       />
