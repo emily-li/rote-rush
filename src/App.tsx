@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { GameModeProvider, useGameMode } from '@/components/GameModeContext';
 import SimpleQuizMode from '@/components/simple/SimpleQuizMode';
 import SpiralQuizMode from '@/components/spiral/SpiralQuizMode';
+import { useWindowSize } from '@/hooks/useWindowSize';
 import { GameMode } from '@/types';
 
 const GAME_MODES = [
@@ -40,11 +41,9 @@ function App() {
   );
 }
 
-import { useWindowSize } from '@/hooks/useWindowSize';
-
 function GameModeView() {
   const { gameMode } = useGameMode();
-  const { visibleHeight, isKeyboardOpen } = useWindowSize();
+  useWindowSize();
   const modeDef = GAME_MODES.find((m) => m.mode === gameMode) ?? GAME_MODES[0];
   const ModeComponent = modeDef.component;
 
@@ -52,13 +51,7 @@ function GameModeView() {
     setGameModeQuery(getGameModeFromQuery());
   }, []);
 
-  return (
-    <ModeComponent
-      key={gameMode}
-      visibleHeight={visibleHeight}
-      isKeyboardOpen={isKeyboardOpen}
-    />
-  );
+  return <ModeComponent key={gameMode} />;
 }
 
 export default App;

@@ -3,13 +3,7 @@ import { TimerBackground } from '@/components/simple/TimerBackground';
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
 
-const SimpleQuizMode = ({
-  visibleHeight,
-  isKeyboardOpen,
-}: {
-  visibleHeight: number;
-  isKeyboardOpen: boolean;
-}): JSX.Element => {
+const SimpleQuizMode = (): JSX.Element => {
   const { characterState, scoreState, timerState, timerControl, actions } =
     useQuizGame({
       timerConfig: QUIZ_CONFIG,
@@ -23,8 +17,6 @@ const SimpleQuizMode = ({
         handleInputChange={actions.handleInputChange}
         currentChar={characterState.currentChar}
         timerControl={timerControl}
-        visibleHeight={visibleHeight}
-        isKeyboardOpen={isKeyboardOpen}
         backgroundContent={
           <TimerBackground
             currentTimeMs={timerState.currentTimeMs}

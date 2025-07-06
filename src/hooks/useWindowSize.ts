@@ -12,7 +12,6 @@ export function useWindowSize() {
       typeof window !== 'undefined' ? window.innerHeight : BASE_AREA ** 0.5,
     visibleHeight:
       typeof window !== 'undefined' ? window.innerHeight : BASE_AREA ** 0.5,
-    isKeyboardOpen: false,
   });
 
   useEffect(() => {
@@ -20,14 +19,12 @@ export function useWindowSize() {
       const width = window.innerWidth;
       const height = window.innerHeight;
       let visibleHeight = height;
-      let isKeyboardOpen = false;
 
       if (window.visualViewport) {
         visibleHeight = window.visualViewport.height;
-        isKeyboardOpen = height - visibleHeight > 100; // Threshold to detect keyboard
       }
 
-      setSize({ width, height, visibleHeight, isKeyboardOpen });
+      setSize({ width, height, visibleHeight });
     }
 
     handleResize();

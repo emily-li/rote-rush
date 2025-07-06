@@ -3,17 +3,11 @@ import { useSpiralQuiz } from '@/hooks/useSpiralQuiz';
 import { useWindowSize } from '@/hooks/useWindowSize';
 import { getCharacterStyle } from '@/lib/spiralMath';
 
-export const SpiralQuizMode = ({
-  visibleHeight,
-  isKeyboardOpen,
-}: {
-  visibleHeight: number;
-  isKeyboardOpen: boolean;
-}): JSX.Element => {
+export const SpiralQuizMode = (): JSX.Element => {
   const { gameState, spiralCharacters } = useSpiralQuiz();
   const { characterState, scoreState, actions, timerState, timerControl } =
     gameState;
-  const { width } = useWindowSize();
+  const { width, visibleHeight } = useWindowSize();
 
   return (
     <div
@@ -27,8 +21,6 @@ export const SpiralQuizMode = ({
         handleInputChange={actions.handleInputChange}
         currentChar={characterState.currentChar}
         timerControl={timerControl}
-        visibleHeight={visibleHeight}
-        isKeyboardOpen={isKeyboardOpen}
         mainContent={
           <div
             className="relative mb-8 w-full"
@@ -44,7 +36,6 @@ export const SpiralQuizMode = ({
                 width,
                 visibleHeight,
                 timerState,
-                isKeyboardOpen,
               );
               const { charClass, ...style } = styleObj;
               return (
