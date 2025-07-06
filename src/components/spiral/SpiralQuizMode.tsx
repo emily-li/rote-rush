@@ -10,50 +10,51 @@ export const SpiralQuizMode = (): JSX.Element => {
   const { width, visibleHeight } = useWindowSize();
 
   return (
-    <div
-      className="relative flex min-h-screen flex-col overflow-hidden bg-fuchsia-50"
-      aria-label="Interactive Spiral Quiz Game"
-      role="main"
-    >
-      <BaseQuizMode
-        scoreState={scoreState}
-        userInput={characterState.userInput}
-        handleInputChange={actions.handleInputChange}
-        currentChar={characterState.currentChar}
-        timerControl={timerControl}
-        mainContent={
-          <div
-            className="relative w-full"
-            style={{
-              height: '70vh',
-            }}
-          >
-            {spiralCharacters.map((spiralChar, i) => {
-              const isHead = i === 0;
-              const styleObj = getCharacterStyle(
-                i,
-                spiralCharacters.length,
-                width,
-                visibleHeight,
-                timerState,
-              );
-              const { charClass, ...style } = styleObj;
-              return (
-                <div
-                  key={spiralChar.id}
-                  className={`absolute font-kana ${charClass}`}
-                  style={style}
-                  aria-hidden={isHead ? undefined : 'true'}
-                  aria-label={isHead ? spiralChar.char.char : undefined}
-                >
-                  {spiralChar.char.char}
-                </div>
-              );
-            })}
-          </div>
-        }
-      />
-    </div>
+    <BaseQuizMode
+      scoreState={scoreState}
+      userInput={characterState.userInput}
+      handleInputChange={actions.handleInputChange}
+      currentChar={characterState.currentChar}
+      timerControl={timerControl}
+      backgroundContent={
+        <div
+          className="fixed bg-fuchsia-50"
+          style={{ height: '100vh', width: '100vw' }}
+          role="region"
+        />
+      }
+      mainContent={
+        <div
+          className="relative w-full"
+          style={{
+            height: '70vh',
+          }}
+        >
+          {spiralCharacters.map((spiralChar, i) => {
+            const isHead = i === 0;
+            const styleObj = getCharacterStyle(
+              i,
+              spiralCharacters.length,
+              width,
+              visibleHeight,
+              timerState,
+            );
+            const { charClass, ...style } = styleObj;
+            return (
+              <div
+                key={spiralChar.id}
+                className={`absolute font-kana ${charClass}`}
+                style={style}
+                aria-hidden={isHead ? undefined : 'true'}
+                aria-label={isHead ? spiralChar.char.char : undefined}
+              >
+                {spiralChar.char.char}
+              </div>
+            );
+          })}
+        </div>
+      }
+    />
   );
 };
 

@@ -48,9 +48,11 @@ const mockSpiralQuiz = {
 
 describe('SpiralQuizMode', () => {
   it('renders the head spiral character matching the currentChar', () => {
-    (useSpiralQuiz as unknown as { mockReturnValue: Function }).mockReturnValue(
-      mockSpiralQuiz,
-    );
+    (
+      useSpiralQuiz as unknown as {
+        mockReturnValue: (value: typeof mockSpiralQuiz) => void;
+      }
+    ).mockReturnValue(mockSpiralQuiz);
 
     render(<SpiralQuizMode />);
 
@@ -60,13 +62,15 @@ describe('SpiralQuizMode', () => {
   });
 
   it('takes the full screen height to prevent layout bugs', () => {
-    (useSpiralQuiz as unknown as { mockReturnValue: Function }).mockReturnValue(
-      mockSpiralQuiz,
-    );
+    (
+      useSpiralQuiz as unknown as {
+        mockReturnValue: (value: typeof mockSpiralQuiz) => void;
+      }
+    ).mockReturnValue(mockSpiralQuiz);
 
     render(<SpiralQuizMode />);
 
-    const mainElement = screen.getByRole('main');
-    expect(mainElement).toHaveStyle({ 'min-height': '100vh' });
+    const backgroundElement = screen.getByRole('region');
+    expect(backgroundElement).toHaveStyle({ height: '100vh', width: '100vw' });
   });
 });

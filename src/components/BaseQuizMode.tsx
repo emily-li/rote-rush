@@ -11,7 +11,7 @@ type BaseQuizModeProps = {
   readonly handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   readonly currentChar: PracticeCharacter;
   readonly timerControl?: TimerControl;
-  readonly backgroundContent?: React.ReactNode;
+  readonly backgroundContent: React.ReactNode;
   readonly mainContent: React.ReactNode;
 };
 
@@ -32,7 +32,7 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
       className="relative flex h-full flex-col overflow-hidden"
       style={{ minHeight: '100%' }}
     >
-      {backgroundContent && <div>{backgroundContent}</div>}
+      {backgroundContent}
       <ScoreDisplay {...scoreState} />
       <SettingsButton timerControl={timerControl} />
 
