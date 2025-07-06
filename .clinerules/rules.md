@@ -33,7 +33,7 @@ Incorrect: `className="text-[#c026d3]"` or `style={{ color: '#c026d3' }}`
 
 - Use `vitest` for testing
 - After writing or fixing tests, always run `pnpm test` to ensure all tests pass. Always fix test failures without asking.
-- Use semantic queries: `getByLabelText`, `getByRole` - avoid `data-testid`
+- Use semantic queries: `getByLabelText`, `getByRole` - never use `data-testid`
 
 ### Commands & Paths
 
