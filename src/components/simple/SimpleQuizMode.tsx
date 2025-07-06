@@ -10,7 +10,7 @@ const SimpleQuizMode = (): JSX.Element => {
     });
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden">
+    <div className="relative flex flex-col overflow-hidden">
       <BaseQuizMode
         scoreState={scoreState}
         userInput={characterState.userInput}

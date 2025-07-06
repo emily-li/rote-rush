@@ -1,14 +1,9 @@
 import React from 'react';
 
 type QuizInputProps = {
-  /** Current user input value */
   value: string;
-  /** Handler for input changes */
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  /** Whether the answer is incorrect */
   isWrongAnswer: boolean;
-  /** Placeholder text for the input field */
-  placeholder?: string;
 };
 
 /**
@@ -18,15 +13,14 @@ export const QuizInput: React.FC<QuizInputProps> = ({
   value,
   onChange,
   isWrongAnswer,
-  placeholder = 'Type the romanized reading...',
-}) => {
+}: QuizInputProps) => {
   return (
     <div className="w-full max-w-md">
       <input
         type="text"
         value={value}
         onChange={onChange}
-        placeholder={placeholder}
+        placeholder="Type the romanized reading..."
         className={`w-full border-4 py-6 text-center text-2xl font-bold transition-colors
           focus:outline-none focus:ring-0 ${
           isWrongAnswer

@@ -10,7 +10,11 @@ export const SpiralQuizMode = (): JSX.Element => {
   const { width, height } = useWindowSize();
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-hidden bg-fuchsia-50">
+    <div
+      className="relative flex min-h-screen flex-col overflow-hidden bg-fuchsia-50"
+      aria-label="Interactive Spiral Quiz Game Interface"
+      role="main"
+    >
       <BaseQuizMode
         scoreState={scoreState}
         userInput={characterState.userInput}
