@@ -36,7 +36,7 @@ export const BaseQuizMode: React.FC<BaseQuizModeProps> = ({
       <ScoreDisplay {...scoreState} />
       <SettingsButton timerControl={timerControl} />
 
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-8">
+      <div className="z-10 flex flex-1 flex-col items-center justify-center">
         {mainContent}
 
         <QuizInput

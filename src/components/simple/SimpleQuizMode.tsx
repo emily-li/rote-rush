@@ -10,33 +10,31 @@ const SimpleQuizMode = (): JSX.Element => {
     });
 
   return (
-    <div className="relative flex flex-col overflow-hidden">
-      <BaseQuizMode
-        scoreState={scoreState}
-        userInput={characterState.userInput}
-        handleInputChange={actions.handleInputChange}
-        currentChar={characterState.currentChar}
-        timerControl={timerControl}
-        backgroundContent={
-          <TimerBackground
-            currentTimeMs={timerState.currentTimeMs}
-            isPaused={timerState.isPaused}
-            resetKey={characterState.currentChar.char}
-          />
-        }
-        mainContent={
-          <div
-            className="relative flex w-full items-center justify-center font-kana font-bold text-shadow"
-            style={{
-              fontSize: '20vw',
-              height: '70vh',
-            }}
-          >
-            {characterState.currentChar.char}
-          </div>
-        }
-      />
-    </div>
+    <BaseQuizMode
+      scoreState={scoreState}
+      userInput={characterState.userInput}
+      handleInputChange={actions.handleInputChange}
+      currentChar={characterState.currentChar}
+      timerControl={timerControl}
+      backgroundContent={
+        <TimerBackground
+          currentTimeMs={timerState.currentTimeMs}
+          isPaused={timerState.isPaused}
+          resetKey={characterState.currentChar.char}
+        />
+      }
+      mainContent={
+        <div
+          className="flex items-center font-kana font-bold text-shadow"
+          style={{
+            fontSize: '20vw',
+            height: '70vh',
+          }}
+        >
+          {characterState.currentChar.char}
+        </div>
+      }
+    />
   );
 };
 
