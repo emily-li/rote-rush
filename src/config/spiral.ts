@@ -1,10 +1,11 @@
 import type { TimerConfig } from '@/types';
 
 export const SPIRAL_TIMER_CONFIG: TimerConfig = {
-  DEFAULT_TIME_MS: 6000,
+  DEFAULT_TIME_MS: 4000,
   MIN_TIME_MS: 2000,
   TIMER_STEP_MS: 800,
   WRONG_ANSWER_DISPLAY_MS: 1000,
+  TIMEOUT_DISPLAY_MS: 0,
 } as const;
 
 export const SPIRAL_MATH_CONFIG = {
@@ -18,6 +19,7 @@ export const SPIRAL_MATH_CONFIG = {
 
   MINIMUM_DISTANCE_FACTOR: 0.15,
   FIRST_POSITION_DISTANCE_FACTOR_MULTIPLIER: 0.75,
+  POSITION_OFFSET_FACTOR: 1.0,
 
   VISIBLE_CHARACTERS: {
     MIN: 15,
@@ -42,8 +44,9 @@ export const SPIRAL_MATH_CONFIG = {
 
   SCALE: {
     BASE: 1.0,
-    MAX: 2.0,
+    MAX: 4.0,
     WHOOSH_THRESHOLD: 0.1,
     WHOOSH_MULTIPLIER: 0.5,
+    FINAL_WHOOSH_MULTIPLIER: 20,
   },
 } as const;

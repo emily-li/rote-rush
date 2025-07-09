@@ -49,6 +49,7 @@ function getSpiralCoordinates(
   total: number,
   w: number,
   h: number,
+  timer: { timeLeft: number; currentTimeMs: number },
 ) {
   const dominantDimension = Math.max(w, h);
   const TOTAL_TURNS = Math.min(
@@ -64,7 +65,9 @@ function getSpiralCoordinates(
     h * cfg.MAX_RADIUS_HEIGHT_RATIO,
   );
   const thetaMax = TOTAL_TURNS * 2 * Math.PI;
-  const t = pos / (total - 1);
+  const timerProgress = 1 - safeDivide(timer.timeLeft, timer.currentTimeMs, 1);
+  const positionOffset = timerProgress * cfg.POSITION_OFFSET_FACTOR;
+  const t = (pos - positionOffset) / (total - 1);
   const theta = thetaMax * t;
   const b = maxRadius / thetaMax;
   const baseRadius = b * theta;
@@ -84,6 +87,9 @@ function getHeadScale(timer: {
   timeLeft: number;
   currentTimeMs: number;
 }): number {
+  if (timer.timeLeft <= 0) {
+    return cfg.SCALE.FINAL_WHOOSH_MULTIPLIER;
+  }
   let scale = cfg.SCALE.BASE;
   const timerProgress = 1 - timer.timeLeft / timer.currentTimeMs;
   scale = cfg.SCALE.BASE + (cfg.SCALE.MAX - cfg.SCALE.BASE) * timerProgress;
@@ -102,7 +108,7 @@ export function getCharacterStyle(
   h: number,
   timer: { timeLeft: number; currentTimeMs: number },
 ) {
-  const { x, y } = getSpiralCoordinates(pos, total, w, h);
+  const { x, y } = getSpiralCoordinates(pos, total, w, h, timer);
   const isHead = pos === 0;
   const scale = isHead ? getHeadScale(timer) : cfg.SCALE.BASE;
   const leftPercent = (x / w) * 100;

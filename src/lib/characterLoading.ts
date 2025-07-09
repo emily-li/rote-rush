@@ -27,11 +27,13 @@ type CharacterWeights = Record<string, number>;
  * Save character weights to localStorage with error handling
  * @param characters - Array of practice characters with current weights
  */
-export const saveCharacterWeights = (characters: readonly PracticeCharacter[]): void => {
+export const saveCharacterWeights = (
+  characters: readonly PracticeCharacter[],
+): void => {
   try {
     const weights: CharacterWeights = {};
-    characters.forEach(character => { 
-      weights[character.char] = character.weight ?? INITIAL_WEIGHT; 
+    characters.forEach((character) => {
+      weights[character.char] = character.weight ?? INITIAL_WEIGHT;
     });
     localStorage.setItem(WEIGHTS_KEY, JSON.stringify(weights));
   } catch (error) {
@@ -49,7 +51,22 @@ export const loadSavedWeights = (): CharacterWeights => {
     const raw = localStorage.getItem(WEIGHTS_KEY);
     if (!raw) return {};
     const parsed = JSON.parse(raw);
-    return typeof parsed === 'object' && parsed !== null ? parsed : {};
+    if (
+      typeof parsed === 'object' &&
+      parsed !== null &&
+      !Array.isArray(parsed)
+    ) {
+      const weights: CharacterWeights = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const entries = Object.entries(parsed as Record<string, any>);
+      for (const [key, value] of entries) {
+        if (typeof key === 'string' && typeof value === 'number') {
+          weights[key] = value;
+        }
+      }
+      return weights;
+    }
+    return {};
   } catch (error) {
     console.warn('Failed to load character weights:', error);
     return {};
@@ -62,16 +79,23 @@ export const loadSavedWeights = (): CharacterWeights => {
  */
 export const loadPracticeCharacters = (): PracticeCharacter[] => {
   const savedWeights = loadSavedWeights();
-  
-  const mapCharacterData = (item: { character: string; answers: string[] }): PracticeCharacter => ({
+
+  const mapCharacterData = (item: {
+    character: string;
+    answers: string[];
+  }): PracticeCharacter => ({
     char: item.character,
     validAnswers: item.answers,
     weight: clampWeight(savedWeights[item.character] ?? INITIAL_WEIGHT),
   });
 
   return [
-    ...(hiraganaData.values as { character: string; answers: string[] }[]).map(mapCharacterData),
-    ...(katakanaData.values as { character: string; answers: string[] }[]).map(mapCharacterData),
+    ...(hiraganaData.values as { character: string; answers: string[] }[]).map(
+      mapCharacterData,
+    ),
+    ...(katakanaData.values as { character: string; answers: string[] }[]).map(
+      mapCharacterData,
+    ),
   ];
 };
 
@@ -101,19 +125,51 @@ export const getWeightedRandomCharacter = (
   }
 
   const totalWeight = characters.reduce(
-    (sum, character) => sum + (character.weight ?? INITIAL_WEIGHT), 
-    0
+    (sum, character) => sum + (character.weight ?? INITIAL_WEIGHT),
+    0,
   );
-  
+
   let randomValue = randomFn() * totalWeight;
-  
+
   for (const character of characters) {
     randomValue -= character.weight ?? INITIAL_WEIGHT;
     if (randomValue <= 0) {
       return character;
     }
   }
-  
+
   // Fallback to last character (should rarely happen due to floating point precision)
   return characters[characters.length - 1];
+};
+
+/**
+ * Select multiple unique random characters
+ * @param count - Number of unique characters to select
+ * @param exclude - Characters to exclude from selection
+ * @param randomFn - Random number generator function (0-1), defaults to Math.random
+ * @returns Array of unique character strings
+ * @throws Error if requested count exceeds available characters
+ */
+export const getMultipleRandomCharacters = (
+  count: number,
+  exclude: string[] = [],
+  randomFn: () => number = Math.random,
+): PracticeCharacter[] => {
+  const practiceChars = loadPracticeCharacters();
+  const available = practiceChars
+    .filter((pc) => pc.char.length === 1 && !exclude.includes(pc.char));
+
+  if (count > available.length) {
+    throw new Error(
+      'Requested character count exceeds available unique characters',
+    );
+  }
+
+  // Fisher-Yates (Knuth) shuffle
+  for (let i = available.length - 1; i > 0; i--) {
+    const j = Math.floor(randomFn() * (i + 1));
+    [available[i], available[j]] = [available[j], available[i]];
+  }
+
+  return available.slice(0, count);
 };

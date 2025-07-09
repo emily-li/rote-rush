@@ -16,6 +16,17 @@ export default {
         DEFAULT: '0 0 3px rgba(192, 38, 211)',
         lg: '0 0 10px rgba(192, 38, 211)',
       },
+      keyframes: {
+        jiggle: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '25%': { transform: 'translateX(-2px)' },
+          '50%': { transform: 'translateX(2px)' },
+          '75%': { transform: 'translateX(-2px)' },
+        },
+      },
+      animation: {
+        jiggle: 'jiggle 0.3s ease-in-out',
+      },
     },
   },
   plugins: [

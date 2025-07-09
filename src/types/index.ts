@@ -28,6 +28,7 @@ export type TimerConfig = {
   readonly MIN_TIME_MS: number;
   readonly TIMER_STEP_MS: number;
   readonly WRONG_ANSWER_DISPLAY_MS: number;
+  readonly TIMEOUT_DISPLAY_MS?: number;
 };
 
 /**
@@ -83,6 +84,7 @@ export type QuizModeState = {
 export enum GameMode {
   SIMPLE,
   SPIRAL,
+  SNAKE,
 }
 
 export enum MetricChange {

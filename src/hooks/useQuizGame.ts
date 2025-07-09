@@ -39,6 +39,7 @@ export const useQuizGame = ({
     MIN_TIME_MS,
     TIMER_STEP_MS,
     WRONG_ANSWER_DISPLAY_MS,
+    TIMEOUT_DISPLAY_MS,
   } = timerConfig;
 
   // Character and game state
@@ -71,8 +72,9 @@ export const useQuizGame = ({
   }, []);
 
   // Refs for cleanup and state tracking
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const nextCharTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+  const lastFrameTimeRef = useRef<number | null>(null);
 
   /**
    * Update timer on combo threshold - reduces time for next character when combo increases
@@ -101,9 +103,9 @@ export const useQuizGame = ({
    * to prevent race conditions between different game mechanics.
    */
   const clearAllTimeouts = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
     }
     if (nextCharTimeoutRef.current) {
       clearTimeout(nextCharTimeoutRef.current);
@@ -124,12 +126,14 @@ export const useQuizGame = ({
         // timeoutCountRef.current = 0; // Removed logic
       }
 
-      const nextChar = getNextCharacter ? getNextCharacter() : getWeightedRandomCharacter(characters);
+      const nextChar = getNextCharacter
+        ? getNextCharacter()
+        : getWeightedRandomCharacter(characters);
       if (nextChar) {
         setCurrentChar(nextChar);
       } else {
         // Handle case where getNextCharacter returns undefined, maybe end the game or show a message
-        console.warn("No more characters available.");
+        console.warn('No more characters available.');
         setIsPaused(true); // or some other state to indicate completion
         return; // Early exit
       }
@@ -170,12 +174,15 @@ export const useQuizGame = ({
     // Remove timeoutCountRef logic and pause logic
     nextCharTimeoutRef.current = setTimeout(() => {
       nextCharacter(true, false);
-    }, WRONG_ANSWER_DISPLAY_MS);
-  }, [currentChar.char, nextCharacter, clearAllTimeouts, getNextCharacter]);
-
-  const updateTimeLeft = useCallback(() => {
-    setTimeLeft((prev) => Math.max(0, prev - 50));
-  }, []);
+    }, TIMEOUT_DISPLAY_MS ?? WRONG_ANSWER_DISPLAY_MS);
+  }, [
+    currentChar.char,
+    nextCharacter,
+    clearAllTimeouts,
+    getNextCharacter,
+    TIMEOUT_DISPLAY_MS,
+    WRONG_ANSWER_DISPLAY_MS,
+  ]);
 
   const validateAndHandleInput = useCallback(
     (value: string) => {
@@ -226,21 +233,37 @@ export const useQuizGame = ({
   );
 
   useEffect(() => {
-    if (isPaused || timeLeft <= 0) {
-      if (timeLeft <= 0) {
-        handleTimeout();
+    const animate = (timestamp: number) => {
+      if (lastFrameTimeRef.current === null) {
+        lastFrameTimeRef.current = timestamp;
       }
-      return;
+      const deltaTime = timestamp - lastFrameTimeRef.current;
+      lastFrameTimeRef.current = timestamp;
+
+      const newTimeLeft = timeLeft - deltaTime;
+
+      if (newTimeLeft <= 0) {
+        setTimeLeft(0);
+        handleTimeout();
+      } else {
+        setTimeLeft(newTimeLeft);
+        animationFrameRef.current = requestAnimationFrame(animate);
+      }
+    };
+
+    if (!isPaused && timeLeft > 0) {
+      lastFrameTimeRef.current = null;
+      animationFrameRef.current = requestAnimationFrame(animate);
+    } else if (timeLeft <= 0 && !isPaused) {
+      handleTimeout();
     }
 
-    const timerId = setInterval(updateTimeLeft, 50);
-    timerRef.current = timerId;
-
     return () => {
-      clearInterval(timerId);
-      timerRef.current = null;
+      if (animationFrameRef.current) {
+        cancelAnimationFrame(animationFrameRef.current);
+      }
     };
-  }, [timeLeft, isPaused, handleTimeout, updateTimeLeft]);
+  }, [isPaused, timeLeft, handleTimeout]);
 
   /**
    * Handle user input changes with validation and game state management

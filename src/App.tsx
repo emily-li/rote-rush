@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { GameModeProvider, useGameMode } from '@/components/GameModeContext';
 import SimpleQuizMode from '@/components/simple/SimpleQuizMode';
+import SnakeQuizMode from '@/components/snake/SnakeQuizMode';
 import SpiralQuizMode from '@/components/spiral/SpiralQuizMode';
 import { useWindowSize } from '@/hooks/useWindowSize';
 import { GameMode } from '@/types';
@@ -8,6 +9,7 @@ import { GameMode } from '@/types';
 const GAME_MODES = [
   { query: 'simple', mode: GameMode.SIMPLE, component: SimpleQuizMode },
   { query: 'spiral', mode: GameMode.SPIRAL, component: SpiralQuizMode },
+  { query: 'snake', mode: GameMode.SNAKE, component: SnakeQuizMode },
 ];
 
 const GAME_MODE_QUERY_MAP = Object.fromEntries(
