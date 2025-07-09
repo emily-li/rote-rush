@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { vi } from 'vitest';
 import SnakeQuizMode from '@/components/snake/SnakeQuizMode';
@@ -13,10 +13,14 @@ describe('SnakeQuizMode', () => {
       { char: 'う', validAnswers: ['u'] }, // LEFT
       { char: 'え', validAnswers: ['e'] }, // RIGHT
     ]);
+
+    // Mock timers for controlling setTimeout
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.useRealTimers(); // Restore real timers after each test
   });
 
   it('should change snake direction on correct input', async () => {
@@ -27,36 +31,49 @@ describe('SnakeQuizMode', () => {
 
     // Initial direction is RIGHT (え)
     // Type 'u' for LEFT
-    await user.type(input, 'u');
+    fireEvent.change(input, { target: { value: 'u' } });
 
     // Expect input to be cleared
     expect(input).toHaveValue('');
 
-    // How to assert direction change? We need to inspect the state.
-    // This component uses useReducer, so we can't directly access state.
-    // We need to find a way to observe the direction change in the DOM.
-    // The DirectionIndicator component displays the current direction.
-    // We can check the aria-label or text content of the DirectionIndicator.
-
-    // The DirectionIndicator for LEFT should now be active or indicate current direction
-    // This requires inspecting the DirectionIndicator component's rendering based on currentDirection prop.
-    // Let's assume DirectionIndicator has a way to visually indicate the current direction.
-    // For now, I'll add a placeholder assertion and then refine it.
-
-    // Placeholder: This assertion will likely fail until we have a way to observe the direction.
-    // We need to check the DirectionIndicator component's rendering based on the currentDirection prop.
-    // The DirectionIndicator component has a prop `currentDirection`. We need to check if the correct one is highlighted.
-    // Or, we can check the `aria-label` of the snake grid to see if the direction is updated.
-
-    // Let's try to find the DirectionIndicator for LEFT and check its content or a specific class.
-    // The DirectionIndicator component has a `getCharForDirection` prop, which returns the character.
-    // We can check if the character for the new direction is displayed correctly.
-
-    // For now, I'll add a simple assertion that will need refinement.
-    // expect(screen.getByText('う')).toHaveClass('active-direction'); // Assuming a class is added for active direction
-
-    // A better way might be to check the aria-label of the snake grid or a specific element that reflects the direction.
-    // The `sr-only` div has `Snake moving ${gameState.direction}.`
+    // Assert direction change by checking the sr-only div
     expect(screen.getByText(/Snake moving LEFT/i)).toBeInTheDocument();
+  });
+
+  it('should show invalid input feedback and clear after timeout', async () => {
+    render(<SnakeQuizMode />);
+
+    const input = screen.getByLabelText('Enter kana to control snake direction');
+    const user = userEvent.setup();
+
+    // Type an invalid character (e.g., 'x')
+    act(() => {
+      fireEvent.change(input, { target: { value: 'x' } });
+    });
+
+    // Expect input to be cleared immediately
+    expect(input).toHaveValue(''); // This should be true immediately after the change event
+
+    // Expect invalid input styling
+    expect(input).toHaveClass('border-red-500');
+    expect(input).toHaveClass('animate-jiggle');
+  });
+    it('should change snake direction even if it is the opposite of current', async () => {
+    render(<SnakeQuizMode />);
+
+    const input = screen.getByLabelText('Enter kana to control snake direction');
+    const user = userEvent.setup();
+
+    // Initial direction is RIGHT (え)
+    // Type 'a' for UP (not opposite)
+    fireEvent.change(input, { target: { value: 'a' } });
+    expect(screen.getByText(/Snake moving UP/i)).toBeInTheDocument();
+    expect(input).toHaveValue('');
+
+    // Now current direction is UP (あ)
+    // Type 'i' for DOWN (opposite of UP)
+    fireEvent.change(input, { target: { value: 'i' } });
+    expect(screen.getByText(/Snake moving DOWN/i)).toBeInTheDocument();
+    expect(input).toHaveValue('');
   });
 });

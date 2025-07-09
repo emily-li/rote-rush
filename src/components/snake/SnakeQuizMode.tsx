@@ -4,7 +4,7 @@ import { SettingsButton } from '@/components/SettingsButton';
 import { SNAKE_CONFIG } from '@/config/snake';
 import { useWindowSize } from '@/hooks/useWindowSize';
 import { getMultipleRandomCharacters } from '@/lib/characterLoading';
-import { convertRomajiToKana, isPartialRomajiMatch } from '@/lib/romajiToKana';
+
 import {
   checkCollision,
   Direction,
@@ -198,26 +198,17 @@ const SnakeQuizMode: React.FC = () => {
   };
 
   const isMatchingCharacter = (char: string): boolean => {
-    const convertedInput = convertRomajiToKana(inputValue, 'katakana');
-    const isPartial = isPartialRomajiMatch(inputValue);
-
-    // Check if the character itself is a valid answer for the current input
-    const charAsPracticeChar = getMultipleRandomCharacters(100).find(
+    // Find the PracticeCharacter associated with the 'char' being displayed by the DirectionIndicator
+    const practiceCharForIndicator = Object.values(directionCharacterMap).find(
       (pc) => pc.char === char,
     );
-    if (
-      charAsPracticeChar &&
-      checkValidStart(inputValue, charAsPracticeChar.validAnswers)
-    ) {
-      return true;
+
+    if (!practiceCharForIndicator) {
+      return false; // Should not happen if char comes from directionCharacterMap
     }
 
-    return (
-      !!inputValue &&
-      (char.startsWith(inputValue) ||
-        (convertedInput && char.startsWith(convertedInput)) ||
-        isPartial)
-    );
+    // Check if the current inputValue is a valid start for any of the validAnswers of this character
+    return checkValidStart(inputValue, practiceCharForIndicator.validAnswers);
   };
 
   const getCharForDirectionString = (dir: Direction): string => {

@@ -91,7 +91,7 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
         <div className="mx-auto min-h-screen max-w-7xl">
           <div className="bg-fuchsia-50 p-4">
             <div className="flex items-center justify-between text-white">
-              <h1 aria-label="Character statistics"></h1>
+              <h1 aria-label="Character statistics">Character Statistics</h1>
               {/* Buttons */}
               <div className="flex gap-2 p-3">
                 <button

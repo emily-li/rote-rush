@@ -133,7 +133,6 @@ export const useQuizGame = ({
         setCurrentChar(nextChar);
       } else {
         // Handle case where getNextCharacter returns undefined, maybe end the game or show a message
-        console.warn('No more characters available.');
         setIsPaused(true); // or some other state to indicate completion
         return; // Early exit
       }
