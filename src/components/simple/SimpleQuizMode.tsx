@@ -1,4 +1,7 @@
-import { BaseQuizMode } from '@/components/BaseQuizMode';
+import { CorrectAnswerDisplay } from '@/components/CorrectAnswerDisplay';
+import { QuizInput } from '@/components/QuizInput';
+import { ScoreDisplay } from '@/components/ScoreDisplay';
+import { SettingsButton } from '@/components/SettingsButton';
 import { TimerBackground } from '@/components/simple/TimerBackground';
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
@@ -10,20 +13,19 @@ const SimpleQuizMode = (): JSX.Element => {
     });
 
   return (
-    <BaseQuizMode
-      scoreState={scoreState}
-      userInput={characterState.userInput}
-      handleInputChange={actions.handleInputChange}
-      currentChar={characterState.currentChar}
-      timerControl={timerControl}
-      backgroundContent={
-        <TimerBackground
-          currentTimeMs={timerState.currentTimeMs}
-          isPaused={timerState.isPaused}
-          resetKey={characterState.currentChar.char}
-        />
-      }
-      mainContent={
+    <div
+      className="relative flex h-full flex-col overflow-hidden"
+      style={{ minHeight: '100%' }}
+    >
+      <TimerBackground
+        currentTimeMs={timerState.currentTimeMs}
+        isPaused={timerState.isPaused}
+        resetKey={characterState.currentChar.char}
+      />
+      <ScoreDisplay {...scoreState} />
+      <SettingsButton timerControl={timerControl} />
+
+      <div className="z-10 flex flex-1 flex-col items-center justify-center">
         <div
           className="flex items-center font-kana font-bold text-shadow"
           style={{
@@ -33,8 +35,18 @@ const SimpleQuizMode = (): JSX.Element => {
         >
           {characterState.currentChar.char}
         </div>
-      }
-    />
+
+        <QuizInput
+          value={characterState.userInput}
+          onChange={actions.handleInputChange}
+          isWrongAnswer={scoreState.isWrongAnswer}
+        />
+        <CorrectAnswerDisplay
+          isWrongAnswer={scoreState.isWrongAnswer}
+          correctAnswer={characterState.currentChar.validAnswers[0]}
+        />
+      </div>
+    </div>
   );
 };
 

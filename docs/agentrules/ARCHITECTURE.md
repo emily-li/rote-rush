@@ -1,21 +1,33 @@
 # Rote Rush Architecture Overview
 
-This document provides a high-level overview of the Rote Rush project's architecture, focusing on key components, hooks, data flow, and integration points. It serves as a quick reference to understand the structure and relationships within the codebase, facilitating efficient development and maintenance.
+This document provides a high-level overview of the Rote Rush project's architecture, focusing on key components, data flow, and the core architectural pattern of composition over inheritance. It serves as a quick reference to understand the structure and relationships within the codebase, facilitating efficient development and maintenance.
+
+## Core Architectural Pattern: Composition
+
+The application follows a **composition-over-inheritance** model. Instead of relying on a `BaseQuizMode` component, each game mode (`SimpleQuizMode`, `SpiralQuizMode`, etc.) is built by composing smaller, reusable UI components.
+
+**Key Principles:**
+- **No Base Components:** Game modes are self-contained and do not extend a base class or component.
+- **Reusable UI Blocks:** Common UI elements like `ScoreDisplay`, `QuizInput`, and `SettingsButton` are implemented as standalone components.
+- **Flexible Layouts:** Each game mode has full control over its layout and can arrange the shared UI components as needed.
+- **Decoupled Logic:** Game logic is encapsulated within hooks (e.g., `useQuizGame`), which provide state and actions to the UI components.
+
+This approach enhances modularity, simplifies testing, and makes it easier to create new game modes with unique layouts without being constrained by a shared base structure.
 
 ## Core Structure
 
 - **Main Entry Point**: `src/main.tsx`
   - Initializes the React application and renders the root component.
 - **Root Component**: `src/App.tsx`
-  - Serves as the top-level component, managing global state and routing logic if applicable.
+  - Serves as the top-level component, managing global state and routing.
 
 ## Key Components and Their Roles
 
 - **Game Modes**:
-  - `src/components/simple/SimpleQuizMode.tsx`: Implements the simple quiz mode with a basic UI for character display and input.
-  - `src/components/spiral/SpiralQuizMode.tsx`: Provides a more complex quiz mode with spiral visual effects.
-  - `src/components/BaseQuizMode.tsx`: A base component for shared quiz mode logic and UI structure.
-- **UI Elements**:
+  - `src/components/simple/SimpleQuizMode.tsx`: Implements the simple quiz mode by composing shared UI components.
+  - `src/components/spiral/SpiralQuizMode.tsx`: Implements the spiral quiz mode, composing shared UI with custom spiral animation logic.
+  - `src/components/snake/SnakeQuizMode.tsx`: Implements the snake game mode, with its own distinct UI and game logic.
+- **Shared UI Elements**:
   - `src/components/QuizInput.tsx`: Handles user input for quiz answers.
   - `src/components/ScoreDisplay.tsx`: Displays current score and streak information.
   - `src/components/ReportView.tsx`: Shows detailed results or statistics, with timer pause/resume functionality.

@@ -1,4 +1,7 @@
-import { BaseQuizMode } from '@/components/BaseQuizMode';
+import { CorrectAnswerDisplay } from '@/components/CorrectAnswerDisplay';
+import { QuizInput } from '@/components/QuizInput';
+import { ScoreDisplay } from '@/components/ScoreDisplay';
+import { SettingsButton } from '@/components/SettingsButton';
 import { useSpiralQuiz } from '@/hooks/useSpiralQuiz';
 import { useWindowSize } from '@/hooks/useWindowSize';
 import { getCharacterStyle } from '@/lib/spiralMath';
@@ -10,20 +13,19 @@ export const SpiralQuizMode = (): JSX.Element => {
   const { width, visibleHeight } = useWindowSize();
 
   return (
-    <BaseQuizMode
-      scoreState={scoreState}
-      userInput={characterState.userInput}
-      handleInputChange={actions.handleInputChange}
-      currentChar={characterState.currentChar}
-      timerControl={timerControl}
-      backgroundContent={
-        <div
-          className="fixed bg-fuchsia-50"
-          style={{ height: '100vh', width: '100vw' }}
-          role="region"
-        />
-      }
-      mainContent={
+    <div
+      className="relative flex h-full flex-col overflow-hidden"
+      style={{ minHeight: '100%' }}
+    >
+      <div
+        className="fixed bg-fuchsia-50"
+        style={{ height: '100vh', width: '100vw' }}
+        role="region"
+      />
+      <ScoreDisplay {...scoreState} />
+      <SettingsButton timerControl={timerControl} />
+
+      <div className="z-10 flex flex-1 flex-col items-center justify-center">
         <div
           className="relative w-full"
           style={{
@@ -53,8 +55,18 @@ export const SpiralQuizMode = (): JSX.Element => {
             );
           })}
         </div>
-      }
-    />
+
+        <QuizInput
+          value={characterState.userInput}
+          onChange={actions.handleInputChange}
+          isWrongAnswer={scoreState.isWrongAnswer}
+        />
+        <CorrectAnswerDisplay
+          isWrongAnswer={scoreState.isWrongAnswer}
+          correctAnswer={characterState.currentChar.validAnswers[0]}
+        />
+      </div>
+    </div>
   );
 };
 
