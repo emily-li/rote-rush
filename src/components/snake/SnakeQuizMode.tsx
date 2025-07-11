@@ -6,23 +6,23 @@ import DirectionIndicator from './DirectionIndicator';
 import { SnakeGameBoard } from './SnakeGameBoard';
 
 const SnakeQuizMode: React.FC = () => {
-  const { gameState, inputValue, isInvalidInput, actions, helpers } =
+  const { gameState, inputValue, isInvalidInput, actions, helpers, timerControl } =
     useSnakeGame();
   const inputContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!gameState.gameOver && inputContainerRef.current) {
+    if (!gameState.gameOver && !gameState.paused && inputContainerRef.current) {
       const input = inputContainerRef.current.querySelector('input');
       if (input) {
         input.focus();
       }
     }
-  }, [gameState.gameOver]);
+  }, [gameState.gameOver, gameState.paused]);
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center bg-fuchsia-50 text-gray-700">
-      <div className="absolute right-4 top-4 z-20">
-        <SettingsButton />
+    <div className="snake-game-container">
+      <div className="snake-settings-button">
+        <SettingsButton timerControl={timerControl} />
       </div>
 
       <SnakeGameBoard
@@ -30,9 +30,9 @@ const SnakeQuizMode: React.FC = () => {
         handleRestart={actions.handleRestart}
       />
 
-      <div className="mt-4 flex flex-col items-center">
-        <div className="grid w-32 grid-cols-3 gap-1">
-          <div className="col-start-2 row-start-1 flex items-center justify-center">
+      <div className="snake-controls-container">
+        <div className="snake-direction-grid">
+          <div className="snake-direction-indicator-up">
             <DirectionIndicator
               direction="UP"
               getCharForDirection={helpers.getCharForDirectionString}
@@ -40,7 +40,7 @@ const SnakeQuizMode: React.FC = () => {
               currentDirection={gameState.direction}
             />
           </div>
-          <div className="col-start-1 row-start-2 flex items-center justify-center">
+          <div className="snake-direction-indicator-left">
             <DirectionIndicator
               direction="LEFT"
               getCharForDirection={helpers.getCharForDirectionString}
@@ -48,7 +48,7 @@ const SnakeQuizMode: React.FC = () => {
               currentDirection={gameState.direction}
             />
           </div>
-          <div className="col-start-3 row-start-2 flex items-center justify-center">
+          <div className="snake-direction-indicator-right">
             <DirectionIndicator
               direction="RIGHT"
               getCharForDirection={helpers.getCharForDirectionString}
@@ -56,7 +56,7 @@ const SnakeQuizMode: React.FC = () => {
               currentDirection={gameState.direction}
             />
           </div>
-          <div className="col-start-2 row-start-3 flex items-center justify-center">
+          <div className="snake-direction-indicator-down">
             <DirectionIndicator
               direction="DOWN"
               getCharForDirection={helpers.getCharForDirectionString}
@@ -65,30 +65,27 @@ const SnakeQuizMode: React.FC = () => {
             />
           </div>
         </div>
-        <div
-          className="mt-2 flex flex-col items-center"
-          ref={inputContainerRef}
-        >
+        <div className="snake-input-container" ref={inputContainerRef}>
           <QuizInput
             value={inputValue}
             onChange={actions.handleInputChange}
             isWrongAnswer={false}
             isInvalid={isInvalidInput}
-            disabled={gameState.gameOver}
+            disabled={gameState.gameOver || gameState.paused}
             ariaLabel="Enter kana to control snake direction"
           />
-          <div className="mt-2 text-sm text-gray-500">
-            Use kana to control direction
-          </div>
+          <div className="snake-input-label">Use kana to control direction</div>
         </div>
       </div>
-      <div className="sr-only" aria-live="polite" aria-atomic="true">
+      <div
+        className="snake-sr-live-region"
+        aria-live="polite"
+        aria-atomic="true"
+      >
         {gameState.gameOver
           ? 'Game over. Press Restart to play again.'
           : `Snake moving ${gameState.direction}.`}
-        {gameState.snake.length > 1
-          ? 'Food collected, snake grew longer.'
-          : ''}
+        {gameState.snake.length > 1 ? 'Food collected, snake grew longer.' : ''}
       </div>
     </div>
   );

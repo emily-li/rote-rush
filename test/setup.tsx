@@ -28,3 +28,18 @@ Object.defineProperty(window, 'matchMedia', {
     dispatchEvent: vi.fn(),
   })),
 });
+
+// Mock requestAnimationFrame and cancelAnimationFrame
+let animationFrameId = 0;
+const animationFrameCallbacks = new Map<number, FrameRequestCallback>();
+
+global.requestAnimationFrame = vi.fn((callback: FrameRequestCallback) => {
+  animationFrameId++;
+  animationFrameCallbacks.set(animationFrameId, callback);
+  // Don't actually call the callback automatically to prevent infinite loops
+  return animationFrameId;
+});
+
+global.cancelAnimationFrame = vi.fn((id: number) => {
+  animationFrameCallbacks.delete(id);
+});

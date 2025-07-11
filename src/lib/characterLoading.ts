@@ -148,7 +148,7 @@ export const getWeightedRandomCharacter = (
  * @param exclude - Characters to exclude from selection
  * @param randomFn - Random number generator function (0-1), defaults to Math.random
  * @returns Array of unique character strings
- * @throws Error if requested count exceeds available characters
+ * @throws Error if requested count exceeds available characters or if conflicts prevent selection
  */
 export const getMultipleRandomCharacters = (
   count: number,
@@ -156,8 +156,9 @@ export const getMultipleRandomCharacters = (
   randomFn: () => number = Math.random,
 ): PracticeCharacter[] => {
   const practiceChars = loadPracticeCharacters();
-  const available = practiceChars
-    .filter((pc) => pc.char.length === 1 && !exclude.includes(pc.char));
+  const available = practiceChars.filter(
+    (pc) => pc.char.length === 1 && !exclude.includes(pc.char),
+  );
 
   if (count > available.length) {
     throw new Error(
@@ -165,11 +166,43 @@ export const getMultipleRandomCharacters = (
     );
   }
 
-  // Fisher-Yates (Knuth) shuffle
-  for (let i = available.length - 1; i > 0; i--) {
-    const j = Math.floor(randomFn() * (i + 1));
-    [available[i], available[j]] = [available[j], available[i]];
+  const maxAttempts = 1000;
+  let attempts = 0;
+
+  while (attempts < maxAttempts) {
+    const selectedChars: PracticeCharacter[] = [];
+    const usedAnswers = new Set<string>();
+
+    // Shuffle the available characters for each attempt
+    const shuffled = [...available];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(randomFn() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    for (const char of shuffled) {
+      if (selectedChars.length >= count) {
+        break;
+      }
+
+      const hasAnswerConflict = char.validAnswers.some((answer) =>
+        usedAnswers.has(answer),
+      );
+
+      if (!hasAnswerConflict) {
+        selectedChars.push(char);
+        char.validAnswers.forEach((answer) => usedAnswers.add(answer));
+      }
+    }
+
+    if (selectedChars.length === count) {
+      return selectedChars;
+    }
+
+    attempts++;
   }
 
-  return available.slice(0, count);
+  throw new Error(
+    `Could not find ${count} characters without answer conflicts after ${maxAttempts} attempts`,
+  );
 };

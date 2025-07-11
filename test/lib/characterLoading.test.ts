@@ -1,7 +1,8 @@
-/// <reference types="vitest" />
-
-import { beforeEach, describe, expect, it } from 'vitest';
-import { loadPracticeCharacters } from '../../src/lib/characterLoading';
+import { describe, expect, it } from 'vitest';
+import {
+  getMultipleRandomCharacters,
+  loadPracticeCharacters,
+} from '../../src/lib/characterLoading';
 import type { PracticeCharacter } from '../../src/types';
 
 // Test suite for character loading utilities
@@ -34,6 +35,21 @@ describe('characterLoading', () => {
           expect(answer).toMatch(/^[a-z]+$/);
         });
       });
+    });
+  });
+
+  describe('getMultipleRandomCharacters', () => {
+    it('should not select characters with conflicting answers', () => {
+      const selectedChars = getMultipleRandomCharacters(4);
+      const allAnswers = selectedChars.flatMap((char) => char.validAnswers);
+      const uniqueAnswers = new Set(allAnswers);
+      expect(allAnswers.length).toBe(uniqueAnswers.size);
+    });
+
+    it('should return different characters on subsequent calls', () => {
+      const selection1 = getMultipleRandomCharacters(4).map((c) => c.char);
+      const selection2 = getMultipleRandomCharacters(4).map((c) => c.char);
+      expect(selection1).not.toEqual(selection2);
     });
   });
 });

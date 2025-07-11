@@ -18,8 +18,9 @@ export const normalizeInput = (input: string): string =>
  */
 export const checkAnswerMatch = (
   input: string,
-  validAnswers: readonly string[],
+  validAnswers: readonly string[] | undefined,
 ): boolean => {
+  if (!validAnswers) return false;
   const normalized = normalizeInput(input);
   return validAnswers.some((answer) => normalizeInput(answer) === normalized);
 };
@@ -33,8 +34,9 @@ export const checkAnswerMatch = (
  */
 export const checkValidStart = (
   input: string,
-  validAnswers: readonly string[],
+  validAnswers: readonly string[] | undefined,
 ): boolean => {
+  if (!validAnswers) return false;
   const normalized = normalizeInput(input);
   if (normalized.length === 0) return false;
   return validAnswers.some((answer) => 

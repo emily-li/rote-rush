@@ -7,6 +7,7 @@ This document provides a high-level overview of the Rote Rush project's architec
 The application follows a **composition-over-inheritance** model. Instead of relying on a `BaseQuizMode` component, each game mode (`SimpleQuizMode`, `SpiralQuizMode`, etc.) is built by composing smaller, reusable UI components.
 
 **Key Principles:**
+
 - **No Base Components:** Game modes are self-contained and do not extend a base class or component.
 - **Reusable UI Blocks:** Common UI elements like `ScoreDisplay`, `QuizInput`, and `SettingsButton` are implemented as standalone components.
 - **Flexible Layouts:** Each game mode has full control over its layout and can arrange the shared UI components as needed.
