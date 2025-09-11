@@ -64,6 +64,12 @@ export const ScoreDisplay: React.FC<ScoreState> = (scoreState) => {
       />
 
       <Metric
+        label="Best"
+        value={scoreState.highestStreak.toString()}
+        metricChange={useMetricChange(scoreState.highestStreak)}
+      />
+
+      <Metric
         label="Combo"
         value={`x${scoreState.comboMultiplier}`}
         metricChange={useMetricChange(scoreState.comboMultiplier)}

@@ -54,6 +54,7 @@ export const useQuizGame = ({
   // Score and progress state
   const [score, setScore] = useState<number>(0);
   const [streak, setStreak] = useState<number>(0);
+  const [highestStreak, setHighestStreak] = useState<number>(0);
   const [comboMultiplier, setComboMultiplier] = useState<number>(1.0);
   const [isWrongAnswer, setIsWrongAnswer] = useState<boolean>(false);
 
@@ -191,6 +192,10 @@ export const useQuizGame = ({
         // timeoutCountRef.current = 0; // Removed logic
         const newStreak = streak + 1;
         setStreak(newStreak);
+        // Update highest streak if current streak is higher
+        if (newStreak > highestStreak) {
+          setHighestStreak(newStreak);
+        }
         const newMultiplier = getComboMultiplier(newStreak);
         setComboMultiplier(newMultiplier);
         setScore((prev) => prev + Math.floor(10 * newMultiplier));
@@ -305,6 +310,7 @@ export const useQuizGame = ({
     scoreState: {
       score,
       streak,
+      highestStreak,
       comboMultiplier,
       isWrongAnswer,
     },
