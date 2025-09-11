@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { QuizInput } from '@/components/QuizInput';
 import { SettingsButton } from '@/components/SettingsButton';
 import { useSnakeGame } from '@/hooks/useSnakeGame';
-import DirectionIndicator from './DirectionIndicator';
+import DirectionPad from './DirectionPad';
 import { SnakeGameBoard } from './SnakeGameBoard';
 
 const SnakeQuizMode: React.FC = () => {
@@ -15,14 +15,6 @@ const SnakeQuizMode: React.FC = () => {
     timerControl,
   } = useSnakeGame();
   const inputContainerRef = useRef<HTMLDivElement>(null);
-
-  const directions = [
-    { direction: 'UP' as const, colStart: 2, rowStart: 1 },
-    { direction: 'LEFT' as const, colStart: 1, rowStart: 2 },
-    { direction: 'RIGHT' as const, colStart: 3, rowStart: 2 },
-    { direction: 'DOWN' as const, colStart: 2, rowStart: 3 },
-  ];
-  const directionBaseClasses = 'flex items-center justify-center';
 
   useEffect(() => {
     if (!gameState.gameOver && !gameState.paused && inputContainerRef.current) {
@@ -45,21 +37,10 @@ const SnakeQuizMode: React.FC = () => {
       />
 
       <div className="mt-4 flex flex-col items-center">
-        <div className="grid w-36 grid-cols-3 gap-3">
-          {directions.map(({ direction, colStart, rowStart }) => (
-            <div
-              key={direction}
-              className={`col-start-${colStart} row-start-${rowStart} ${directionBaseClasses}`}
-            >
-              <DirectionIndicator
-                direction={direction}
-                getCharForDirection={helpers.getCharForDirectionString}
-                isMatchingCharacter={helpers.isMatchingCharacter}
-                currentDirection={gameState.direction}
-              />
-            </div>
-          ))}
-        </div>
+        <DirectionPad
+          helpers={helpers}
+          currentDirection={gameState.direction}
+        />
 
         <div
           className="mt-4 flex flex-col items-center"
