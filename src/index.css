@@ -26,7 +26,7 @@ code {
 }
 
 .snake-game-container {
-  @apply flex h-screen flex-col items-center justify-center bg-fuchsia-50 text-gray-700;
+  @apply flex h-screen flex-col items-center justify-start bg-fuchsia-50 text-gray-700 pt-4;
 }
 
 .snake-settings-button {
