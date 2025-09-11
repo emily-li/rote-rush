@@ -87,7 +87,7 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
 
   return (
     <FocusTrap>
-      <div className="fixed inset-0 z-50 bg-black bg-opacity-25 font-sans">
+      <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-25 font-sans">
         <div className="mx-auto min-h-screen max-w-7xl">
           <div className="bg-fuchsia-50 p-4">
             <div className="flex items-center justify-between text-white">
