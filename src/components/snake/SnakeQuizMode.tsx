@@ -26,10 +26,7 @@ const SnakeQuizMode: React.FC = () => {
   }, [gameState.gameOver, gameState.paused]);
 
   return (
-    <div
-      className="flex h-screen flex-col items-center justify-start bg-fuchsia-50 pt-24
-        text-gray-700"
-    >
+    <div className="flex h-screen flex-col items-center bg-fuchsia-50 pt-24 text-gray-700">
       <div className="absolute right-4 top-4 z-20">
         <SettingsButton timerControl={timerControl} />
       </div>
@@ -39,14 +36,14 @@ const SnakeQuizMode: React.FC = () => {
         handleRestart={actions.handleRestart}
       />
 
-      <div className="mt-4 flex flex-col items-center">
+      <div className="mt-24 flex flex-col items-center">
         <DirectionPad
           helpers={helpers}
           currentDirection={gameState.direction}
         />
 
         <div
-          className="mt-4 flex flex-col items-center"
+          className="mt-8 flex flex-col items-center"
           ref={inputContainerRef}
         >
           <QuizInput
