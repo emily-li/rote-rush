@@ -43,6 +43,19 @@ Incorrect: `className="text-[#c026d3]"` or `style={{ color: '#c026d3' }}`
 
 Always use Unix-style commands and forward slashes in paths
 
+### Component Architecture
+
+- Extract complex UI logic into separate components for better separation of concerns
+- Example: DirectionPad component extracted from SnakeQuizMode to encapsulate directional control logic
+- Prefer inline Tailwind classes over separate CSS class definitions for component-specific styling
+- This keeps styles co-located with components and improves maintainability
+
+### TypeScript Patterns
+
+- Use `type` instead of `interface` for simple object types that don't need extension
+- Example: `type ComponentProps = { ... }` instead of `interface ComponentProps { ... }`
+- Use `as const` for literal type assertions in arrays to maintain type safety
+
 ## Workflows
 
 ### Build Process
