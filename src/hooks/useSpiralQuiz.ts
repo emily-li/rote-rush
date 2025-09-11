@@ -84,7 +84,9 @@ export const useSpiralQuiz = (): UseSpiralQuizReturn => {
         initializeSpiral(currentChar, quizGame.characterState.characters);
       }
     }
-  }, [initializeSpiral, spiralCharacters.length, quizGame.characterState.characters.length]);
+    // Intentionally omitting quizGame.characterState dependencies to prevent reinitialization on character changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initializeSpiral, spiralCharacters.length]);
 
   // Keep charactersRef updated
   useEffect(() => {
