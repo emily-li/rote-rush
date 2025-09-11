@@ -24,10 +24,15 @@ const DirectionIndicator: React.FC<DirectionIndicatorProps> = ({
   const isCurrentDirection = currentDirection === direction;
   const shouldShowCharacter = !isCurrentDirection && !isOppositeDirection;
 
+  const baseClasses =
+    'h-10 w-10 rounded border border-gray-300 bg-gray-200 p-2 text-center font-kana text-lg text-gray-700';
+  const matchingCharacterClasses = isMatchingCharacter(character)
+    ? 'font-bold box-glow'
+    : '';
+
   return (
     <div
-      className={`h-10 w-10 rounded border border-gray-300 bg-gray-200 p-2 text-center font-kana
-        text-lg text-gray-700 ${isMatchingCharacter(character) ? 'font-bold' : ''}`}
+      className={`${baseClasses} ${matchingCharacterClasses}`}
       aria-hidden={!shouldShowCharacter}
       aria-label={
         shouldShowCharacter
