@@ -37,7 +37,7 @@ export default {
             textShadow: value,
           }),
           'box-glow': () => ({
-            boxShadow: '0 0 8px 8px rgba(192, 38, 211, 0.4)',
+            boxShadow: '0 0 8px 8px rgba(192, 38, 211, 0.3)',
           }),
         },
         { values: theme('textShadow') },

@@ -40,9 +40,9 @@ export const SnakeGameBoard: React.FC<SnakeGameBoardProps> = ({
   };
 
   return (
-    <div className="snake-game-board-container">
+    <div className="relative flex w-full max-w-md flex-col items-center">
       <div
-        className="snake-grid"
+        className="grid border-none bg-gray-800"
         style={gridStyle}
         role="grid"
         aria-label="Snake game grid"
@@ -86,7 +86,7 @@ export const SnakeGameBoard: React.FC<SnakeGameBoardProps> = ({
       </div>
       {gameState.gameOver && (
         <div
-          className="snake-game-over-overlay"
+          className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75"
           style={{
             top: 0,
             left: 0,
@@ -94,11 +94,11 @@ export const SnakeGameBoard: React.FC<SnakeGameBoardProps> = ({
             height: gridStyle.height,
           }}
         >
-          <div className="snake-game-over-modal">
-            <h2 className="snake-game-over-title">Game Over</h2>
+          <div className="rounded-lg bg-gray-200 p-6 text-center">
+            <h2 className="mb-4 text-2xl font-bold text-gray-700">Game Over</h2>
             <button
               onClick={handleRestart}
-              className="snake-restart-button"
+              className="rounded bg-fuchsia-800 px-4 py-2 text-white hover:bg-fuchsia-700"
               aria-label="Restart game"
             >
               Restart
