@@ -46,7 +46,7 @@ code {
 }
 
 .snake-game-over-modal {
-  @apply rounded-lg bg-gray-200 p-6 text-center;
+  @apply p-6 text-center text-white;
 }
 
 .snake-game-over-title {

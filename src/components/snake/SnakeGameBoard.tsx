@@ -90,8 +90,8 @@ export const SnakeGameBoard: React.FC<SnakeGameBoardProps> = ({
           style={{
             top: 0,
             left: 0,
-            width: gridStyle.width,
-            height: gridStyle.height,
+            width: gridStyle.maxWidth,
+            height: gridStyle.maxHeight,
           }}
         >
           <div className="snake-game-over-modal">
