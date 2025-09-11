@@ -33,8 +33,8 @@ export const QuizInput: React.FC<QuizInputProps> = ({
           isWrongAnswer
               ? 'border-fuchsia-900 bg-fuchsia-50 text-fuchsia-900'
               : isInvalid
-                ? 'border-red-500 animate-jiggle'
-                : 'border-gray-300 focus:border-blue-500'
+                ? 'animate-jiggle border-red-500'
+                : 'border-gray-300 focus:border-fuchsia-500'
           }`}
         autoFocus
         autoComplete="off"
