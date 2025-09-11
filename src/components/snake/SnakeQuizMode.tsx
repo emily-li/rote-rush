@@ -36,14 +36,14 @@ const SnakeQuizMode: React.FC = () => {
         handleRestart={actions.handleRestart}
       />
 
-      <div className="mt-24 flex flex-col items-center">
+      <div className="mt-28 flex w-full flex-col items-center">
         <DirectionPad
           helpers={helpers}
           currentDirection={gameState.direction}
         />
 
         <div
-          className="mt-8 flex flex-col items-center"
+          className="mt-8 flex w-full flex-col items-center"
           ref={inputContainerRef}
         >
           <QuizInput
