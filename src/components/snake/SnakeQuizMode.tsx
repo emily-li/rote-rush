@@ -26,7 +26,10 @@ const SnakeQuizMode: React.FC = () => {
   }, [gameState.gameOver, gameState.paused]);
 
   return (
-    <div className="flex h-screen flex-col items-center justify-center bg-fuchsia-50 text-gray-700">
+    <div
+      className="flex h-screen flex-col items-center justify-start bg-fuchsia-50 pt-24
+        text-gray-700"
+    >
       <div className="absolute right-4 top-4 z-20">
         <SettingsButton timerControl={timerControl} />
       </div>

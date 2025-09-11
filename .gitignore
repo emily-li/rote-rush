@@ -28,3 +28,7 @@ coverage
 
 # Cline
 memory-bank
+
+# TS
+tsconfig.node.tsbuildinfo
+tsconfig.app.tsbuildinfo
