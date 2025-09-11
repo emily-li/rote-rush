@@ -16,19 +16,28 @@ export const SnakeGameBoard: React.FC<SnakeGameBoardProps> = ({
 }) => {
   const windowSize = useWindowSize();
 
+  const visualGridSize = GRID_SIZE * 2;
   const gridStyle = {
-    gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
-    gridTemplateRows: `repeat(${GRID_SIZE}, 1fr)`,
+    gridTemplateColumns: `repeat(${visualGridSize}, 1fr)`,
+    gridTemplateRows: `repeat(${visualGridSize}, 1fr)`,
     width: '100%',
     aspectRatio: '1 / 1',
-    maxWidth: Math.min(windowSize.width - GRID_PADDING, windowSize.height - GRID_MARGIN_BOTTOM),
-    maxHeight: Math.min(windowSize.width - GRID_PADDING, windowSize.height - GRID_MARGIN_BOTTOM),
+    maxWidth:
+      2 *
+      Math.min(
+        windowSize.width - GRID_PADDING,
+        windowSize.height - GRID_MARGIN_BOTTOM,
+      ),
+    maxHeight:
+      2 *
+      Math.min(
+        windowSize.width - GRID_PADDING,
+        windowSize.height - GRID_MARGIN_BOTTOM,
+      ),
   };
 
-  
-
   return (
-    <div className="relative flex w-full max-w-md flex-col items-center">
+    <div className="relative flex w-full max-w-2xl flex-col items-center">
       <div
         className="grid border-none bg-gray-800"
         style={gridStyle}
@@ -65,6 +74,12 @@ export const SnakeGameBoard: React.FC<SnakeGameBoardProps> = ({
                       ? 'bg-green-500'
                       : 'bg-gray-800'
               }`}
+              style={{
+                gridColumnStart: x * 2 + 1,
+                gridColumnEnd: x * 2 + 3,
+                gridRowStart: y * 2 + 1,
+                gridRowEnd: y * 2 + 3,
+              }}
               role="gridcell"
               aria-label={`${cellLabel} at position ${x}, ${y}`}
             />
@@ -78,7 +93,7 @@ export const SnakeGameBoard: React.FC<SnakeGameBoardProps> = ({
             top: 0,
             left: 0,
             width: gridStyle.maxWidth,
-            height: gridStyle.maxWidth,
+            height: gridStyle.maxHeight,
           }}
         >
           <div className="rounded-lg bg-gray-200 p-6 text-center">
