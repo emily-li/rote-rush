@@ -3,7 +3,7 @@ import { SNAKE_CONFIG } from '@/config/snake';
 import { GameState } from '@/hooks/useSnakeGame';
 import { useWindowSize } from '@/hooks/useWindowSize';
 
-const { GRID_SIZE, CELL_SIZE, GRID_PADDING, GRID_MARGIN_BOTTOM } = SNAKE_CONFIG;
+const { GRID_SIZE, GRID_PADDING, GRID_MARGIN_BOTTOM } = SNAKE_CONFIG;
 
 type SnakeGameBoardProps = {
   gameState: GameState;
@@ -17,27 +17,15 @@ export const SnakeGameBoard: React.FC<SnakeGameBoardProps> = ({
   const windowSize = useWindowSize();
 
   const gridStyle = {
-    gridTemplateColumns: `repeat(${GRID_SIZE}, ${CELL_SIZE}px)`,
-    gridTemplateRows: `repeat(${GRID_SIZE}, ${CELL_SIZE}px)`,
-    width: GRID_SIZE * CELL_SIZE,
-    height: GRID_SIZE * CELL_SIZE,
-    maxWidth: Math.min(windowSize.width - GRID_PADDING, GRID_SIZE * CELL_SIZE),
-    maxHeight: Math.min(
-      windowSize.height - GRID_MARGIN_BOTTOM,
-      GRID_SIZE * CELL_SIZE,
-    ),
+    gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
+    gridTemplateRows: `repeat(${GRID_SIZE}, 1fr)`,
+    width: '100%',
+    aspectRatio: '1 / 1',
+    maxWidth: Math.min(windowSize.width - GRID_PADDING, windowSize.height - GRID_MARGIN_BOTTOM),
+    maxHeight: Math.min(windowSize.width - GRID_PADDING, windowSize.height - GRID_MARGIN_BOTTOM),
   };
 
-  const cellSizeStyle = {
-    width: CELL_SIZE,
-    height: CELL_SIZE,
-    maxWidth:
-      Math.min(windowSize.width - GRID_PADDING, GRID_SIZE * CELL_SIZE) /
-      GRID_SIZE,
-    maxHeight:
-      Math.min(windowSize.height - GRID_MARGIN_BOTTOM, GRID_SIZE * CELL_SIZE) /
-      GRID_SIZE,
-  };
+  
 
   return (
     <div className="relative flex w-full max-w-md flex-col items-center">
@@ -77,7 +65,6 @@ export const SnakeGameBoard: React.FC<SnakeGameBoardProps> = ({
                       ? 'bg-green-500'
                       : 'bg-gray-800'
               }`}
-              style={cellSizeStyle}
               role="gridcell"
               aria-label={`${cellLabel} at position ${x}, ${y}`}
             />
@@ -90,8 +77,8 @@ export const SnakeGameBoard: React.FC<SnakeGameBoardProps> = ({
           style={{
             top: 0,
             left: 0,
-            width: gridStyle.width,
-            height: gridStyle.height,
+            width: gridStyle.maxWidth,
+            height: gridStyle.maxWidth,
           }}
         >
           <div className="rounded-lg bg-gray-200 p-6 text-center">
