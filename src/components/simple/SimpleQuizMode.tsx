@@ -21,6 +21,7 @@ const SimpleQuizMode = (): JSX.Element => {
         currentTimeMs={timerState.currentTimeMs}
         isPaused={timerState.isPaused}
         resetKey={characterState.currentChar.char}
+        comboMultiplier={scoreState.comboMultiplier}
       />
       <ScoreDisplay {...scoreState} />
       <SettingsButton timerControl={timerControl} />
