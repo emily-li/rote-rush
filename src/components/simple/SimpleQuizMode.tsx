@@ -3,6 +3,7 @@ import { QuizInput } from '@/components/QuizInput';
 import { ScoreDisplay } from '@/components/ScoreDisplay';
 import { SettingsButton } from '@/components/SettingsButton';
 import { TimerBackground } from '@/components/simple/TimerBackground';
+import { VirtualKeyboard } from '@/components/VirtualKeyboard';
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
 
@@ -11,6 +12,15 @@ const SimpleQuizMode = (): JSX.Element => {
     useQuizGame({
       timerConfig: QUIZ_CONFIG,
     });
+
+  const handleKeyboardPress = (letter: string) => {
+    // Ignore keyboard input if wrong answer is displayed
+    if (scoreState.isWrongAnswer) return;
+
+    const newInput = characterState.userInput + letter;
+    characterState.setUserInput(newInput);
+    actions.validateAndHandleInput(newInput);
+  };
 
   return (
     <div
@@ -40,6 +50,10 @@ const SimpleQuizMode = (): JSX.Element => {
           value={characterState.userInput}
           onChange={actions.handleInputChange}
           isWrongAnswer={scoreState.isWrongAnswer}
+        />
+        <VirtualKeyboard
+          onKeyPress={handleKeyboardPress}
+          disabled={scoreState.isWrongAnswer}
         />
         <CorrectAnswerDisplay
           isWrongAnswer={scoreState.isWrongAnswer}
