@@ -3,7 +3,6 @@ import { QuizInput } from '@/components/QuizInput';
 import { ScoreDisplay } from '@/components/ScoreDisplay';
 import { SettingsButton } from '@/components/SettingsButton';
 import { TimerBackground } from '@/components/simple/TimerBackground';
-import { VirtualKeyboard } from '@/components/VirtualKeyboard';
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
 
@@ -50,10 +49,7 @@ const SimpleQuizMode = (): JSX.Element => {
           value={characterState.userInput}
           onChange={actions.handleInputChange}
           isWrongAnswer={scoreState.isWrongAnswer}
-        />
-        <VirtualKeyboard
-          onKeyPress={handleKeyboardPress}
-          disabled={scoreState.isWrongAnswer}
+          onKeyboardPress={handleKeyboardPress}
         />
         <CorrectAnswerDisplay
           isWrongAnswer={scoreState.isWrongAnswer}

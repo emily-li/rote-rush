@@ -1,4 +1,5 @@
 import React from 'react';
+import { VirtualKeyboard } from '@/components/VirtualKeyboard';
 
 type QuizInputProps = {
   value: string;
@@ -7,6 +8,7 @@ type QuizInputProps = {
   isInvalid?: boolean;
   ariaLabel?: string;
   disabled?: boolean;
+  onKeyboardPress?: (letter: string) => void;
 };
 
 /**
@@ -19,6 +21,7 @@ export const QuizInput: React.FC<QuizInputProps> = ({
   isInvalid,
   ariaLabel,
   disabled,
+  onKeyboardPress,
 }: QuizInputProps) => {
   return (
     <div className="w-full max-w-md">
@@ -44,6 +47,12 @@ export const QuizInput: React.FC<QuizInputProps> = ({
         }
         aria-describedby={isWrongAnswer ? 'error-display' : undefined}
       />
+      {onKeyboardPress && (
+        <VirtualKeyboard
+          onKeyPress={onKeyboardPress}
+          disabled={disabled || isWrongAnswer}
+        />
+      )}
     </div>
   );
 };

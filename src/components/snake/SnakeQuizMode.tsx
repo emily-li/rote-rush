@@ -25,6 +25,17 @@ const SnakeQuizMode: React.FC = () => {
     }
   }, [gameState.gameOver, gameState.paused]);
 
+  const handleKeyboardPress = (letter: string) => {
+    // Ignore keyboard input if game is over or paused
+    if (gameState.gameOver || gameState.paused) return;
+
+    const newInput = inputValue + letter;
+    actions.handleInputChange({
+      target: { value: newInput },
+      currentTarget: { value: newInput },
+    } as React.ChangeEvent<HTMLInputElement>);
+  };
+
   return (
     <div className="flex h-screen flex-col items-center bg-fuchsia-50 pt-24 text-gray-700">
       <div className="absolute right-4 top-4 z-20">
@@ -53,6 +64,7 @@ const SnakeQuizMode: React.FC = () => {
             isInvalid={isInvalidInput}
             disabled={gameState.gameOver || gameState.paused}
             ariaLabel="Enter kana to control snake direction"
+            onKeyboardPress={handleKeyboardPress}
           />
           <div className="mt-2 text-sm text-gray-500">
             Use kana to control direction

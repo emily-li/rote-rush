@@ -12,6 +12,15 @@ export const SpiralQuizMode = (): JSX.Element => {
     gameState;
   const { width, visibleHeight } = useWindowSize();
 
+  const handleKeyboardPress = (letter: string) => {
+    // Ignore keyboard input if wrong answer is displayed
+    if (scoreState.isWrongAnswer) return;
+
+    const newInput = characterState.userInput + letter;
+    characterState.setUserInput(newInput);
+    actions.validateAndHandleInput(newInput);
+  };
+
   return (
     <div
       className="relative flex h-full flex-col overflow-hidden"
@@ -60,6 +69,7 @@ export const SpiralQuizMode = (): JSX.Element => {
           value={characterState.userInput}
           onChange={actions.handleInputChange}
           isWrongAnswer={scoreState.isWrongAnswer}
+          onKeyboardPress={handleKeyboardPress}
         />
         <CorrectAnswerDisplay
           isWrongAnswer={scoreState.isWrongAnswer}
