@@ -1,11 +1,12 @@
 import React from 'react';
-import { Direction } from '@/lib/snakeUtils';
+import { Direction, SnakePosition, wouldHitEdge } from '@/lib/snakeUtils';
 
 type DirectionIndicatorProps = {
   direction: Direction;
   getCharForDirection: (dir: Direction) => string;
   isMatchingCharacter: (char: string) => boolean;
   currentDirection: Direction;
+  snakeHeadPosition: SnakePosition;
 };
 
 const DirectionIndicator: React.FC<DirectionIndicatorProps> = ({
@@ -13,6 +14,7 @@ const DirectionIndicator: React.FC<DirectionIndicatorProps> = ({
   getCharForDirection,
   isMatchingCharacter,
   currentDirection,
+  snakeHeadPosition,
 }) => {
   const character = getCharForDirection(direction);
   const isOppositeDirection =
@@ -22,7 +24,8 @@ const DirectionIndicator: React.FC<DirectionIndicatorProps> = ({
     (currentDirection === 'RIGHT' && direction === 'LEFT');
 
   const isCurrentDirection = currentDirection === direction;
-  const shouldShowCharacter = !isCurrentDirection && !isOppositeDirection;
+  const isEdgeDirection = wouldHitEdge(snakeHeadPosition, direction);
+  const shouldShowCharacter = !isCurrentDirection && !isOppositeDirection && !isEdgeDirection;
 
   const baseClasses =
     'h-10 w-10 rounded border border-gray-300 bg-gray-200 p-2 text-center font-kana text-lg text-gray-700';

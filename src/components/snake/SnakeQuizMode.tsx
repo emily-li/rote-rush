@@ -51,6 +51,7 @@ const SnakeQuizMode: React.FC = () => {
         <DirectionPad
           helpers={helpers}
           currentDirection={gameState.direction}
+          snakeHeadPosition={gameState.snake[0]}
         />
 
         <div

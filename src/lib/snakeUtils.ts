@@ -78,3 +78,17 @@ export const getOppositeDirection = (dir: Direction): Direction => {
       return 'LEFT';
   }
 };
+
+export const wouldHitEdge = (
+  position: SnakePosition,
+  direction: Direction,
+): boolean => {
+  const { GRID_SIZE } = SNAKE_CONFIG;
+  const nextPosition = getNextSnakeHead(position, direction);
+  return (
+    nextPosition[0] < 0 ||
+    nextPosition[0] >= GRID_SIZE ||
+    nextPosition[1] < 0 ||
+    nextPosition[1] >= GRID_SIZE
+  );
+};

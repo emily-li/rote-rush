@@ -1,5 +1,5 @@
 import React from 'react';
-import { Direction } from '@/lib/snakeUtils';
+import { Direction, SnakePosition } from '@/lib/snakeUtils';
 import DirectionIndicator from './DirectionIndicator';
 
 type DirectionPadProps = {
@@ -8,11 +8,13 @@ type DirectionPadProps = {
     isMatchingCharacter: (char: string) => boolean;
   };
   currentDirection: Direction;
+  snakeHeadPosition: SnakePosition;
 };
 
 export const DirectionPad: React.FC<DirectionPadProps> = ({
   helpers,
   currentDirection,
+  snakeHeadPosition,
 }) => {
   const directions = [
     { direction: 'UP' as const, colStart: 2, rowStart: 1 },
@@ -35,6 +37,7 @@ export const DirectionPad: React.FC<DirectionPadProps> = ({
             getCharForDirection={helpers.getCharForDirectionString}
             isMatchingCharacter={helpers.isMatchingCharacter}
             currentDirection={currentDirection}
+            snakeHeadPosition={snakeHeadPosition}
           />
         </div>
       ))}
