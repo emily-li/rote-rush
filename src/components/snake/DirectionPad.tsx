@@ -15,21 +15,18 @@ export const DirectionPad: React.FC<DirectionPadProps> = ({
   currentDirection,
 }) => {
   const directions = [
-    { direction: 'UP' as const, colStart: 2, rowStart: 1 },
-    { direction: 'LEFT' as const, colStart: 1, rowStart: 2 },
-    { direction: 'RIGHT' as const, colStart: 3, rowStart: 2 },
-    { direction: 'DOWN' as const, colStart: 2, rowStart: 3 },
+    { direction: 'UP' as const, classes: 'col-start-2 row-start-1' },
+    { direction: 'LEFT' as const, classes: 'col-start-1 row-start-2' },
+    { direction: 'RIGHT' as const, classes: 'col-start-3 row-start-2' },
+    { direction: 'DOWN' as const, classes: 'col-start-2 row-start-3' },
   ];
 
   const colClasses = 'flex items-center justify-center';
 
   return (
     <div className="grid w-36 grid-cols-3 gap-3">
-      {directions.map(({ direction, colStart, rowStart }) => (
-        <div
-          key={direction}
-          className={`col-start-${colStart} row-start-${rowStart} ${colClasses}`}
-        >
+      {directions.map(({ direction, classes }) => (
+        <div key={direction} className={`${classes} ${colClasses}`}>
           <DirectionIndicator
             direction={direction}
             getCharForDirection={helpers.getCharForDirectionString}

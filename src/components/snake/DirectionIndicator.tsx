@@ -34,11 +34,7 @@ const DirectionIndicator: React.FC<DirectionIndicatorProps> = ({
     <div
       className={`${baseClasses} ${matchingCharacterClasses}`}
       aria-hidden={!shouldShowCharacter}
-      aria-label={
-        shouldShowCharacter
-          ? `${direction} direction character: ${character}`
-          : undefined
-      }
+      aria-label={`D-pad ${direction}${character ? `: ${character}` : ''}`}
     >
       {shouldShowCharacter ? character : ''}
     </div>
