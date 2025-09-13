@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { QuizInput } from '@/components/QuizInput';
-import { ReportView } from '@/components/ReportView';
 import { ScoreDisplay } from '@/components/ScoreDisplay';
 import { SettingsButton } from '@/components/SettingsButton';
 import useKanaDropGame, {
@@ -24,8 +23,6 @@ const KanaDropMode = () => {
     userInput,
   }: UseKanaDropGameReturn = useKanaDropGame();
 
-  const [showReport, setShowReport] = useState(false);
-
   const scoreState = {
     score,
     streak,
@@ -41,10 +38,10 @@ const KanaDropMode = () => {
   }, []);
 
   useEffect(() => {
-    if (gameRunning && !gameOver && !showReport) {
+    if (gameRunning && !gameOver) {
       inputRef.current?.focus();
     }
-  }, [gameRunning, gameOver, showReport]);
+  }, [gameRunning, gameOver]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     validateAndHandleInput(e.target.value);
@@ -53,7 +50,7 @@ const KanaDropMode = () => {
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-center font-sans">
       <RainyBackground />
-      <SettingsButton onOpenReport={() => setShowReport(true)} />
+      <SettingsButton />
       <ScoreDisplay {...scoreState} />
       <div className="flex flex-grow flex-col items-center justify-center">
         <div className="z-10 flex flex-col items-center">
@@ -92,7 +89,7 @@ const KanaDropMode = () => {
               value={userInput}
               onChange={handleInputChange}
               isWrongAnswer={isWrongAnswer}
-              isPaused={gameOver}
+              disabled={gameOver}
               quizCharacter={
                 fallingBlock?.char as
                   | { char: string; validAnswers: readonly string[] }
@@ -123,7 +120,6 @@ const KanaDropMode = () => {
           )}
         </div>
       </div>
-      {showReport && <ReportView onClose={() => setShowReport(false)} />}
     </div>
   );
 };
