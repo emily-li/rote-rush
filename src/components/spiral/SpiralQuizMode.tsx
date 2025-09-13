@@ -38,7 +38,7 @@ export const SpiralQuizMode = (): JSX.Element => {
         <div
           className="relative w-full"
           style={{
-            height: '70vh',
+            height: Math.max(200, visibleHeight * 0.5),
           }}
         >
           {spiralCharacters.map((spiralChar, i) => {

@@ -5,12 +5,14 @@ import { SettingsButton } from '@/components/SettingsButton';
 import { TimerBackground } from '@/components/simple/TimerBackground';
 import { QUIZ_CONFIG } from '@/config/quiz';
 import { useQuizGame } from '@/hooks/useQuizGame';
+import { useWindowSize } from '@/hooks/useWindowSize';
 
 const SimpleQuizMode = (): JSX.Element => {
   const { characterState, scoreState, timerState, timerControl, actions } =
     useQuizGame({
       timerConfig: QUIZ_CONFIG,
     });
+  const { visibleHeight } = useWindowSize();
 
   const handleKeyboardPress = (letter: string) => {
     // Ignore keyboard input if wrong answer is displayed
@@ -39,7 +41,7 @@ const SimpleQuizMode = (): JSX.Element => {
           className="flex items-center font-kana font-bold text-shadow"
           style={{
             fontSize: '20vw',
-            height: '70vh',
+            height: Math.max(200, visibleHeight * 0.5),
           }}
         >
           {characterState.currentChar.char}
