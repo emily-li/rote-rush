@@ -55,7 +55,7 @@ const useRainGame = (): UseRainGameReturn => {
   const [comboMultiplier, setComboMultiplier] = useState(1);
   const [isWrongAnswer, setIsWrongAnswer] = useState(false);
   const [isFlashingWrongAnswer, setIsFlashingWrongAnswer] = useState(false);
-  const [speed, setSpeed] = useState(RAIN_CONFIG.INITIAL_SPEED);
+  const [speed, setSpeed] = useState<number>(RAIN_CONFIG.INITIAL_SPEED);
   const [gameOver, setGameOver] = useState(false);
   const [gameRunning, setGameRunning] = useState(false);
   const [userInput, setUserInput] = useState('');
