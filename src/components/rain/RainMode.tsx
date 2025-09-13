@@ -72,7 +72,7 @@ const RainMode = () => {
       <div className="flex flex-col items-center justify-center">
         <div className="z-10 flex flex-col items-center">
           <div
-            className={`relative mt-4 rounded-lg border-2 bg-black bg-opacity-50 px-[60px]
+            className={`relative mt-4 rounded-lg border-2 px-[60px]
               ${isFlashingWrongAnswer ? 'animate-pulse border-red-500' : 'border-blue-400'}`}
             style={{
               display: 'grid',
