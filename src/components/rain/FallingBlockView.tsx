@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Block } from '@/hooks/useKanaDropGame';
+import type { Block } from '@/hooks/useRainGame';
 
 type FallingBlockProps = {
   block: Block;

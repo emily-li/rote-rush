@@ -2,13 +2,13 @@ import React, { useEffect, useRef } from 'react';
 import { QuizInput } from '@/components/QuizInput';
 import { ScoreDisplay } from '@/components/ScoreDisplay';
 import { SettingsButton } from '@/components/SettingsButton';
-import useKanaDropGame, {
-  UseKanaDropGameReturn,
-} from '@/hooks/useKanaDropGame';
+import useRainGame, {
+  UseRainGameReturn,
+} from '@/hooks/useRainGame';
 import FallingBlockView from './FallingBlockView';
 import RainyBackground from './RainyBackground';
 
-const KanaDropMode = () => {
+const RainMode = () => {
   const {
     grid,
     fallingBlock,
@@ -21,7 +21,7 @@ const KanaDropMode = () => {
     startGame,
     validateAndHandleInput,
     userInput,
-  }: UseKanaDropGameReturn = useKanaDropGame();
+  }: UseRainGameReturn = useRainGame();
 
   const scoreState = {
     score,
@@ -124,4 +124,4 @@ const KanaDropMode = () => {
   );
 };
 
-export default KanaDropMode;
+export default RainMode;

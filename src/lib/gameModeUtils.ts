@@ -2,13 +2,13 @@ import { GameMode } from '@/types';
 import SimpleQuizMode from '@/components/simple/SimpleQuizMode';
 import SpiralQuizMode from '@/components/spiral/SpiralQuizMode';
 import SnakeQuizMode from '@/components/snake/SnakeQuizMode';
-import KanaDropMode from '@/components/kanadrop/KanaDropMode';
+import RainMode from '@/components/rain/RainMode';
 
 export const GAME_MODES = [
   { query: 'simple', mode: GameMode.SIMPLE, component: SimpleQuizMode },
   { query: 'spiral', mode: GameMode.SPIRAL, component: SpiralQuizMode },
   { query: 'snake', mode: GameMode.SNAKE, component: SnakeQuizMode },
-  { query: 'rain', mode: GameMode.RAIN, component: KanaDropMode },
+  { query: 'rain', mode: GameMode.RAIN, component: RainMode },
 ];
 
 export const GAME_MODE_QUERY_MAP = Object.fromEntries(

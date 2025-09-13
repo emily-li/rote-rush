@@ -26,7 +26,7 @@ const createEmptyGrid = (): (PracticeCharacter | null)[][] =>
     Array.from({ length: GRID_WIDTH }, () => null),
   );
 
-export type UseKanaDropGameReturn = {
+export type UseRainGameReturn = {
   grid: (PracticeCharacter | null)[][];
   fallingBlock: Block | null;
   score: number;
@@ -41,7 +41,7 @@ export type UseKanaDropGameReturn = {
   setUserInput: (input: string) => void;
 };
 
-const useKanaDropGame = (): UseKanaDropGameReturn => {
+const useRainGame = (): UseRainGameReturn => {
   const [characters, setCharacters] = useState<PracticeCharacter[]>(() =>
     loadPracticeCharacters(),
   );
@@ -198,5 +198,5 @@ const useKanaDropGame = (): UseKanaDropGameReturn => {
   };
 };
 
-export default useKanaDropGame;
+export default useRainGame;
 
