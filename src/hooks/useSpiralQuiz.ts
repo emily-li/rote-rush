@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { SPIRAL_TIMER_CONFIG } from '@/config/spiral';
 import { useQuizGame } from '@/hooks/useQuizGame';
 import { getWeightedRandomCharacter } from '@/lib/characterLoading';
@@ -28,14 +28,16 @@ export const useSpiralQuiz = (): UseSpiralQuizReturn => {
   const [spiralCharacters, setSpiralCharacters] = useState<SpiralCharacter[]>(
     [],
   );
+  const charactersRef = useRef<PracticeCharacter[]>([]);
+  const isInitializedRef = useRef(false);
 
-  // --- Stable advanceCharacters ---
+  // Create a stable callback that doesn't depend on the current characters state
   const advanceCharacters = useCallback(() => {
     setSpiralCharacters((prev: SpiralCharacter[]) => {
       // Remove the first character (head), shift all others forward, add a new one at the end
       const newChars = prev.slice(1);
       const newChar: SpiralCharacter = {
-        char: getWeightedRandomCharacter(quizGame.characterState.characters),
+        char: getWeightedRandomCharacter(charactersRef.current),
         id: getUniqueSpiralId(),
       };
       return [...newChars, newChar];
@@ -52,6 +54,11 @@ export const useSpiralQuiz = (): UseSpiralQuizReturn => {
       return undefined; // No more characters in spiral
     },
   });
+
+  // Keep charactersRef in sync with current characters
+  useEffect(() => {
+    charactersRef.current = quizGame.characterState.characters;
+  }, [quizGame.characterState.characters]);
 
   // Sync spiralCharacters[0].char with currentChar, but only on correct answer
   useEffect(() => {
@@ -70,30 +77,35 @@ export const useSpiralQuiz = (): UseSpiralQuizReturn => {
     }
   }, [quizGame.characterState.currentChar, quizGame.scoreState.isWrongAnswer]);
 
-  const initializeSpiral = useCallback(() => {
-    const characterCount = getVisibleCharacterCount(width, height);
-    const initialSpiral: SpiralCharacter[] = [];
-    initialSpiral.push({
-      char: quizGame.characterState.currentChar,
-      id: getUniqueSpiralId('spiral-0'),
-    });
-    for (let i = 1; i < characterCount; i++) {
-      initialSpiral.push({
-        char: getWeightedRandomCharacter(quizGame.characterState.characters),
-        id: getUniqueSpiralId(`spiral-${i}`),
-      });
-    }
-    setSpiralCharacters(initialSpiral);
-  }, [
-    quizGame.characterState.characters,
-    quizGame.characterState.currentChar,
-    width,
-    height,
-  ]);
-
+  // Initialize spiral when quiz game is ready
   useEffect(() => {
-    initializeSpiral();
-  }, [initializeSpiral]);
+    if (quizGame.characterState.characters.length > 0 && quizGame.characterState.currentChar && !isInitializedRef.current) {
+      const characterCount = getVisibleCharacterCount(width, height);
+      const initialSpiral: SpiralCharacter[] = [];
+      initialSpiral.push({
+        char: quizGame.characterState.currentChar,
+        id: getUniqueSpiralId('spiral-0'),
+      });
+      for (let i = 1; i < characterCount; i++) {
+        initialSpiral.push({
+          char: getWeightedRandomCharacter(quizGame.characterState.characters),
+          id: getUniqueSpiralId(`spiral-${i}`),
+        });
+      }
+      setSpiralCharacters(initialSpiral);
+      isInitializedRef.current = true;
+    }
+    // Note: quizGame.characterState.characters is intentionally excluded from dependencies
+    // to prevent infinite re-renders when the characters array is updated during gameplay
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [quizGame.characterState.characters.length, quizGame.characterState.currentChar, width, height]);
+
+  // Re-initialize when dimensions change
+  useEffect(() => {
+    if (isInitializedRef.current) {
+      isInitializedRef.current = false; // Reset flag to trigger re-initialization
+    }
+  }, [width, height]);
 
   return {
     gameState: quizGame,
