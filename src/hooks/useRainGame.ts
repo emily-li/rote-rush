@@ -33,6 +33,7 @@ export type UseRainGameReturn = {
   comboMultiplier: number;
   isWrongAnswer: boolean;
   isFlashingWrongAnswer: boolean;
+  correctAnswer: string | null;
   gameOver: boolean;
   gameRunning: boolean;
   startGame: () => void;
@@ -55,6 +56,7 @@ const useRainGame = (): UseRainGameReturn => {
   const [comboMultiplier, setComboMultiplier] = useState(1);
   const [isWrongAnswer, setIsWrongAnswer] = useState(false);
   const [isFlashingWrongAnswer, setIsFlashingWrongAnswer] = useState(false);
+  const [correctAnswer, setCorrectAnswer] = useState<string | null>(null);
   const [speed, setSpeed] = useState<number>(RAIN_CONFIG.INITIAL_SPEED);
   const [gameOver, setGameOver] = useState(false);
   const [gameRunning, setGameRunning] = useState(false);
@@ -87,6 +89,7 @@ const useRainGame = (): UseRainGameReturn => {
     setComboMultiplier(1);
     setIsWrongAnswer(false);
     setIsFlashingWrongAnswer(false);
+    setCorrectAnswer(null);
     setSpeed(RAIN_CONFIG.INITIAL_SPEED);
     setGameOver(false);
     setGameRunning(true);
@@ -143,6 +146,7 @@ const useRainGame = (): UseRainGameReturn => {
         setComboMultiplier(1);
         setIsWrongAnswer(true);
         setIsFlashingWrongAnswer(true); // Start flashing
+        setCorrectAnswer(fallingBlock.char.validAnswers[0]);
 
         const newGrid = grid.map((row) => row.slice());
         let finalY = RAIN_CONFIG.GRID_HEIGHT - 1;
@@ -163,7 +167,8 @@ const useRainGame = (): UseRainGameReturn => {
         setTimeout(() => {
           setIsWrongAnswer(false);
           setIsFlashingWrongAnswer(false); // Stop flashing
-        }, 500);
+          setCorrectAnswer(null);
+        }, 1500);
       }
     },
     [fallingBlock, gameRunning, handleCorrectAnswer, grid, spawnNewBlock],
@@ -194,13 +199,15 @@ const useRainGame = (): UseRainGameReturn => {
           setComboMultiplier(1);
           setIsWrongAnswer(true);
           setIsFlashingWrongAnswer(true); // Start flashing
+          setCorrectAnswer(fallingBlock.char.validAnswers[0]);
           setFallingBlock(null);
           spawnNewBlock();
           // Reset isWrongAnswer and flashing after a short delay for visual feedback
           setTimeout(() => {
             setIsWrongAnswer(false);
             setIsFlashingWrongAnswer(false); // Stop flashing
-          }, 500);
+            setCorrectAnswer(null);
+          }, 1500);
         } else {
           setFallingBlock({ ...fallingBlock, y: nextY });
         }
@@ -221,6 +228,8 @@ const useRainGame = (): UseRainGameReturn => {
     streak,
     comboMultiplier,
     isWrongAnswer,
+    isFlashingWrongAnswer,
+    correctAnswer,
     gameOver,
     gameRunning,
     startGame,
@@ -229,7 +238,6 @@ const useRainGame = (): UseRainGameReturn => {
     validateAndHandleInput,
     userInput,
     setUserInput,
-    isFlashingWrongAnswer,
   };
 };
 

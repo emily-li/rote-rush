@@ -22,6 +22,7 @@ const RainMode = () => {
     validateAndHandleInput,
     userInput,
     isFlashingWrongAnswer,
+    correctAnswer,
   }: UseRainGameReturn = useRainGame();
 
   const scoreState = {
@@ -110,6 +111,16 @@ const RainMode = () => {
             quizCharacter={quizCharacterProp}
             onKeyboardPress={handleKeyboardPress}
           />
+          {isWrongAnswer && correctAnswer && (
+            <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
+              <p
+                className="select-none text-[30rem] font-black leading-none opacity-40"
+                style={{ color: '#93c5fd', textShadow: '0 0 5px #60a5fa' }}
+              >
+                {correctAnswer}
+              </p>
+            </div>
+          )}
           {gameOver && (
             <div
               className="absolute inset-0 flex flex-col items-center justify-center bg-black
