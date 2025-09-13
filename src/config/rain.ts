@@ -1,0 +1,7 @@
+export const RAIN_CONFIG = {
+  GRID_WIDTH: 10,
+  GRID_HEIGHT: 20,
+  INITIAL_SPEED: 1000,
+  SPEED_INCREMENT: 50,
+  MIN_SPEED: 200,
+} as const;

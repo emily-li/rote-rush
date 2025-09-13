@@ -1,18 +1,17 @@
 import { useCallback, useEffect, useState } from 'react';
+import { RAIN_CONFIG } from '@/config/rain';
 import {
   getWeightedRandomCharacter,
   loadPracticeCharacters,
 } from '@/lib/characterLoading';
 import { recordCharacterAttempt } from '@/lib/characterStats';
 import { adjustWeight } from '@/lib/quizUtils';
-import { checkAnswerMatch, checkValidStart, normalizeInput } from '@/lib/validation';
+import {
+  checkAnswerMatch,
+  checkValidStart,
+  normalizeInput,
+} from '@/lib/validation';
 import type { PracticeCharacter } from '@/types';
-
-const GRID_WIDTH = 10;
-const GRID_HEIGHT = 20;
-const INITIAL_SPEED = 1000;
-const SPEED_INCREMENT = 50;
-const MIN_SPEED = 200;
 
 export type Block = {
   char: PracticeCharacter;
@@ -22,8 +21,8 @@ export type Block = {
 };
 
 const createEmptyGrid = (): (PracticeCharacter | null)[][] =>
-  Array.from({ length: GRID_HEIGHT }, () =>
-    Array.from({ length: GRID_WIDTH }, () => null),
+  Array.from({ length: RAIN_CONFIG.GRID_HEIGHT }, () =>
+    Array.from({ length: RAIN_CONFIG.GRID_WIDTH }, () => null),
   );
 
 export type UseRainGameReturn = {
@@ -56,7 +55,7 @@ const useRainGame = (): UseRainGameReturn => {
   const [comboMultiplier, setComboMultiplier] = useState(1);
   const [isWrongAnswer, setIsWrongAnswer] = useState(false);
   const [isFlashingWrongAnswer, setIsFlashingWrongAnswer] = useState(false);
-  const [speed, setSpeed] = useState(INITIAL_SPEED);
+  const [speed, setSpeed] = useState(RAIN_CONFIG.INITIAL_SPEED);
   const [gameOver, setGameOver] = useState(false);
   const [gameRunning, setGameRunning] = useState(false);
   const [userInput, setUserInput] = useState('');
@@ -67,7 +66,7 @@ const useRainGame = (): UseRainGameReturn => {
 
     const newBlock: Block = {
       char,
-      x: Math.floor(Math.random() * GRID_WIDTH),
+      x: Math.floor(Math.random() * RAIN_CONFIG.GRID_WIDTH),
       y: 0,
       id: Date.now(),
     };
@@ -88,7 +87,7 @@ const useRainGame = (): UseRainGameReturn => {
     setComboMultiplier(1);
     setIsWrongAnswer(false);
     setIsFlashingWrongAnswer(false);
-    setSpeed(INITIAL_SPEED);
+    setSpeed(RAIN_CONFIG.INITIAL_SPEED);
     setGameOver(false);
     setGameRunning(true);
     spawnNewBlock();
@@ -114,7 +113,9 @@ const useRainGame = (): UseRainGameReturn => {
     setScore((prev) => prev + 10 * newMultiplier);
     setStreak((prev) => prev + 1);
     setIsWrongAnswer(false);
-    setSpeed((prev) => Math.max(MIN_SPEED, prev - SPEED_INCREMENT));
+    setSpeed((prev) =>
+      Math.max(RAIN_CONFIG.MIN_SPEED, prev - RAIN_CONFIG.SPEED_INCREMENT),
+    );
     setFallingBlock(null);
     spawnNewBlock();
   }, [fallingBlock, spawnNewBlock, streak]);
@@ -128,7 +129,9 @@ const useRainGame = (): UseRainGameReturn => {
       if (checkAnswerMatch(normalizedValue, fallingBlock.char.validAnswers)) {
         handleCorrectAnswer();
         setUserInput('');
-      } else if (checkValidStart(normalizedValue, fallingBlock.char.validAnswers)) {
+      } else if (
+        checkValidStart(normalizedValue, fallingBlock.char.validAnswers)
+      ) {
         setUserInput(normalizedValue);
       } else {
         // Invalid input: drop the block immediately
@@ -142,8 +145,8 @@ const useRainGame = (): UseRainGameReturn => {
         setIsFlashingWrongAnswer(true); // Start flashing
 
         const newGrid = grid.map((row) => row.slice());
-        let finalY = GRID_HEIGHT - 1;
-        for (let y = fallingBlock.y + 1; y < GRID_HEIGHT; y++) {
+        let finalY = RAIN_CONFIG.GRID_HEIGHT - 1;
+        for (let y = fallingBlock.y + 1; y < RAIN_CONFIG.GRID_HEIGHT; y++) {
           if (newGrid[y][fallingBlock.x]) {
             finalY = y - 1;
             break;
@@ -179,7 +182,7 @@ const useRainGame = (): UseRainGameReturn => {
         const { x, y } = fallingBlock;
         const nextY = y + 1;
 
-        if (nextY >= GRID_HEIGHT || grid[nextY][x]) {
+        if (nextY >= RAIN_CONFIG.GRID_HEIGHT || grid[nextY][x]) {
           const newGrid = grid.map((row) => row.slice());
           newGrid[y][x] = fallingBlock.char;
           setGrid(newGrid);
@@ -231,4 +234,3 @@ const useRainGame = (): UseRainGameReturn => {
 };
 
 export default useRainGame;
-
