@@ -2,9 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { QuizInput } from '@/components/QuizInput';
 import { ScoreDisplay } from '@/components/ScoreDisplay';
 import { SettingsButton } from '@/components/SettingsButton';
-import useRainGame, {
-  UseRainGameReturn,
-} from '@/hooks/useRainGame';
+import useRainGame, { UseRainGameReturn } from '@/hooks/useRainGame';
 import FallingBlockView from './FallingBlockView';
 import RainyBackground from './RainyBackground';
 
@@ -61,7 +59,9 @@ const RainMode = () => {
     resumeTimer: resumeGame,
   };
 
-  const quizCharacterProp: { char: string; validAnswers: readonly string[] } | undefined = fallingBlock?.char;
+  const quizCharacterProp:
+    | { char: string; validAnswers: readonly string[] }
+    | undefined = fallingBlock?.char;
 
   return (
     <div className="relative flex h-full w-full flex-col items-center justify-end font-sans">
@@ -72,7 +72,8 @@ const RainMode = () => {
       <div className="flex flex-col items-center justify-center">
         <div className="z-10 flex flex-col items-center">
           <div
-            className={`relative mt-4 rounded-lg border-2 p-2 bg-black bg-opacity-50 ${isFlashingWrongAnswer ? 'border-red-500 animate-pulse' : 'border-blue-400'}`}
+            className={`relative mt-4 rounded-lg border-2 bg-black bg-opacity-50 px-[60px]
+              ${isFlashingWrongAnswer ? 'animate-pulse border-red-500' : 'border-blue-400'}`}
             style={{
               display: 'grid',
               gridTemplateRows: `repeat(20, 60px)`,
@@ -101,14 +102,14 @@ const RainMode = () => {
             {fallingBlock && <FallingBlockView block={fallingBlock} />}
           </div>
           <QuizInput
-              ref={inputRef}
-              value={userInput}
-              onChange={handleInputChange}
-              isWrongAnswer={isWrongAnswer}
-              disabled={gameOver}
-              quizCharacter={quizCharacterProp}
-              onKeyboardPress={handleKeyboardPress}
-            />
+            ref={inputRef}
+            value={userInput}
+            onChange={handleInputChange}
+            isWrongAnswer={isWrongAnswer}
+            disabled={gameOver}
+            quizCharacter={quizCharacterProp}
+            onKeyboardPress={handleKeyboardPress}
+          />
           {gameOver && (
             <div
               className="absolute inset-0 flex flex-col items-center justify-center bg-black
