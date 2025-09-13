@@ -19,6 +19,7 @@ const mockSpiralQuiz = {
     scoreState: {
       score: 0,
       streak: 0,
+      highestStreak: 0,
       comboMultiplier: 1,
       isWrongAnswer: false,
     },

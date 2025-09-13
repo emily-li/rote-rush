@@ -50,6 +50,7 @@ export type CharacterState = {
 export type ScoreState = {
   score: number;
   streak: number;
+  highestStreak: number;
   comboMultiplier: number;
   isWrongAnswer: boolean;
 };
