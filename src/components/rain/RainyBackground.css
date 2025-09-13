@@ -11,7 +11,7 @@
 
 .raindrop {
   position: absolute;
-  bottom: 100%;
+  top: -100px;
   width: 20px;
   display: flex;
   flex-direction: column;
@@ -35,9 +35,9 @@
 
 @keyframes fall {
   0% {
-    transform: translateY(-100px);
+    transform: translateY(0);
   }
   100% {
-    transform: translateY(100vh);
+    transform: translateY(calc(100vh + 100px));
   }
 }
