@@ -85,6 +85,7 @@ export enum GameMode {
   SIMPLE,
   SPIRAL,
   SNAKE,
+  RAIN,
 }
 
 export enum MetricChange {

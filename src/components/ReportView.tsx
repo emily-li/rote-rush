@@ -119,6 +119,7 @@ export const ReportView = ({ onClose }: ReportViewProps) => {
                     { mode: GameMode.SIMPLE, label: 'Simple Mode' },
                     { mode: GameMode.SPIRAL, label: 'Spiral Mode' },
                     { mode: GameMode.SNAKE, label: 'Snake Mode' },
+                    { mode: GameMode.RAIN, label: 'Rain Mode' },
                   ] as const
                 ).map(({ mode, label }) => {
                   const isActive = gameMode === mode;

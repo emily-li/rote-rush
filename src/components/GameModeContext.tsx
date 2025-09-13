@@ -6,6 +6,10 @@ import {
   useState,
 } from 'react';
 import { GameMode } from '@/types';
+import {
+  getGameModeFromQuery,
+  setGameModeQuery,
+} from '@/lib/gameModeUtils';
 
 export const GameModeContext = createContext<GameModeContextValue | undefined>(
   undefined,
@@ -15,28 +19,6 @@ type GameModeContextValue = {
   gameMode: GameMode;
   setGameMode: (mode: GameMode) => void;
 };
-
-function getGameModeFromQuery(): GameMode {
-  const params = new URLSearchParams(window.location.search);
-  const mode = params.get('mode');
-  if (mode === 'spiral') return GameMode.SPIRAL;
-  if (mode === 'snake') return GameMode.SNAKE;
-  return GameMode.SIMPLE;
-}
-
-function setGameModeQuery(mode: GameMode) {
-  const params = new URLSearchParams(window.location.search);
-  params.set(
-    'mode',
-    mode === GameMode.SPIRAL
-      ? 'spiral'
-      : mode === GameMode.SNAKE
-        ? 'snake'
-        : 'simple',
-  );
-  const newUrl = `${window.location.pathname}?${params.toString()}`;
-  window.history.replaceState({}, '', newUrl);
-}
 
 export const useGameMode = () => {
   const context = useContext(GameModeContext);

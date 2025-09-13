@@ -9,6 +9,7 @@ type QuizInputProps = {
   ariaLabel?: string;
   disabled?: boolean;
   onKeyboardPress?: (letter: string) => void;
+  quizCharacter?: { char: string; validAnswers: readonly string[] };
 };
 
 /**
@@ -22,6 +23,7 @@ export const QuizInput: React.FC<QuizInputProps> = ({
   ariaLabel,
   disabled,
   onKeyboardPress,
+  quizCharacter,
 }: QuizInputProps) => {
   return (
     <div className="w-full max-w-md">
@@ -43,7 +45,8 @@ export const QuizInput: React.FC<QuizInputProps> = ({
         autoComplete="off"
         spellCheck={false}
         aria-label={
-          ariaLabel || 'Type the romanized reading for the displayed character'
+          ariaLabel ||
+          `Type the romanized reading for ${quizCharacter?.char || 'the displayed character'}`
         }
         aria-describedby={isWrongAnswer ? 'error-display' : undefined}
       />
