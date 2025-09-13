@@ -33,9 +33,12 @@ export type UseRainGameReturn = {
   streak: number;
   comboMultiplier: number;
   isWrongAnswer: boolean;
+  isFlashingWrongAnswer: boolean;
   gameOver: boolean;
   gameRunning: boolean;
   startGame: () => void;
+  pauseGame: () => void;
+  resumeGame: () => void;
   validateAndHandleInput: (input: string) => void;
   userInput: string;
   setUserInput: (input: string) => void;
@@ -52,6 +55,7 @@ const useRainGame = (): UseRainGameReturn => {
   const [streak, setStreak] = useState(0);
   const [comboMultiplier, setComboMultiplier] = useState(1);
   const [isWrongAnswer, setIsWrongAnswer] = useState(false);
+  const [isFlashingWrongAnswer, setIsFlashingWrongAnswer] = useState(false);
   const [speed, setSpeed] = useState(INITIAL_SPEED);
   const [gameOver, setGameOver] = useState(false);
   const [gameRunning, setGameRunning] = useState(false);
@@ -83,11 +87,20 @@ const useRainGame = (): UseRainGameReturn => {
     setStreak(0);
     setComboMultiplier(1);
     setIsWrongAnswer(false);
+    setIsFlashingWrongAnswer(false);
     setSpeed(INITIAL_SPEED);
     setGameOver(false);
     setGameRunning(true);
     spawnNewBlock();
   }, [spawnNewBlock]);
+
+  const pauseGame = useCallback(() => {
+    setGameRunning(false);
+  }, []);
+
+  const resumeGame = useCallback(() => {
+    setGameRunning(true);
+  }, []);
 
   const handleCorrectAnswer = useCallback(() => {
     if (!fallingBlock) return;
@@ -126,6 +139,7 @@ const useRainGame = (): UseRainGameReturn => {
         setStreak(0);
         setComboMultiplier(1);
         setIsWrongAnswer(true);
+        setIsFlashingWrongAnswer(true); // Start flashing
 
         const newGrid = grid.map((row) => row.slice());
         let finalY = GRID_HEIGHT - 1;
@@ -142,44 +156,59 @@ const useRainGame = (): UseRainGameReturn => {
         spawnNewBlock();
         setUserInput('');
 
-        // Reset isWrongAnswer after a short delay for visual feedback
-        setTimeout(() => setIsWrongAnswer(false), 500);
+        // Reset isWrongAnswer and flashing after a short delay for visual feedback
+        setTimeout(() => {
+          setIsWrongAnswer(false);
+          setIsFlashingWrongAnswer(false); // Stop flashing
+        }, 500);
       }
     },
     [fallingBlock, gameRunning, handleCorrectAnswer, grid, spawnNewBlock],
   );
 
   useEffect(() => {
-    if (!gameRunning || gameOver) return;
+    let gameLoop: ReturnType<typeof setInterval> | undefined;
 
-    const gameLoop = setInterval(() => {
-      if (!fallingBlock) {
-        spawnNewBlock();
-        return;
+    if (gameRunning && !gameOver) {
+      gameLoop = setInterval(() => {
+        if (!fallingBlock) {
+          spawnNewBlock();
+          return;
+        }
+
+        const { x, y } = fallingBlock;
+        const nextY = y + 1;
+
+        if (nextY >= GRID_HEIGHT || grid[nextY][x]) {
+          const newGrid = grid.map((row) => row.slice());
+          newGrid[y][x] = fallingBlock.char;
+          setGrid(newGrid);
+          recordCharacterAttempt(fallingBlock.char.char, false);
+          setCharacters((prev) =>
+            adjustWeight(prev, fallingBlock.char.char, 0.1, 0.1),
+          );
+          setStreak(0);
+          setComboMultiplier(1);
+          setIsWrongAnswer(true);
+          setIsFlashingWrongAnswer(true); // Start flashing
+          setFallingBlock(null);
+          spawnNewBlock();
+          // Reset isWrongAnswer and flashing after a short delay for visual feedback
+          setTimeout(() => {
+            setIsWrongAnswer(false);
+            setIsFlashingWrongAnswer(false); // Stop flashing
+          }, 500);
+        } else {
+          setFallingBlock({ ...fallingBlock, y: nextY });
+        }
+      }, speed);
+    }
+
+    return () => {
+      if (gameLoop) {
+        clearInterval(gameLoop);
       }
-
-      const { x, y } = fallingBlock;
-      const nextY = y + 1;
-
-      if (nextY >= GRID_HEIGHT || grid[nextY][x]) {
-        const newGrid = grid.map((row) => row.slice());
-        newGrid[y][x] = fallingBlock.char;
-        setGrid(newGrid);
-        recordCharacterAttempt(fallingBlock.char.char, false);
-        setCharacters((prev) =>
-          adjustWeight(prev, fallingBlock.char.char, 0.1, 0.1),
-        );
-        setStreak(0);
-        setComboMultiplier(1);
-        setIsWrongAnswer(true);
-        setFallingBlock(null);
-        spawnNewBlock();
-      } else {
-        setFallingBlock({ ...fallingBlock, y: nextY });
-      }
-    }, speed);
-
-    return () => clearInterval(gameLoop);
+    };
   }, [fallingBlock, grid, gameOver, gameRunning, speed, spawnNewBlock]);
 
   return {
@@ -192,9 +221,12 @@ const useRainGame = (): UseRainGameReturn => {
     gameOver,
     gameRunning,
     startGame,
+    pauseGame,
+    resumeGame,
     validateAndHandleInput,
     userInput,
     setUserInput,
+    isFlashingWrongAnswer,
   };
 };
 

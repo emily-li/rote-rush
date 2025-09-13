@@ -14,7 +14,7 @@ const FallingBlockView: React.FC<FallingBlockProps> = ({ block }) => {
   };
 
   return (
-    <div style={style} className="text-2xl font-bold">
+    <div style={style} className="text-5xl font-bold">
       {block.char.char}
     </div>
   );

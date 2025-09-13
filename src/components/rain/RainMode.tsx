@@ -19,8 +19,11 @@ const RainMode = () => {
     gameOver,
     gameRunning,
     startGame,
+    pauseGame,
+    resumeGame,
     validateAndHandleInput,
     userInput,
+    isFlashingWrongAnswer,
   }: UseRainGameReturn = useRainGame();
 
   const scoreState = {
@@ -47,19 +50,33 @@ const RainMode = () => {
     validateAndHandleInput(e.target.value);
   };
 
+  const handleKeyboardPress = (letter: string) => {
+    if (isWrongAnswer) return;
+    const newInput = userInput + letter;
+    validateAndHandleInput(newInput);
+  };
+
+  const timerControl = {
+    pauseTimer: pauseGame,
+    resumeTimer: resumeGame,
+  };
+
+  const quizCharacterProp: { char: string; validAnswers: readonly string[] } | undefined = fallingBlock?.char;
+
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center font-sans">
+    <div className="relative flex h-full w-full flex-col items-center justify-end font-sans">
       <RainyBackground />
-      <SettingsButton />
+      <SettingsButton timerControl={timerControl} />
       <ScoreDisplay {...scoreState} />
-      <div className="flex flex-grow flex-col items-center justify-center">
+      <div className="flex-grow" /> {/* Spacer to push content down */}
+      <div className="flex flex-col items-center justify-center">
         <div className="z-10 flex flex-col items-center">
           <div
-            className="relative mt-4 rounded-lg border-2 border-blue-400 bg-black bg-opacity-50"
+            className={`relative mt-4 rounded-lg border-2 p-2 bg-black bg-opacity-50 ${isFlashingWrongAnswer ? 'border-red-500 animate-pulse' : 'border-blue-400'}`}
             style={{
               display: 'grid',
-              gridTemplateRows: `repeat(20, 30px)`,
-              gridTemplateColumns: `repeat(10, 30px)`,
+              gridTemplateRows: `repeat(20, 60px)`,
+              gridTemplateColumns: `repeat(10, 60px)`,
               boxShadow: '0 0 15px rgba(96, 165, 250, 0.5)',
             }}
           >
@@ -68,7 +85,7 @@ const RainMode = () => {
                 cell ? (
                   <div
                     key={`${y}-${x}`}
-                    className="flex items-center justify-center text-2xl font-bold"
+                    className="flex items-center justify-center text-5xl font-bold"
                     style={{
                       gridRowStart: y + 1,
                       gridColumnStart: x + 1,
@@ -83,20 +100,15 @@ const RainMode = () => {
             )}
             {fallingBlock && <FallingBlockView block={fallingBlock} />}
           </div>
-          <div className="mt-4">
-            <QuizInput
+          <QuizInput
               ref={inputRef}
               value={userInput}
               onChange={handleInputChange}
               isWrongAnswer={isWrongAnswer}
               disabled={gameOver}
-              quizCharacter={
-                fallingBlock?.char as
-                  | { char: string; validAnswers: readonly string[] }
-                  | undefined
-              }
+              quizCharacter={quizCharacterProp}
+              onKeyboardPress={handleKeyboardPress}
             />
-          </div>
           {gameOver && (
             <div
               className="absolute inset-0 flex flex-col items-center justify-center bg-black
